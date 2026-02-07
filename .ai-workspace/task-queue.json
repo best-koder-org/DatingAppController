@@ -1,7 +1,123 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-08T00:00:00Z",
-  "queue": [],
+  "lastUpdated": "2026-02-08T18:00:00Z",
+  "queue": [
+    {
+      "id": "ONB-050",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Community Guidelines Screen",
+      "filePath": "lib/screens/wizard/community_guidelines_screen.dart",
+      "description": "Create welcome screen after phone verification showing community rules that user must accept",
+      "acceptanceCriteria": [
+        "Header: 'Welcome to DejTing. Please follow these House Rules.'",
+        "4 rules with checkmark icons: Be yourself, Stay safe, Play it cool, Be proactive",
+        "Large white 'I agree' button at bottom",
+        "Bilingual content (English only for MVP, Swedish later)",
+        "Back navigation NOT allowed (user must accept to proceed)",
+        "Store acceptance in local state (backend integration later)"
+      ],
+      "estimatedHours": 4,
+      "priority": "high",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "Pure UI work, no external services, no auth logic",
+      "testCommand": "flutter analyze lib/screens/wizard/community_guidelines_screen.dart",
+      "referenceFiles": [
+        "lib/screens/welcome_screen.dart (for colors and styling)",
+        "lib/screens/wizard/phone_entry_screen.dart (for navigation pattern)"
+      ]
+    },
+    {
+      "id": "ONB-060",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "First Name Entry Screen",
+      "filePath": "lib/screens/wizard/first_name_screen.dart",
+      "description": "Single-field wizard screen for user to enter their first name with validation",
+      "acceptanceCriteria": [
+        "Progress bar at top (20% filled, coral gradient)",
+        "Header: 'What's your first name?'",
+        "Single text input field (auto-focused)",
+        "Warning text: 'This is how it'll appear on your profile. Can't change it later.'",
+        "Next button (disabled until valid input, coral color when enabled)",
+        "Validation: Min 2 chars, max 50 chars, letters/spaces/hyphens/apostrophes only",
+        "Auto-capitalize first letter",
+        "Trim whitespace",
+        "Back arrow (go to previous screen) + close X (exit wizard)"
+      ],
+      "estimatedHours": 3,
+      "priority": "high",
+      "dependencies": ["ONB-050"],
+      "safetyTier": 1,
+      "safetyNotes": "Simple text validation, no backend calls, no sensitive data",
+      "testCommand": "flutter analyze lib/screens/wizard/first_name_screen.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/phone_entry_screen.dart (for input field pattern)"
+      ]
+    },
+    {
+      "id": "ONB-070",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Birthday Entry Screen",
+      "filePath": "lib/screens/wizard/birthday_screen.dart",
+      "description": "Date input screen with three separate fields (month, day, year) and 18+ validation",
+      "acceptanceCriteria": [
+        "Progress bar (30%)",
+        "Header: 'Your b-day?'",
+        "Three separate inputs: Month (dropdown 1-12), Day (input 1-31), Year (input 1900-2008)",
+        "Privacy note: 'Your profile shows your age, not your birthdate'",
+        "Real date validation (Feb 30 = error, leap years handled)",
+        "Calculate age from date, must be >= 18",
+        "Next button (disabled until valid date AND 18+)",
+        "Under-18 error modal: 'You must be 18 or older to use this app' with 'Go back' button",
+        "Can't select future dates"
+      ],
+      "estimatedHours": 4,
+      "priority": "high",
+      "dependencies": ["ONB-060"],
+      "safetyTier": 1,
+      "safetyNotes": "Date math only, no user data storage, straightforward validation",
+      "testCommand": "flutter analyze lib/screens/wizard/birthday_screen.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/first_name_screen.dart (for progress bar and layout)"
+      ]
+    },
+    {
+      "id": "ONB-080",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Gender Selection Screen",
+      "filePath": "lib/screens/wizard/gender_screen.dart",
+      "description": "Gender selection with quick options and expanded modal for more choices",
+      "acceptanceCriteria": [
+        "Progress bar (40%)",
+        "Header: 'What's your gender?'",
+        "3 large buttons: Man, Woman, More →",
+        "Privacy toggle (checkbox): 'Show my gender on my profile' (default OFF)",
+        "Next button (disabled until selection made)",
+        "More button opens full-screen modal with title 'Select one that best represents you'",
+        "Modal has 10+ options: Man, Woman, Trans Man, Trans Woman, Non-binary, Agender, Genderfluid, Genderqueer, Two-Spirit, Other",
+        "Modal has search bar (can be non-functional placeholder for now)",
+        "Single selection (radio button behavior)",
+        "Privacy toggle persists across modal open/close"
+      ],
+      "estimatedHours": 5,
+      "priority": "high",
+      "dependencies": ["ONB-070"],
+      "safetyTier": 1,
+      "safetyNotes": "Pure UI work, hardcoded options (no database yet), no complex logic",
+      "testCommand": "flutter analyze lib/screens/wizard/gender_screen.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/phone_entry_screen.dart (for modal bottom sheet pattern)"
+      ]
+    }
+  ],
   "inProgress": [],
   "completed": []
 }

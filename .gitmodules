@@ -1,0 +1,24 @@
+[submodule "repos/DatingApp-Config"]
+	path = repos/DatingApp-Config
+	url = https://github.com/best-koder-ever/DatingApp-Config.git
+[submodule "repos/UserService"]
+	path = repos/UserService
+	url = https://github.com/best-koder-ever/UserService.git
+[submodule "repos/MatchmakingService"]
+	path = repos/MatchmakingService
+	url = https://github.com/best-koder-ever/MatchmakingService.git
+[submodule "repos/swipe-service"]
+	path = repos/swipe-service
+	url = https://github.com/best-koder-ever/swipe-service.git
+[submodule "repos/photo-service"]
+	path = repos/photo-service
+	url = https://github.com/best-koder-ever/photo-service.git
+[submodule "repos/messaging-service"]
+	path = repos/messaging-service
+	url = https://github.com/best-koder-ever/messaging-service.git
+[submodule "repos/dejting-yarp"]
+	path = repos/dejting-yarp
+	url = https://github.com/best-koder-ever/dejting-yarp.git
+[submodule "repos/mobile_dejtingapp"]
+	path = repos/mobile_dejtingapp
+	url = https://github.com/best-koder-ever/mobile_dejtingapp.git
