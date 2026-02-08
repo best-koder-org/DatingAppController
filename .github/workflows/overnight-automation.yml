@@ -31,7 +31,7 @@ jobs:
     if: >-
       github.event.inputs.mode != 'merge-only' &&
       github.event.inputs.mode != 'report-only'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout controller (with submodules)
         uses: actions/checkout@v4
@@ -67,7 +67,7 @@ jobs:
       github.event.inputs.mode != 'merge-only' &&
       github.event.inputs.mode != 'report-only'
     needs: refill-queue
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       max-parallel: 1
       matrix:
@@ -108,7 +108,7 @@ jobs:
             if [ -d "$dir/.git" ] || [ -f "$dir/.git" ]; then
               repo_name=$(basename "$dir")
               cd "$dir"
-              git remote set-url origin "https://x-access-token:${{ secrets.GH_PAT }}@github.com/best-koder-ever/${repo_name}.git"
+              git remote set-url origin "https://x-access-token:${{ secrets.GH_PAT }}@github.com/best-koder-org/${repo_name}.git"
               cd - > /dev/null
             fi
           done
@@ -136,7 +136,7 @@ jobs:
       github.event.inputs.mode != 'create-only' &&
       github.event.inputs.mode != 'report-only'
     needs: [create-prs]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout controller (with submodules)
         uses: actions/checkout@v4
@@ -171,7 +171,7 @@ jobs:
       github.event.inputs.mode != 'create-only' &&
       github.event.inputs.mode != 'report-only'
     needs: analyze-merges
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout controller (with submodules)
         uses: actions/checkout@v4
@@ -200,7 +200,7 @@ jobs:
       github.event.inputs.mode != 'create-only' &&
       github.event.inputs.mode != 'report-only'
     needs: merge-wave
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout controller (with submodules)
         uses: actions/checkout@v4
@@ -284,7 +284,7 @@ jobs:
   morning-report:
     if: always()  # Always run, even if previous jobs fail
     needs: [create-prs, analyze-merges, merge-wave, verify-builds]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout controller
         uses: actions/checkout@v4

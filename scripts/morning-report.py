@@ -13,16 +13,16 @@ from datetime import datetime
 from pathlib import Path
 
 REPOS = [
-    "best-koder-ever/mobile_dejtingapp",
-    "best-koder-ever/UserService",
-    "best-koder-ever/MatchmakingService",
-    "best-koder-ever/swipe-service",
-    "best-koder-ever/photo-service",
-    "best-koder-ever/messaging-service",
-    "best-koder-ever/dejting-yarp",
+    "best-koder-org/mobile_dejtingapp",
+    "best-koder-org/UserService",
+    "best-koder-org/MatchmakingService",
+    "best-koder-org/swipe-service",
+    "best-koder-org/photo-service",
+    "best-koder-org/messaging-service",
+    "best-koder-org/dejting-yarp",
 ]
 
-CONTROLLER_REPO = "best-koder-ever/DatingAppController"
+CONTROLLER_REPO = "best-koder-org/DatingAppController"
 
 def run(cmd, check=False):
     r = subprocess.run(cmd, shell=True, capture_output=True, text=True)

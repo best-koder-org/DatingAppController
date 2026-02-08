@@ -1,0 +1,10 @@
+[core]
+workspace_base = "/home/m/development/DatingAppController"
+persist_sandbox = false
+
+[llm]
+model = "anthropic/claude-sonnet-4-20250514"
+api_key = "${ANTHROPIC_API_KEY}"
+
+[agent]
+name = "CodeActAgent"

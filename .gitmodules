@@ -1,24 +1,24 @@
 [submodule "repos/DatingApp-Config"]
 	path = repos/DatingApp-Config
-	url = https://github.com/best-koder-ever/DatingApp-Config.git
+	url = https://github.com/best-koder-org/DatingApp-Config.git
 [submodule "repos/UserService"]
 	path = repos/UserService
-	url = https://github.com/best-koder-ever/UserService.git
+	url = https://github.com/best-koder-org/UserService.git
 [submodule "repos/MatchmakingService"]
 	path = repos/MatchmakingService
-	url = https://github.com/best-koder-ever/MatchmakingService.git
+	url = https://github.com/best-koder-org/MatchmakingService.git
 [submodule "repos/swipe-service"]
 	path = repos/swipe-service
-	url = https://github.com/best-koder-ever/swipe-service.git
+	url = https://github.com/best-koder-org/swipe-service.git
 [submodule "repos/photo-service"]
 	path = repos/photo-service
-	url = https://github.com/best-koder-ever/photo-service.git
+	url = https://github.com/best-koder-org/photo-service.git
 [submodule "repos/messaging-service"]
 	path = repos/messaging-service
-	url = https://github.com/best-koder-ever/messaging-service.git
+	url = https://github.com/best-koder-org/messaging-service.git
 [submodule "repos/dejting-yarp"]
 	path = repos/dejting-yarp
-	url = https://github.com/best-koder-ever/dejting-yarp.git
+	url = https://github.com/best-koder-org/dejting-yarp.git
 [submodule "repos/mobile_dejtingapp"]
 	path = repos/mobile_dejtingapp
-	url = https://github.com/best-koder-ever/mobile_dejtingapp.git
+	url = https://github.com/best-koder-org/mobile_dejtingapp.git
