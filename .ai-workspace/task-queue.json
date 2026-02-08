@@ -1,40 +1,7 @@
 {
   "version": "1.0",
   "lastUpdated": "2026-02-08T09:00:00Z",
-  "queue": [
-    {
-      "id": "ONB-080",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Gender Selection Screen",
-      "filePath": "lib/screens/wizard/gender_screen.dart",
-      "description": "Gender selection with quick options and expanded modal for more choices",
-      "acceptanceCriteria": [
-        "Progress bar (40%)",
-        "Header: 'What's your gender?'",
-        "3 large buttons: Man, Woman, More \u2192",
-        "Privacy toggle (checkbox): 'Show my gender on my profile' (default OFF)",
-        "Next button (disabled until selection made)",
-        "More button opens full-screen modal with title 'Select one that best represents you'",
-        "Modal has 10+ options: Man, Woman, Trans Man, Trans Woman, Non-binary, Agender, Genderfluid, Genderqueer, Two-Spirit, Other",
-        "Modal has search bar (can be non-functional placeholder for now)",
-        "Single selection (radio button behavior)",
-        "Privacy toggle persists across modal open/close"
-      ],
-      "estimatedHours": 5,
-      "priority": "high",
-      "dependencies": [
-        "ONB-070"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Pure UI work, hardcoded options (no database yet), no complex logic",
-      "testCommand": "flutter analyze lib/screens/wizard/gender_screen.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/phone_entry_screen.dart (for modal bottom sheet pattern)"
-      ]
-    }
-  ],
+  "queue": [],
   "inProgress": [
     {
       "id": "ONB-050",
@@ -129,6 +96,39 @@
         "lib/screens/wizard/first_name_screen.dart (for progress bar and layout)"
       ],
       "completedAt": "2026-02-08T17:35:00Z"
+    },
+    {
+      "id": "ONB-080",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Gender Selection Screen",
+      "filePath": "lib/screens/wizard/gender_screen.dart",
+      "description": "Gender selection with quick options and expanded modal for more choices",
+      "acceptanceCriteria": [
+        "Progress bar (40%)",
+        "Header: 'What's your gender?'",
+        "3 large buttons: Man, Woman, More \u2192",
+        "Privacy toggle (checkbox): 'Show my gender on my profile' (default OFF)",
+        "Next button (disabled until selection made)",
+        "More button opens full-screen modal with title 'Select one that best represents you'",
+        "Modal has 10+ options: Man, Woman, Trans Man, Trans Woman, Non-binary, Agender, Genderfluid, Genderqueer, Two-Spirit, Other",
+        "Modal has search bar (can be non-functional placeholder for now)",
+        "Single selection (radio button behavior)",
+        "Privacy toggle persists across modal open/close"
+      ],
+      "estimatedHours": 5,
+      "priority": "high",
+      "dependencies": [
+        "ONB-070"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "Pure UI work, hardcoded options (no database yet), no complex logic",
+      "testCommand": "flutter analyze lib/screens/wizard/gender_screen.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/phone_entry_screen.dart (for modal bottom sheet pattern)"
+      ],
+      "completedAt": "2026-02-08T17:40:51.478670"
     }
   ]
 }
