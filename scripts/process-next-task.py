@@ -241,7 +241,16 @@ def main():
     template_file = templates_dir / f"{tid}.dart"
     is_flutter = service == "mobile_dejtingapp"
 
-    if template_file.exists():
+    # Check for backend multi-file templates (e.g. scripts/templates/backend/BE-001-*.cs)
+    backend_templates_dir = templates_dir / "backend"
+    backend_templates = sorted(backend_templates_dir.glob(f"{tid}-*.cs")) if backend_templates_dir.exists() else []
+
+    if backend_templates:
+        # Multi-file backend template — deploy all files
+        content = backend_templates[0].read_text()  # Primary file
+        source = "template"
+        print(f"Using {len(backend_templates)} pre-built backend templates for {tid}")
+    elif template_file.exists():
         # Pre-built template (highest quality)
         content = template_file.read_text()
         source = "template"
@@ -266,15 +275,36 @@ def main():
     run("git checkout main && git pull origin main", cwd=repo_dir)
     run(f"git checkout -b {branch}", cwd=repo_dir)
 
-    # ── Write feature file ──────────────────────────────────────
+    # ── Write feature file(s) ────────────────────────────────────
     dest = repo_dir / task["filePath"]
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(content)
     print(f"Created: {dest}")
 
+    # Deploy additional backend template files
+    if backend_templates and len(backend_templates) > 1:
+        additional_paths = task.get("additionalFiles", [])
+        remaining_templates = backend_templates[1:]
+        for i, tmpl in enumerate(remaining_templates):
+            if i < len(additional_paths):
+                add_dest = repo_dir / additional_paths[i]
+            else:
+                fname = tmpl.name.split("-", 2)[-1]
+                if "Controller" in fname:
+                    add_dest = repo_dir / "Controllers" / fname
+                elif "Service" in fname:
+                    add_dest = repo_dir / "Services" / fname
+                elif "Dto" in fname:
+                    add_dest = repo_dir / "DTOs" / fname
+                else:
+                    add_dest = repo_dir / fname
+            add_dest.parent.mkdir(parents=True, exist_ok=True)
+            add_dest.write_text(tmpl.read_text())
+            print(f"Created: {add_dest}")
+
     # ── Write companion test (Flutter only) ─────────────────────
     test_file = None
-    if is_flutter and task_type == "screen":
+    if is_flutter and task_type == "screen" and not backend_templates:
         test_rel = task["filePath"].replace("lib/", "test/").replace(".dart", "_test.dart")
         test_dest = repo_dir / test_rel
         test_dest.parent.mkdir(parents=True, exist_ok=True)

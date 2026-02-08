@@ -1,67 +1,117 @@
 {
-  "version": "1.0",
-  "lastUpdated": "2026-02-08T20:09:37.132492",
+  "version": "2.0",
+  "lastUpdated": "2026-02-08T23:00:00Z",
   "queue": [
     {
-      "id": "ONB-090",
-      "type": "screen",
+      "id": "BE-001",
+      "type": "backend",
       "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Sexual Orientation Screen",
-      "filePath": "lib/screens/wizard/orientation_screen.dart",
-      "description": "Multi-select orientation screen with toggle chips and privacy control",
+      "service": "messaging-service",
+      "title": "Add Read Receipts DTO and Endpoint",
+      "filePath": "DTOs/ReadReceiptDto.cs",
+      "additionalFiles": [
+        "Controllers/ReadReceiptsController.cs"
+      ],
+      "description": "Add read receipt tracking for messages — DTO model + a simple controller with POST /api/readreceipts (mark message read) and GET /api/readreceipts/{conversationId} (get unread count). No SignalR push yet, just the REST API. Uses existing DbContext and auth pattern from MessagesController.",
       "acceptanceCriteria": [
-        "Progress bar (50%)",
-        "Header: 'What's your sexual orientation?'",
-        "Multi-select toggle chips (Straight, Gay, Lesbian, Bisexual, Asexual, Demisexual, Pansexual, Queer, Questioning)",
-        "Can select up to 3 options",
-        "Privacy toggle: 'Show my orientation on my profile' (default OFF)",
-        "Next button (disabled until >= 1 selection)",
-        "Back arrow + close X navigation"
+        "ReadReceiptDto with MessageId, ReaderId, ReadAt fields",
+        "ReadReceipt EF entity model with Id, MessageId, ReaderId, ReadAt",
+        "POST /api/readreceipts endpoint accepting {messageId} and marking as read",
+        "GET /api/readreceipts/{conversationId}/unread-count returns int count",
+        "Authorize attribute on both endpoints (uses existing Keycloak JWT)",
+        "dotnet build passes without errors"
       ],
-      "estimatedHours": 4,
-      "priority": "high",
-      "dependencies": [
-        "ONB-080"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Pure UI, hardcoded options, no backend calls",
-      "testCommand": "flutter analyze lib/screens/wizard/orientation_screen.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/gender_screen.dart"
-      ]
-    }
-  ],
-  "inProgress": [
-    {
-      "id": "ONB-050",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Community Guidelines Screen",
-      "filePath": "lib/screens/wizard/community_guidelines_screen.dart",
-      "description": "Create welcome screen after phone verification showing community rules that user must accept",
-      "acceptanceCriteria": [
-        "Header: 'Welcome to DejTing. Please follow these House Rules.'",
-        "4 rules with checkmark icons: Be yourself, Stay safe, Play it cool, Be proactive",
-        "Large white 'I agree' button at bottom",
-        "Bilingual content (English only for MVP, Swedish later)",
-        "Back navigation NOT allowed (user must accept to proceed)",
-        "Store acceptance in local state (backend integration later)"
-      ],
-      "estimatedHours": 4,
+      "estimatedHours": 3,
       "priority": "high",
       "dependencies": [],
       "safetyTier": 1,
-      "safetyNotes": "Pure UI work, no external services, no auth logic",
-      "testCommand": "flutter analyze lib/screens/wizard/community_guidelines_screen.dart",
-      "referenceFiles": [
-        "lib/screens/welcome_screen.dart (for colors and styling)",
-        "lib/screens/wizard/phone_entry_screen.dart (for navigation pattern)"
+      "safetyNotes": "New files only, does not modify existing code. Read receipt is additive feature.",
+      "testCommand": "dotnet build",
+      "referenceFiles": ["Controllers/MessagesController.cs", "DTOs/"]
+    },
+    {
+      "id": "BE-002",
+      "type": "backend",
+      "tier": 1,
+      "service": "swipe-service",
+      "title": "Add Daily Swipe Limit Middleware",
+      "filePath": "Services/SwipeLimitService.cs",
+      "additionalFiles": [
+        "DTOs/SwipeLimitDto.cs"
       ],
-      "startedAt": "2026-02-08T09:00:00Z"
+      "description": "Create a swipe rate-limiting service that tracks daily swipe counts per user. Free tier = 100 swipes/day. Includes SwipeLimitService (ISwipeLimitService interface + implementation) and SwipeLimitDto. Uses in-memory tracking via ConcurrentDictionary (production will use Redis later). Includes GET /api/swipes/limit endpoint on existing SwipesController to check remaining.",
+      "acceptanceCriteria": [
+        "ISwipeLimitService interface with CanSwipe(userId), IncrementSwipe(userId), GetRemaining(userId)",
+        "SwipeLimitService implementation using ConcurrentDictionary<string, (int count, DateTime resetAt)>",
+        "100 swipes/day limit hardcoded as const",
+        "Auto-reset at midnight UTC",
+        "SwipeLimitDto with DailyLimit, Used, Remaining, ResetsAt fields",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 2,
+      "priority": "high",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "New files only, in-memory tracking, no DB changes. Rate limit is additive.",
+      "testCommand": "dotnet build",
+      "referenceFiles": ["Controllers/SwipesController.cs", "Common/"]
+    },
+    {
+      "id": "BE-003",
+      "type": "backend",
+      "tier": 1,
+      "service": "MatchmakingService",
+      "title": "Add Match Statistics Endpoint",
+      "filePath": "DTOs/MatchStatsDto.cs",
+      "additionalFiles": [
+        "Controllers/MatchStatsController.cs"
+      ],
+      "description": "Add a controller for user match statistics. GET /api/matchstats/{userId} returns stats like total matches, pending matches, match rate (matches/swipes), most active day. Uses existing MatchmakingDbContext and models. Read-only queries, no mutations.",
+      "acceptanceCriteria": [
+        "MatchStatsDto with TotalMatches, PendingMatches, MatchRate, MostActiveDay, LastMatchAt fields",
+        "MatchStatsController with GET /api/matchstats/{userId}",
+        "Uses existing MatchmakingDbContext for queries",
+        "Authorize attribute (Keycloak JWT)",
+        "Returns ApiResponse wrapper if available, otherwise plain DTO",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 2,
+      "priority": "medium",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "Read-only endpoint, new files only, no mutations.",
+      "testCommand": "dotnet build",
+      "referenceFiles": ["Controllers/MatchmakingController.cs"]
+    },
+    {
+      "id": "BE-004",
+      "type": "backend",
+      "tier": 1,
+      "service": "UserService",
+      "title": "Add Profile Completeness Calculator",
+      "filePath": "Services/ProfileCompletenessService.cs",
+      "additionalFiles": [
+        "DTOs/ProfileCompletenessDto.cs"
+      ],
+      "description": "Create a service that calculates profile completeness percentage. Checks: has name (10%), has birthday (10%), has gender (10%), has bio (15%), has photos >= 1 (20%), has photos >= 3 (10%), has location (10%), has interests (15%). Returns a DTO with overall percentage, per-field status, and suggestions for next steps. Add GET /api/userprofiles/{userId}/completeness endpoint.",
+      "acceptanceCriteria": [
+        "IProfileCompletenessService interface with CalculateCompleteness(UserProfile)",
+        "ProfileCompletenessService implementation with weighted field checks",
+        "ProfileCompletenessDto with Percentage, FilledFields list, MissingFields list, NextSuggestion",
+        "ProfileFieldStatus enum or record with FieldName, IsFilled, Weight",
+        "GET endpoint on ProfileController returning completeness DTO",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 3,
+      "priority": "medium",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "Read-only calculation, new files only, uses existing UserProfile model.",
+      "testCommand": "dotnet build",
+      "referenceFiles": ["Controllers/ProfileController.cs", "Models/UserProfile.cs"]
     }
   ],
+  "inProgress": [],
   "completed": [
     {
       "id": "ONB-060",
@@ -69,31 +119,7 @@
       "tier": 1,
       "service": "mobile_dejtingapp",
       "title": "First Name Entry Screen",
-      "filePath": "lib/screens/wizard/first_name_screen.dart",
-      "description": "Single-field wizard screen for user to enter their first name with validation",
-      "acceptanceCriteria": [
-        "Progress bar at top (20% filled, coral gradient)",
-        "Header: 'What's your first name?'",
-        "Single text input field (auto-focused)",
-        "Warning text: 'This is how it'll appear on your profile. Can't change it later.'",
-        "Next button (disabled until valid input, coral color when enabled)",
-        "Validation: Min 2 chars, max 50 chars, letters/spaces/hyphens/apostrophes only",
-        "Auto-capitalize first letter",
-        "Trim whitespace",
-        "Back arrow (go to previous screen) + close X (exit wizard)"
-      ],
-      "estimatedHours": 3,
-      "priority": "high",
-      "dependencies": [
-        "ONB-050"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Simple text validation, no backend calls, no sensitive data",
-      "testCommand": "flutter analyze lib/screens/wizard/first_name_screen.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/phone_entry_screen.dart (for input field pattern)"
-      ],
-      "completedAt": "2026-02-08T17:57:23.069598"
+      "completedAt": "2026-02-08T17:57:23Z"
     },
     {
       "id": "ONB-070",
@@ -101,30 +127,6 @@
       "tier": 1,
       "service": "mobile_dejtingapp",
       "title": "Birthday Entry Screen",
-      "filePath": "lib/screens/wizard/birthday_screen.dart",
-      "description": "Date input screen with three separate fields (month, day, year) and 18+ validation",
-      "acceptanceCriteria": [
-        "Progress bar (30%)",
-        "Header: 'Your b-day?'",
-        "Three separate inputs: Month (dropdown 1-12), Day (input 1-31), Year (input 1900-2008)",
-        "Privacy note: 'Your profile shows your age, not your birthdate'",
-        "Real date validation (Feb 30 = error, leap years handled)",
-        "Calculate age from date, must be >= 18",
-        "Next button (disabled until valid date AND 18+)",
-        "Under-18 error modal: 'You must be 18 or older to use this app' with 'Go back' button",
-        "Can't select future dates"
-      ],
-      "estimatedHours": 4,
-      "priority": "high",
-      "dependencies": [
-        "ONB-060"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Date math only, no user data storage, straightforward validation",
-      "testCommand": "flutter analyze lib/screens/wizard/birthday_screen.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/first_name_screen.dart (for progress bar and layout)"
-      ],
       "completedAt": "2026-02-08T17:35:00Z"
     },
     {
@@ -133,32 +135,7 @@
       "tier": 1,
       "service": "mobile_dejtingapp",
       "title": "Gender Selection Screen",
-      "filePath": "lib/screens/wizard/gender_screen.dart",
-      "description": "Gender selection with quick options and expanded modal for more choices",
-      "acceptanceCriteria": [
-        "Progress bar (40%)",
-        "Header: 'What's your gender?'",
-        "3 large buttons: Man, Woman, More \u2192",
-        "Privacy toggle (checkbox): 'Show my gender on my profile' (default OFF)",
-        "Next button (disabled until selection made)",
-        "More button opens full-screen modal with title 'Select one that best represents you'",
-        "Modal has 10+ options: Man, Woman, Trans Man, Trans Woman, Non-binary, Agender, Genderfluid, Genderqueer, Two-Spirit, Other",
-        "Modal has search bar (can be non-functional placeholder for now)",
-        "Single selection (radio button behavior)",
-        "Privacy toggle persists across modal open/close"
-      ],
-      "estimatedHours": 5,
-      "priority": "high",
-      "dependencies": [
-        "ONB-070"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Pure UI work, hardcoded options (no database yet), no complex logic",
-      "testCommand": "flutter analyze lib/screens/wizard/gender_screen.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/phone_entry_screen.dart (for modal bottom sheet pattern)"
-      ],
-      "completedAt": "2026-02-08T17:40:51.478670"
+      "completedAt": "2026-02-08T17:40:51Z"
     }
   ]
 }
