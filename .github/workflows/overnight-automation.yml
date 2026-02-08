@@ -41,8 +41,7 @@ jobs:
 
       - name: Init submodules (non-recursive)
         run: |
-          git submodule init
-          git submodule update --no-recurse-submodules
+          git submodule update --init -- repos/UserService repos/MatchmakingService repos/swipe-service repos/photo-service repos/messaging-service repos/dejting-yarp repos/mobile_dejtingapp
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -83,8 +82,7 @@ jobs:
 
       - name: Init submodules (non-recursive)
         run: |
-          git submodule init
-          git submodule update --no-recurse-submodules
+          git submodule update --init -- repos/UserService repos/MatchmakingService repos/swipe-service repos/photo-service repos/messaging-service repos/dejting-yarp repos/mobile_dejtingapp
 
       - name: Pull latest (queue may have been updated by previous matrix job)
         run: git pull origin main
@@ -149,8 +147,7 @@ jobs:
 
       - name: Init submodules (non-recursive)
         run: |
-          git submodule init
-          git submodule update --no-recurse-submodules
+          git submodule update --init -- repos/UserService repos/MatchmakingService repos/swipe-service repos/photo-service repos/messaging-service repos/dejting-yarp repos/mobile_dejtingapp
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -185,8 +182,7 @@ jobs:
 
       - name: Init submodules (non-recursive)
         run: |
-          git submodule init
-          git submodule update --no-recurse-submodules
+          git submodule update --init -- repos/UserService repos/MatchmakingService repos/swipe-service repos/photo-service repos/messaging-service repos/dejting-yarp repos/mobile_dejtingapp
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -213,8 +209,7 @@ jobs:
 
       - name: Init submodules (non-recursive)
         run: |
-          git submodule init
-          git submodule update --no-recurse-submodules
+          git submodule update --init -- repos/UserService repos/MatchmakingService repos/swipe-service repos/photo-service repos/messaging-service repos/dejting-yarp repos/mobile_dejtingapp
 
       - name: Pull latest
         run: git pull origin main
