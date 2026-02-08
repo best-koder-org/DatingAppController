@@ -43,11 +43,6 @@ jobs:
         run: |
           git submodule update --init -- repos/UserService repos/MatchmakingService repos/swipe-service repos/photo-service repos/messaging-service repos/dejting-yarp repos/mobile_dejtingapp
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
       - name: Refill queue from task catalog
         run: python3 scripts/refill-queue.py
 
@@ -86,18 +81,6 @@ jobs:
 
       - name: Pull latest (queue may have been updated by previous matrix job)
         run: git pull origin main
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Setup Flutter
-        if: true  # Always set up in case task is Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.32.1'
-          channel: 'stable'
 
       - name: Configure git for submodule pushes
         run: |
@@ -149,11 +132,6 @@ jobs:
         run: |
           git submodule update --init -- repos/UserService repos/MatchmakingService repos/swipe-service repos/photo-service repos/messaging-service repos/dejting-yarp repos/mobile_dejtingapp
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
       - name: Run merge wave analysis
         run: python3 scripts/merge-wave-analyzer.py
         env:
@@ -183,11 +161,6 @@ jobs:
       - name: Init submodules (non-recursive)
         run: |
           git submodule update --init -- repos/UserService repos/MatchmakingService repos/swipe-service repos/photo-service repos/messaging-service repos/dejting-yarp repos/mobile_dejtingapp
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
 
       - name: Merge safe wave
         run: python3 scripts/merge-safe-wave.py
@@ -222,17 +195,6 @@ jobs:
               cd - > /dev/null
             fi
           done
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.32.1'
-          channel: 'stable'
 
       - name: "🏗️ Build all .NET services"
         run: |
@@ -299,11 +261,6 @@ jobs:
 
       - name: Pull latest
         run: git pull origin main
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
 
       - name: Download merge report (if exists)
         uses: actions/download-artifact@v4
