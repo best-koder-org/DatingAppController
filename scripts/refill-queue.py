@@ -230,9 +230,45 @@ TASK_CATALOG = {
 def main():
     root = Path(__file__).parent.parent
     queue_file = root / ".ai-workspace/task-queue.json"
+    plan_file = root / ".ai-workspace/build-plan.json"
 
     with open(queue_file) as f:
         queue = json.load(f)
+
+    # ── Check build plan (if approved, use planned tasks) ───────
+    if plan_file.exists():
+        with open(plan_file) as f:
+            plan = json.load(f)
+        if plan.get("approved") and plan.get("tasks"):
+            print(f"Build plan approved with {len(plan['tasks'])} tasks")
+            done_ids = {t["id"] for t in queue.get("completed", [])}
+            queued_ids = {t["id"] for t in queue.get("queue", [])}
+            planned = []
+            for tid in plan["tasks"]:
+                if tid in done_ids or tid in queued_ids:
+                    print(f"  Skip {tid} (already done/queued)")
+                    continue
+                if tid in TASK_CATALOG:
+                    planned.append(TASK_CATALOG[tid])
+                    print(f"  + {tid}: {TASK_CATALOG[tid]['title']} (from plan)")
+                elif tid in BACKEND_TASK_CATALOG:
+                    planned.append(BACKEND_TASK_CATALOG[tid])
+                    print(f"  + {tid}: {BACKEND_TASK_CATALOG[tid]['title']} (from plan)")
+                else:
+                    print(f"  WARN: {tid} not in any catalog, skipping")
+            if planned:
+                queue["queue"].extend(planned)
+                queue["lastUpdated"] = datetime.now().isoformat()
+                with open(queue_file, "w") as f:
+                    json.dump(queue, f, indent=2)
+                print(f"Queue now has {len(queue['queue'])} tasks (from build plan)")
+                return
+            else:
+                print("All planned tasks already done/queued, falling through to auto-refill")
+        elif plan.get("approved") and not plan.get("tasks"):
+            print("Build plan approved but empty - using auto-refill")
+        else:
+            print("Build plan exists but not approved - using auto-refill")
 
     # Collect all known IDs (completed + in-progress + already queued)
     done_ids = {t["id"] for t in queue.get("completed", [])}
@@ -245,7 +281,8 @@ def main():
 
     # Find eligible tasks (not known + dependencies met)
     eligible = []
-    for tid, task in TASK_CATALOG.items():
+    all_catalogs = {**TASK_CATALOG, **BACKEND_TASK_CATALOG}
+    for tid, task in all_catalogs.items():
         if tid in known_ids:
             continue
         deps = task.get("dependencies", [])

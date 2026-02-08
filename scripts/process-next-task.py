@@ -220,6 +220,14 @@ def main():
         print("QUEUE_EMPTY")
         return
 
+    # ── Check pause flag ────────────────────────────────────────
+    pause_flag = root / ".ai-workspace/pause.flag"
+    if pause_flag.exists():
+        reason = pause_flag.read_text().strip() or "Manual pause"
+        print(f"PAUSED: {reason}")
+        print("Remove .ai-workspace/pause.flag to resume")
+        return
+
     task = queue["queue"][0]
     tid = task["id"]
     service = task.get("service", "mobile_dejtingapp")

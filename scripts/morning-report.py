@@ -37,7 +37,12 @@ def get_open_prs(repo):
     if r.returncode == 0 and r.stdout.strip():
         prs = json.loads(r.stdout)
         # Filter to automation branches only
-        return [p for p in prs if p.get("headRefName", "").startswith("automation/")]
+        return [p for p in prs if (
+            p.get("headRefName", "").startswith("automation/") or
+            "feat(" in p.get("title", "") or
+            "BE-" in p.get("title", "") or
+            "ONB-" in p.get("title", "")
+        )]
     return []
 
 def get_ci_status(pr, repo):

@@ -1,0 +1,9 @@
+{
+  "date": "2026-02-08",
+  "description": "Next overnight run plan - review and set approved=true before bed",
+  "tasks": [],
+  "approved": false,
+  "maxTasks": 4,
+  "mode": "full",
+  "notes": "Empty plan = refill-queue decides. Set tasks manually for control."
+}
