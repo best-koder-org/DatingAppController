@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DatingApp — AI Automation Dashboard</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
+    --green: #3fb950; --red: #f85149; --yellow: #d29922; --orange: #db6d28;
+    --coral: #ff6b6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 20px; font-weight: 600; }
+  .header h1 span { color: var(--coral); }
+  .header .status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .header .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot.green { background: var(--green); }
+  .dot.red { background: var(--red); }
+  .dot.yellow { background: var(--yellow); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .setup-banner { background: #1c2333; border: 1px solid var(--accent); border-radius: 8px; margin: 16px 24px; padding: 16px; }
+  .setup-banner h3 { color: var(--accent); margin-bottom: 8px; }
+  .setup-banner input { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; width: 400px; font-family: monospace; font-size: 13px; }
+  .setup-banner button { background: var(--accent); color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-left: 8px; }
+  .setup-banner button:hover { opacity: 0.9; }
+  .setup-banner .note { color: var(--muted); font-size: 12px; margin-top: 8px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 24px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .card h2 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .card h2 .count { background: var(--border); color: var(--text); padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+
+  .full-width { grid-column: 1 / -1; }
+
+  /* Controls */
+  .controls { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .btn { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn.primary:hover { opacity: 0.9; }
+  .btn.danger { border-color: var(--red); color: var(--red); }
+  .btn.danger:hover { background: var(--red); color: #fff; }
+  .btn.warning { border-color: var(--yellow); color: var(--yellow); }
+  .btn.warning:hover { background: var(--yellow); color: #000; }
+  .btn.success { border-color: var(--green); color: var(--green); }
+  .btn.success:hover { background: var(--green); color: #000; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Queue */
+  .task-list { list-style: none; }
+  .task-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .task-item:last-child { border-bottom: none; }
+  .task-id { font-family: monospace; font-size: 12px; background: var(--border); padding: 2px 6px; border-radius: 4px; color: var(--accent); min-width: 60px; text-align: center; }
+  .task-title { flex: 1; font-size: 14px; }
+  .task-service { font-size: 11px; color: var(--muted); background: rgba(88,166,255,0.1); padding: 2px 8px; border-radius: 4px; }
+
+  /* PRs */
+  .pr-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .pr-item:last-child { border-bottom: none; }
+  .pr-number { font-family: monospace; color: var(--accent); font-weight: 600; min-width: 35px; }
+  .pr-title { flex: 1; font-size: 14px; }
+  .pr-repo { font-size: 11px; color: var(--muted); }
+  .pr-ci { font-size: 12px; padding: 2px 8px; border-radius: 4px; }
+  .ci-pass { background: rgba(63,185,80,0.15); color: var(--green); }
+  .ci-fail { background: rgba(248,81,73,0.15); color: var(--red); }
+  .ci-pending { background: rgba(210,153,34,0.15); color: var(--yellow); }
+
+  /* Workflow runs */
+  .run-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .run-item:last-child { border-bottom: none; }
+  .run-status { width: 20px; text-align: center; }
+  .run-title { flex: 1; }
+  .run-time { color: var(--muted); font-size: 12px; }
+  .run-id { font-family: monospace; font-size: 11px; color: var(--muted); }
+
+  /* Stats bar */
+  .stats { display: flex; gap: 24px; padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .stat { text-align: center; }
+  .stat .num { font-size: 24px; font-weight: 700; }
+  .stat .label { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+  .stat.green .num { color: var(--green); }
+  .stat.yellow .num { color: var(--yellow); }
+  .stat.red .num { color: var(--red); }
+  .stat.blue .num { color: var(--accent); }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 20px; }
+  .timeline::before { content: ''; position: absolute; left: 6px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .timeline-item { position: relative; padding: 8px 0 8px 16px; font-size: 13px; }
+  .timeline-item::before { content: ''; position: absolute; left: -17px; top: 14px; width: 8px; height: 8px; border-radius: 50%; background: var(--green); border: 2px solid var(--surface); }
+  .timeline-date { color: var(--muted); font-size: 11px; }
+
+  .empty { color: var(--muted); font-style: italic; padding: 16px 0; text-align: center; }
+  .loading { text-align: center; padding: 24px; color: var(--muted); }
+  .error-msg { color: var(--red); background: rgba(248,81,73,0.1); padding: 12px; border-radius: 6px; font-size: 13px; }
+
+  .refresh-hint { font-size: 11px; color: var(--muted); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🤖 <span>DatingApp</span> AI Dashboard</h1>
+  <div class="status">
+    <span class="dot" id="live-dot"></span>
+    <span id="live-status">Connecting...</span>
+    <span class="refresh-hint">| Auto-refresh 30s</span>
+  </div>
+</div>
+
+<div id="setup-banner" class="setup-banner" style="display:none">
+  <h3>🔑 GitHub Token Required</h3>
+  <p style="margin-bottom:8px;font-size:13px;">Paste a GitHub PAT (needs <code>repo</code> + <code>workflow</code> scopes). Stored in localStorage only — never sent anywhere except api.github.com.</p>
+  <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx">
+  <button onclick="saveToken()">Save</button>
+  <p class="note">Token is stored locally in your browser. <a href="https://github.com/settings/tokens/new?scopes=repo,workflow" target="_blank">Create token →</a></p>
+</div>
+
+<div class="stats" id="stats-bar">
+  <div class="stat blue"><div class="num" id="stat-queued">-</div><div class="label">Queued</div></div>
+  <div class="stat yellow"><div class="num" id="stat-progress">-</div><div class="label">In Progress</div></div>
+  <div class="stat green"><div class="num" id="stat-completed">-</div><div class="label">Completed</div></div>
+  <div class="stat"><div class="num" id="stat-prs">-</div><div class="label">Open PRs</div></div>
+</div>
+
+<div class="grid">
+  <!-- Controls -->
+  <div class="card full-width">
+    <h2>Pipeline Controls</h2>
+    <div class="controls">
+      <button class="btn primary" onclick="triggerRun('full')" id="btn-full">▶ Run Full Pipeline</button>
+      <button class="btn success" onclick="triggerRun('create-only')" id="btn-create">📝 Create PRs Only</button>
+      <button class="btn warning" onclick="triggerRun('merge-only')">🔀 Merge Only</button>
+      <button class="btn" onclick="triggerRun('report-only')">📊 Report Only</button>
+      <span style="border-left:1px solid var(--border);margin:0 4px"></span>
+      <button class="btn danger" onclick="togglePause()" id="btn-pause">⏸ Pause</button>
+      <button class="btn" onclick="refreshAll()">🔄 Refresh Now</button>
+    </div>
+  </div>
+
+  <!-- Task Queue -->
+  <div class="card">
+    <h2>Task Queue <span class="count" id="queue-count">0</span></h2>
+    <ul class="task-list" id="queue-list">
+      <li class="loading">Loading...</li>
+    </ul>
+  </div>
+
+  <!-- Open PRs -->
+  <div class="card">
+    <h2>Open PRs <span class="count" id="pr-count">0</span></h2>
+    <div id="pr-list">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Recent Workflow Runs -->
+  <div class="card">
+    <h2>Recent Runs</h2>
+    <div id="runs-list">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Completed Timeline -->
+  <div class="card">
+    <h2>Completed Tasks</h2>
+    <div class="timeline" id="completed-timeline">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Build Plan -->
+  <div class="card full-width">
+    <h2>Build Plan <span style="font-size:11px;color:var(--muted);text-transform:none;letter-spacing:0">(edit in .ai-workspace/build-plan.json)</span></h2>
+    <div id="build-plan">
+      <div class="loading">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const OWNER = 'best-koder-ever';
+const CONTROLLER_REPO = 'DatingAppController';
+const REPOS = [
+  'mobile_dejtingapp', 'UserService', 'MatchmakingService',
+  'swipe-service', 'photo-service', 'messaging-service', 'dejting-yarp'
+];
+const WORKFLOW_FILE = 'overnight-automation.yml';
+
+let TOKEN = localStorage.getItem('gh_dashboard_token') || '';
+let paused = false;
+let refreshTimer = null;
+
+function api(path, opts = {}) {
+  return fetch(`https://api.github.com${path}`, {
+    headers: {
+      'Authorization': `token ${TOKEN}`,
+      'Accept': 'application/vnd.github+json',
+      ...opts.headers
+    },
+    ...opts
+  }).then(r => {
+    if (r.status === 401) { showSetup(); throw new Error('Bad token'); }
+    return r.json();
+  });
+}
+
+function showSetup() {
+  document.getElementById('setup-banner').style.display = 'block';
+}
+
+function saveToken() {
+  TOKEN = document.getElementById('token-input').value.trim();
+  localStorage.setItem('gh_dashboard_token', TOKEN);
+  document.getElementById('setup-banner').style.display = 'none';
+  refreshAll();
+}
+
+// ── Fetch queue from repo ──────────────────────────────────────
+async function fetchQueue() {
+  try {
+    const data = await api(`/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/task-queue.json`);
+    const queue = JSON.parse(atob(data.content));
+    renderQueue(queue);
+    return queue;
+  } catch (e) {
+    document.getElementById('queue-list').innerHTML = `<li class="error-msg">Failed to load queue: ${e.message}</li>`;
+    return null;
+  }
+}
+
+function renderQueue(q) {
+  const list = document.getElementById('queue-list');
+  const tasks = q.queue || [];
+  document.getElementById('queue-count').textContent = tasks.length;
+  document.getElementById('stat-queued').textContent = tasks.length;
+  document.getElementById('stat-progress').textContent = (q.inProgress || []).length;
+  document.getElementById('stat-completed').textContent = (q.completed || []).length;
+
+  if (!tasks.length) {
+    list.innerHTML = '<li class="empty">Queue empty — next refill will add tasks</li>';
+    return;
+  }
+  list.innerHTML = tasks.map(t => `
+    <li class="task-item">
+      <span class="task-id">${t.id}</span>
+      <span class="task-title">${t.title}</span>
+      <span class="task-service">${t.service || 'mobile'}</span>
+    </li>
+  `).join('');
+
+  // Completed timeline
+  const timeline = document.getElementById('completed-timeline');
+  const completed = (q.completed || []).slice(-10).reverse();
+  if (!completed.length) {
+    timeline.innerHTML = '<div class="empty">No completed tasks yet</div>';
+  } else {
+    timeline.innerHTML = completed.map(t => `
+      <div class="timeline-item">
+        <strong>${t.id}</strong> ${t.title}
+        <div class="timeline-date">${t.completedAt ? new Date(t.completedAt).toLocaleString() : 'unknown'} · ${t.source || 'unknown'}</div>
+      </div>
+    `).join('');
+  }
+}
+
+// ── Fetch PRs across repos ─────────────────────────────────────
+async function fetchPRs() {
+  let allPRs = [];
+  const fetches = REPOS.map(async repo => {
+    try {
+      const prs = await api(`/repos/${OWNER}/${repo}/pulls?state=open&per_page=10`);
+      return prs.filter(p =>
+        p.head.ref.startsWith('automation/') ||
+        p.title.includes('feat(') ||
+        p.title.includes('BE-') ||
+        p.title.includes('ONB-')
+      ).map(p => ({ ...p, _repo: repo }));
+    } catch { return []; }
+  });
+  const results = await Promise.all(fetches);
+  allPRs = results.flat();
+  renderPRs(allPRs);
+  return allPRs;
+}
+
+function renderPRs(prs) {
+  const el = document.getElementById('pr-list');
+  document.getElementById('pr-count').textContent = prs.length;
+  document.getElementById('stat-prs').textContent = prs.length;
+
+  if (!prs.length) {
+    el.innerHTML = '<div class="empty">No open automation PRs</div>';
+    return;
+  }
+  el.innerHTML = prs.map(p => {
+    let ci = 'pending';
+    // We'd need the checks API for real CI status but this is a good approximation
+    return `
+      <div class="pr-item">
+        <a class="pr-number" href="${p.html_url}" target="_blank">#${p.number}</a>
+        <span class="pr-title">${p.title}</span>
+        <span class="pr-repo">${p._repo}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Fetch workflow runs ────────────────────────────────────────
+async function fetchRuns() {
+  try {
+    const data = await api(`/repos/${OWNER}/${CONTROLLER_REPO}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=8`);
+    renderRuns(data.workflow_runs || []);
+    updateLiveStatus(data.workflow_runs || []);
+    return data.workflow_runs;
+  } catch (e) {
+    document.getElementById('runs-list').innerHTML = `<div class="error-msg">${e.message}</div>`;
+    return [];
+  }
+}
+
+function renderRuns(runs) {
+  const el = document.getElementById('runs-list');
+  if (!runs.length) {
+    el.innerHTML = '<div class="empty">No workflow runs found</div>';
+    return;
+  }
+  el.innerHTML = runs.map(r => {
+    const icon = r.conclusion === 'success' ? '✅' :
+                 r.conclusion === 'failure' ? '❌' :
+                 r.status === 'in_progress' ? '🔄' :
+                 r.status === 'queued' ? '⏳' : '⚪';
+    const ago = timeAgo(new Date(r.created_at));
+    return `
+      <div class="run-item">
+        <span class="run-status">${icon}</span>
+        <span class="run-title"><a href="${r.html_url}" target="_blank">${r.display_title || 'Pipeline'}</a></span>
+        <span class="run-time">${ago}</span>
+        <span class="run-id">#${r.run_number}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateLiveStatus(runs) {
+  const dot = document.getElementById('live-dot');
+  const label = document.getElementById('live-status');
+  const active = runs.find(r => r.status === 'in_progress' || r.status === 'queued');
+  if (active) {
+    dot.className = 'dot yellow';
+    label.textContent = active.status === 'queued' ? 'Pipeline queued...' : 'Pipeline running...';
+  } else if (paused) {
+    dot.className = 'dot yellow';
+    label.textContent = 'Paused';
+  } else {
+    const latest = runs[0];
+    if (latest?.conclusion === 'success') {
+      dot.className = 'dot green';
+      label.textContent = 'Idle — last run passed';
+    } else if (latest?.conclusion === 'failure') {
+      dot.className = 'dot red';
+      label.textContent = 'Idle — last run had issues';
+    } else {
+      dot.className = 'dot green';
+      label.textContent = 'Idle';
+    }
+  }
+}
+
+// ── Fetch build plan ───────────────────────────────────────────
+async function fetchBuildPlan() {
+  try {
+    const data = await api(`/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/build-plan.json`);
+    const plan = JSON.parse(atob(data.content));
+    renderBuildPlan(plan);
+  } catch {
+    document.getElementById('build-plan').innerHTML = '<div class="empty">No build plan found</div>';
+  }
+}
+
+function renderBuildPlan(plan) {
+  const el = document.getElementById('build-plan');
+  const tasks = plan.tasks || [];
+  const approved = plan.approved ? '✅ Approved' : '⏸ Not approved';
+  el.innerHTML = `
+    <div style="display:flex;gap:24px;align-items:center;font-size:13px;margin-bottom:8px;">
+      <span><strong>Date:</strong> ${plan.date || 'unset'}</span>
+      <span><strong>Status:</strong> ${approved}</span>
+      <span><strong>Max tasks:</strong> ${plan.maxTasks || 4}</span>
+      <span><strong>Mode:</strong> ${plan.mode || 'full'}</span>
+    </div>
+    ${tasks.length ? `<div style="font-size:13px;"><strong>Planned tasks:</strong> ${tasks.map(t => `<span class="task-id">${t}</span>`).join(' ')}</div>` : '<div class="empty">No specific tasks planned — auto-refill will choose</div>'}
+    ${plan.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:8px;">${plan.notes}</div>` : ''}
+  `;
+}
+
+// ── Fetch pause state ──────────────────────────────────────────
+async function fetchPauseState() {
+  try {
+    await api(`/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/pause.flag`);
+    paused = true;
+    document.getElementById('btn-pause').textContent = '▶ Resume';
+    document.getElementById('btn-pause').className = 'btn success';
+  } catch {
+    paused = false;
+    document.getElementById('btn-pause').textContent = '⏸ Pause';
+    document.getElementById('btn-pause').className = 'btn danger';
+  }
+}
+
+// ── Actions ────────────────────────────────────────────────────
+async function triggerRun(mode) {
+  if (!confirm(`Trigger pipeline in "${mode}" mode?`)) return;
+  try {
+    await fetch(`https://api.github.com/repos/${OWNER}/${CONTROLLER_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `token ${TOKEN}`,
+        'Accept': 'application/vnd.github+json'
+      },
+      body: JSON.stringify({ ref: 'main', inputs: { mode } })
+    });
+    alert(`✅ Pipeline triggered (mode: ${mode})`);
+    setTimeout(refreshAll, 5000);
+  } catch (e) {
+    alert(`❌ Failed: ${e.message}`);
+  }
+}
+
+async function togglePause() {
+  if (paused) {
+    // Remove pause flag
+    try {
+      const file = await api(`/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/pause.flag`);
+      await fetch(`https://api.github.com/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/pause.flag`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `token ${TOKEN}`,
+          'Accept': 'application/vnd.github+json'
+        },
+        body: JSON.stringify({ message: 'Resume automation', sha: file.sha })
+      });
+      paused = false;
+    } catch (e) { alert(`Failed to resume: ${e.message}`); }
+  } else {
+    // Create pause flag
+    try {
+      await fetch(`https://api.github.com/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/pause.flag`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${TOKEN}`,
+          'Accept': 'application/vnd.github+json'
+        },
+        body: JSON.stringify({
+          message: 'Pause automation (from dashboard)',
+          content: btoa('Paused from dashboard at ' + new Date().toISOString())
+        })
+      });
+      paused = true;
+    } catch (e) { alert(`Failed to pause: ${e.message}`); }
+  }
+  fetchPauseState();
+  updateLiveStatus([]);
+}
+
+function timeAgo(date) {
+  const s = Math.floor((Date.now() - date) / 1000);
+  if (s < 60) return `${s}s ago`;
+  if (s < 3600) return `${Math.floor(s/60)}m ago`;
+  if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+  return `${Math.floor(s/86400)}d ago`;
+}
+
+// ── Refresh all ────────────────────────────────────────────────
+async function refreshAll() {
+  if (!TOKEN) { showSetup(); return; }
+  await Promise.all([fetchQueue(), fetchPRs(), fetchRuns(), fetchBuildPlan(), fetchPauseState()]);
+}
+
+// ── Init ───────────────────────────────────────────────────────
+if (!TOKEN) {
+  showSetup();
+  document.querySelectorAll('.loading').forEach(e => e.textContent = 'Enter GitHub token to load data');
+} else {
+  refreshAll();
+  refreshTimer = setInterval(refreshAll, 30000);
+}
+</script>
+</body>
+</html>
