@@ -1,7 +1,37 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-08T09:00:00Z",
-  "queue": [],
+  "lastUpdated": "2026-02-08T20:09:37.132492",
+  "queue": [
+    {
+      "id": "ONB-090",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Sexual Orientation Screen",
+      "filePath": "lib/screens/wizard/orientation_screen.dart",
+      "description": "Multi-select orientation screen with toggle chips and privacy control",
+      "acceptanceCriteria": [
+        "Progress bar (50%)",
+        "Header: 'What's your sexual orientation?'",
+        "Multi-select toggle chips (Straight, Gay, Lesbian, Bisexual, Asexual, Demisexual, Pansexual, Queer, Questioning)",
+        "Can select up to 3 options",
+        "Privacy toggle: 'Show my orientation on my profile' (default OFF)",
+        "Next button (disabled until >= 1 selection)",
+        "Back arrow + close X navigation"
+      ],
+      "estimatedHours": 4,
+      "priority": "high",
+      "dependencies": [
+        "ONB-080"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "Pure UI, hardcoded options, no backend calls",
+      "testCommand": "flutter analyze lib/screens/wizard/orientation_screen.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/gender_screen.dart"
+      ]
+    }
+  ],
   "inProgress": [
     {
       "id": "ONB-050",

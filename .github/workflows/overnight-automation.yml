@@ -1,126 +1,216 @@
-name: Overnight Task Processor
+name: Overnight Automation Pipeline
 
 on:
-  schedule:
-    - cron: '0 2 * * *'
   workflow_dispatch:
     inputs:
       mode:
-        description: 'What to run'
-        required: true
-        default: 'create-pr'
+        description: 'Pipeline mode'
+        required: false
+        default: 'full'
         type: choice
         options:
-          - create-pr
-          - analyze-merges
-          - merge-wave
+          - full         # refill → process → analyze → merge → report
+          - create-only  # refill → process (no merge)
+          - merge-only   # analyze → merge
+          - report-only  # just morning report
+  schedule:
+    - cron: '0 2 * * *'   # 2 AM UTC every night
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: overnight-automation
+  cancel-in-progress: false
 
 jobs:
-  # Job 1: Create a PR from the next task in queue
-  create-pr:
-    if: github.event.inputs.mode == 'create-pr' || github.event_name == 'schedule'
+  # ── Step 1: Refill the task queue ──────────────────────────────
+  refill-queue:
+    if: >-
+      github.event.inputs.mode != 'merge-only' &&
+      github.event.inputs.mode != 'report-only'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main repo
+      - name: Checkout controller (with submodules)
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_PAT }}
+          submodules: recursive
+          fetch-depth: 0
 
-      - name: Checkout mobile app submodule
-        run: git submodule update --init repos/mobile_dejtingapp
-
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Configure Git and Auth
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-        run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
-          git config --global url."https://x-access-token:${GH_PAT}@github.com/".insteadOf "https://github.com/"
+      - name: Refill queue from task catalog
+        run: python3 scripts/refill-queue.py
 
-      - name: Process Next Task
+      - name: Push queue updates
+        run: |
+          git config user.name "overnight-bot"
+          git config user.email "bot@overnight.local"
+          git add .ai-workspace/task-queue.json
+          git diff --cached --quiet && echo "No queue changes" || {
+            git commit -m "ci: Refill task queue"
+            git push origin main
+          }
+
+  # ── Step 2: Process tasks (create PRs) ─────────────────────────
+  create-prs:
+    if: >-
+      github.event.inputs.mode != 'merge-only' &&
+      github.event.inputs.mode != 'report-only'
+    needs: refill-queue
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        task-index: [0, 1, 2, 3]  # Process up to 4 tasks per run
+    steps:
+      - name: Checkout controller (with submodules)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+          submodules: recursive
+          fetch-depth: 0
+          ref: main
+
+      - name: Pull latest (queue may have been updated by previous matrix job)
+        run: git pull origin main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Setup Flutter
+        if: true  # Always set up in case task is Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.1'
+          channel: 'stable'
+
+      - name: Configure git for submodule pushes
+        run: |
+          git config --global user.name "overnight-bot"
+          git config --global user.email "bot@overnight.local"
+          # Set remote URLs to use PAT for all submodule repos
+          for dir in repos/*/; do
+            if [ -d "$dir/.git" ] || [ -f "$dir/.git" ]; then
+              repo_name=$(basename "$dir")
+              cd "$dir"
+              git remote set-url origin "https://x-access-token:${{ secrets.GH_PAT }}@github.com/best-koder-ever/${repo_name}.git"
+              cd - > /dev/null
+            fi
+          done
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: python3 scripts/process-next-task.py
 
-  # Job 2: Analyze all open PRs for merge conflicts
+      - name: Process next task
+        run: |
+          python3 scripts/process-next-task.py
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Check if more tasks remain
+        id: check
+        run: |
+          remaining=$(python3 -c "import json; q=json.load(open('.ai-workspace/task-queue.json')); print(len(q['queue']))")
+          echo "remaining=$remaining" >> $GITHUB_OUTPUT
+          if [ "$remaining" = "0" ]; then
+            echo "Queue empty, stopping"
+          fi
+
+  # ── Step 3: Analyze merge compatibility ────────────────────────
   analyze-merges:
-    if: github.event.inputs.mode == 'analyze-merges'
+    if: >-
+      github.event.inputs.mode != 'create-only' &&
+      github.event.inputs.mode != 'report-only'
+    needs: [create-prs]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main repo
+      - name: Checkout controller (with submodules)
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_PAT }}
+          submodules: recursive
+          fetch-depth: 0
+          ref: main
 
-      - name: Checkout mobile app submodule
-        run: git submodule update --init repos/mobile_dejtingapp
-
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Configure Git and Auth
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-        run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
-          git config --global url."https://x-access-token:${GH_PAT}@github.com/".insteadOf "https://github.com/"
-
-      - name: Analyze Merge Waves
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+      - name: Run merge wave analysis
         run: python3 scripts/merge-wave-analyzer.py
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Upload merge report
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: merge-report
           path: .ai-workspace/merge-report.json
-          if-no-files-found: ignore
 
-  # Job 3: Merge safe wave (PRs that won't conflict)
+  # ── Step 4: Auto-merge safe wave ───────────────────────────────
   merge-wave:
-    if: github.event.inputs.mode == 'merge-wave'
+    if: >-
+      github.event.inputs.mode != 'create-only' &&
+      github.event.inputs.mode != 'report-only'
+    needs: analyze-merges
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main repo
+      - name: Checkout controller (with submodules)
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_PAT }}
+          submodules: recursive
+          fetch-depth: 0
+          ref: main
 
-      - name: Checkout mobile app submodule
-        run: git submodule update --init repos/mobile_dejtingapp
-
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Configure Git and Auth
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-        run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
-          git config --global url."https://x-access-token:${GH_PAT}@github.com/".insteadOf "https://github.com/"
-
-      - name: Analyze then merge safe wave
+      - name: Merge safe wave
+        run: python3 scripts/merge-safe-wave.py
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: python3 scripts/merge-safe-wave.py
 
-      - name: Upload merge report
-        if: always()
-        uses: actions/upload-artifact@v4
+  # ── Step 5: Morning report ─────────────────────────────────────
+  morning-report:
+    if: always()  # Always run, even if previous jobs fail
+    needs: [create-prs, analyze-merges, merge-wave]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout controller
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0
+          ref: main
+
+      - name: Pull latest
+        run: git pull origin main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Download merge report (if exists)
+        uses: actions/download-artifact@v4
         with:
           name: merge-report
-          path: .ai-workspace/merge-report.json
-          if-no-files-found: ignore
+          path: .ai-workspace/
+        continue-on-error: true
+
+      - name: Generate morning report
+        run: python3 scripts/morning-report.py
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}

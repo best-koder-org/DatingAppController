@@ -1,15 +1,209 @@
 #!/usr/bin/env python3
-import json, subprocess, sys
+"""
+Enhanced task processor for DatingApp overnight automation.
+Supports:
+  - Flutter UI screens (template-based or description-based)
+  - Backend .NET service tasks (stub generation)
+  - Companion test file creation
+  - Multi-repo routing via task 'service' field
+"""
+import json, subprocess, sys, textwrap
 from datetime import datetime
 from pathlib import Path
 
+# ── Repo routing map ─────────────────────────────────────────────────
+SERVICE_REPO = {
+    "mobile_dejtingapp": "repos/mobile_dejtingapp",
+    "UserService":       "repos/UserService",
+    "MatchmakingService":"repos/MatchmakingService",
+    "swipe-service":     "repos/swipe-service",
+    "photo-service":     "repos/photo-service",
+    "messaging-service": "repos/messaging-service",
+    "dejting-yarp":      "repos/dejting-yarp",
+}
+
 def run(cmd, cwd=None, check=True):
+    """Run a shell command, abort on failure unless check=False."""
     r = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True)
     if check and r.returncode != 0:
         print(f"FAIL: {cmd}\n{r.stderr}")
         sys.exit(1)
     return r
 
+def sanitize_branch(tid, title):
+    slug = title.lower().replace(" ", "-").replace("'", "")
+    slug = "".join(c for c in slug if c.isalnum() or c == "-")[:40]
+    return f"automation/{tid.lower()}-{slug}"
+
+# ── Flutter screen generator (from description) ─────────────────────
+def generate_flutter_screen(task):
+    """Generate a minimal Flutter StatefulWidget from task description."""
+    tid = task["id"]
+    title = task["title"]
+    class_name = "".join(w.capitalize() for w in title.replace("-", " ").split()) + "Screen"
+    file_stem = task["filePath"].split("/")[-1].replace(".dart", "")
+
+    criteria = "\n".join(f"  // - {c}" for c in task.get("acceptanceCriteria", []))
+    progress_pct = "0.5"  # default; can be overridden
+
+    return textwrap.dedent(f'''\
+    import 'package:flutter/material.dart';
+
+    /// {title} ({tid})
+    /// Auto-generated from task queue. Acceptance criteria:
+    {criteria}
+    class {class_name} extends StatefulWidget {{
+      const {class_name}({{super.key}});
+
+      @override
+      State<{class_name}> createState() => _{class_name}State();
+    }}
+
+    class _{class_name}State extends State<{class_name}> {{
+      bool _isValid = false;
+
+      @override
+      Widget build(BuildContext context) {{
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.black),
+                onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
+              ),
+            ],
+          ),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Progress bar
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: {progress_pct},
+                      backgroundColor: Colors.grey[200],
+                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF6B6B)),
+                      minHeight: 4,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Text(
+                    '{title}',
+                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  // TODO: Implement screen body per acceptance criteria
+                  const Expanded(
+                    child: Center(
+                      child: Text('TODO: Implement {tid} body'),
+                    ),
+                  ),
+                  // Next button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _isValid ? () {{}} : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFF6B6B),
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.grey[300],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(26),
+                        ),
+                      ),
+                      child: const Text('Next', style: TextStyle(fontSize: 18)),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
+        );
+      }}
+    }}
+    ''')
+
+def generate_flutter_test(task):
+    """Generate a basic widget test for a Flutter screen."""
+    tid = task["id"]
+    title = task["title"]
+    class_name = "".join(w.capitalize() for w in title.replace("-", " ").split()) + "Screen"
+    import_path = task["filePath"].replace("lib/", "package:dejtingapp/")
+
+    return textwrap.dedent(f'''\
+    import 'package:flutter/material.dart';
+    import 'package:flutter_test/flutter_test.dart';
+    import '{import_path}';
+
+    void main() {{
+      group('{title} ({tid})', () {{
+        testWidgets('renders without errors', (tester) async {{
+          await tester.pumpWidget(
+            const MaterialApp(home: {class_name}()),
+          );
+          await tester.pumpAndSettle();
+          expect(find.byType({class_name}), findsOneWidget);
+        }});
+
+        testWidgets('has a Next button', (tester) async {{
+          await tester.pumpWidget(
+            const MaterialApp(home: {class_name}()),
+          );
+          expect(find.text('Next'), findsOneWidget);
+        }});
+
+        testWidgets('Next button is initially disabled', (tester) async {{
+          await tester.pumpWidget(
+            const MaterialApp(home: {class_name}()),
+          );
+          final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+          expect(button.onPressed, isNull);
+        }});
+      }});
+    }}
+    ''')
+
+# ── Backend stub generator (for .NET services) ──────────────────────
+def generate_dotnet_stub(task):
+    """Generate a minimal C# file skeleton for a backend task."""
+    tid = task["id"]
+    title = task["title"]
+    service = task["service"]
+    class_name = "".join(w.capitalize() for w in title.replace("-", " ").split())
+    namespace = service.replace("-", "_")
+
+    criteria = "\n".join(f"    // - {c}" for c in task.get("acceptanceCriteria", []))
+
+    return textwrap.dedent(f'''\
+    // {title} ({tid})
+    // Auto-generated stub from task queue
+    // Acceptance criteria:
+    {criteria}
+
+    namespace {namespace};
+
+    /// <summary>
+    /// TODO: Implement {title}
+    /// </summary>
+    public class {class_name}
+    {{
+        // TODO: Implement per acceptance criteria above
+    }}
+    ''')
+
+# ── Main pipeline ────────────────────────────────────────────────────
 def main():
     root = Path(__file__).parent.parent
     queue_file = root / ".ai-workspace/task-queue.json"
@@ -19,48 +213,154 @@ def main():
         queue = json.load(f)
 
     if not queue["queue"]:
-        print("No tasks left!")
+        print("QUEUE_EMPTY")
         return
 
     task = queue["queue"][0]
     tid = task["id"]
-    print(f"Processing: {tid} - {task['title']}")
+    service = task.get("service", "mobile_dejtingapp")
+    task_type = task.get("type", "screen")
+    print(f"Processing: {tid} - {task['title']} (service={service}, type={task_type})")
 
-    tpl = templates_dir / f"{tid}.dart"
-    if not tpl.exists():
-        print(f"No template: {tpl}")
-        return
+    # Resolve target repo
+    repo_rel = SERVICE_REPO.get(service)
+    if not repo_rel:
+        print(f"ERROR: Unknown service '{service}'. Supported: {list(SERVICE_REPO.keys())}")
+        sys.exit(1)
+    repo_dir = root / repo_rel
 
-    mobile = root / "repos/mobile_dejtingapp"
-    branch = f"automation/{tid.lower()}-{task['title'].lower().replace(' ','-')[:30]}"
+    if not repo_dir.exists():
+        print(f"ERROR: Repo dir not found: {repo_dir}")
+        sys.exit(1)
 
-    run("git config pull.rebase false", cwd=mobile)
-    run("git checkout main && git pull origin main", cwd=mobile)
-    run(f"git checkout -b {branch}", cwd=mobile)
+    # ── Determine source content ────────────────────────────────
+    template_file = templates_dir / f"{tid}.dart"
+    is_flutter = service == "mobile_dejtingapp"
 
-    dest = mobile / task["filePath"]
+    if template_file.exists():
+        # Pre-built template (highest quality)
+        content = template_file.read_text()
+        source = "template"
+        print(f"Using pre-built template: {template_file.name}")
+    elif is_flutter and task_type == "screen":
+        # Generate Flutter screen from description
+        content = generate_flutter_screen(task)
+        source = "generated-flutter"
+        print(f"Generated Flutter screen from description")
+    elif not is_flutter:
+        # Generate backend stub
+        content = generate_dotnet_stub(task)
+        source = "generated-dotnet"
+        print(f"Generated .NET stub from description")
+    else:
+        print(f"ERROR: No template and can't generate for type={task_type}")
+        sys.exit(1)
+
+    # ── Create branch ───────────────────────────────────────────
+    branch = sanitize_branch(tid, task["title"])
+    run("git config pull.rebase false", cwd=repo_dir)
+    run("git checkout main && git pull origin main", cwd=repo_dir)
+    run(f"git checkout -b {branch}", cwd=repo_dir)
+
+    # ── Write feature file ──────────────────────────────────────
+    dest = repo_dir / task["filePath"]
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(tpl.read_text())
-    print(f"Created {dest.name}")
+    dest.write_text(content)
+    print(f"Created: {dest}")
 
-    print("Skipping flutter analyze (pre-validated templates)")
+    # ── Write companion test (Flutter only) ─────────────────────
+    test_file = None
+    if is_flutter and task_type == "screen":
+        test_rel = task["filePath"].replace("lib/", "test/").replace(".dart", "_test.dart")
+        test_dest = repo_dir / test_rel
+        test_dest.parent.mkdir(parents=True, exist_ok=True)
 
-    run(f"git add {dest}", cwd=mobile)
-    run(f'git commit -m "feat(onboarding): Add {task["title"]} ({tid})"', cwd=mobile)
-    run(f"git push origin {branch}", cwd=mobile)
-    run(f'gh pr create --base main --head {branch} --title "feat(onboarding): {task["title"]}" --body "Auto-generated from task queue"', cwd=mobile)
+        test_template = templates_dir / f"{tid}-TEST.dart"
+        if test_template.exists():
+            test_content = test_template.read_text()
+            print(f"Using pre-built test template: {test_template.name}")
+        else:
+            test_content = generate_flutter_test(task)
+            print(f"Generated companion test")
+
+        test_dest.write_text(test_content)
+        test_file = test_dest
+        print(f"Created test: {test_dest}")
+
+    # ── Validate ────────────────────────────────────────────────
+    if is_flutter:
+        # Run flutter analyze on the new file only
+        r = run(f"flutter analyze {dest}", cwd=repo_dir, check=False)
+        if r.returncode != 0:
+            print(f"WARNING: flutter analyze issues (non-blocking):\n{r.stdout}\n{r.stderr}")
+        else:
+            print("flutter analyze: PASS")
+    elif not is_flutter:
+        # Quick dotnet build check
+        r = run("dotnet build --no-restore -warnaserrors", cwd=repo_dir, check=False)
+        if r.returncode != 0:
+            print(f"WARNING: dotnet build issues (non-blocking):\n{r.stdout[-500:]}")
+        else:
+            print("dotnet build: PASS")
+
+    # ── Commit & push ───────────────────────────────────────────
+    run("git add -A", cwd=repo_dir)
+
+    commit_msg = f'feat({service}): Add {task["title"]} ({tid})'
+    if source.startswith("generated"):
+        commit_msg += "\n\nAuto-generated from task description. Needs human review."
+
+    run(f'git commit -m "{commit_msg}"', cwd=repo_dir)
+    run(f"git push origin {branch}", cwd=repo_dir)
+
+    # ── Create PR ───────────────────────────────────────────────
+    pr_body = f"""## {task['title']} ({tid})
+
+**Service:** {service}
+**Type:** {task_type}
+**Source:** {source}
+**Safety Tier:** {task.get('safetyTier', 'N/A')}
+
+### Description
+{task.get('description', 'See task definition.')}
+
+### Acceptance Criteria
+{"".join(f"- [ ] {c}" + chr(10) for c in task.get('acceptanceCriteria', []))}
+
+### Files Changed
+- `{task['filePath']}`{f"{chr(10)}- `{test_file.relative_to(repo_dir)}`" if test_file else ""}
+
+### Safety Notes
+{task.get('safetyNotes', 'No safety notes.')}
+
+---
+*Auto-generated by overnight automation pipeline*
+"""
+
+    run(
+        f'gh pr create --base main --head {branch} '
+        f'--title "{commit_msg.split(chr(10))[0]}" '
+        f'--body "{pr_body.replace(chr(34), chr(39))}"',
+        cwd=repo_dir
+    )
     print(f"PR created for {tid}")
 
-    # Update queue and push back to controller repo
+    # ── Update queue ────────────────────────────────────────────
+    completed_task = {**task, "completedAt": datetime.now().isoformat(), "source": source}
     queue["queue"].pop(0)
-    queue["completed"].append({**task, "completedAt": datetime.now().isoformat()})
+
+    # Move from inProgress or add to completed
+    queue.setdefault("inProgress", [])
+    queue["inProgress"] = [t for t in queue["inProgress"] if t["id"] != tid]
+    queue["completed"].append(completed_task)
+
     with open(queue_file, "w") as f:
         json.dump(queue, f, indent=2)
 
     run(f"git add {queue_file}", cwd=root)
     run(f'git commit -m "ci: Mark {tid} as completed"', cwd=root)
     run("git push origin main", cwd=root)
-    print(f"Queue updated and pushed. Done!")
+    print(f"DONE: {tid} processed successfully (source={source})")
 
 if __name__ == "__main__":
     main()
