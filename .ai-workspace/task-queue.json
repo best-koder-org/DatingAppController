@@ -3,36 +3,6 @@
   "lastUpdated": "2026-02-08T22:20:55.107767",
   "queue": [
     {
-      "id": "BE-007",
-      "type": "backend",
-      "tier": 1,
-      "service": "MatchmakingService",
-      "title": "Add Compatibility Score Endpoint",
-      "filePath": "DTOs/CompatibilityScoreDto.cs",
-      "additionalFiles": [
-        "Controllers/CompatibilityController.cs"
-      ],
-      "description": "Add endpoint to compute compatibility score between two users based on shared interests, location proximity, and preference alignment.",
-      "acceptanceCriteria": [
-        "CompatibilityScoreDto with OverallScore, InterestsScore, LocationScore, PreferenceScore",
-        "GET /api/compatibility/{userId1}/{userId2}",
-        "Score 0-100 based on weighted factors",
-        "Authorize attribute",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 3,
-      "priority": "medium",
-      "dependencies": [
-        "BE-003"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Read-only computation, new files only.",
-      "testCommand": "dotnet build",
-      "referenceFiles": [
-        "Controllers/MatchmakingController.cs"
-      ]
-    },
-    {
       "id": "BE-008",
       "type": "backend",
       "tier": 1,
@@ -310,6 +280,38 @@
         "Controllers/SwipesController.cs"
       ],
       "completedAt": "2026-02-08T22:25:56.433183",
+      "source": "template"
+    },
+    {
+      "id": "BE-007",
+      "type": "backend",
+      "tier": 1,
+      "service": "MatchmakingService",
+      "title": "Add Compatibility Score Endpoint",
+      "filePath": "DTOs/CompatibilityScoreDto.cs",
+      "additionalFiles": [
+        "Controllers/CompatibilityController.cs"
+      ],
+      "description": "Add endpoint to compute compatibility score between two users based on shared interests, location proximity, and preference alignment.",
+      "acceptanceCriteria": [
+        "CompatibilityScoreDto with OverallScore, InterestsScore, LocationScore, PreferenceScore",
+        "GET /api/compatibility/{userId1}/{userId2}",
+        "Score 0-100 based on weighted factors",
+        "Authorize attribute",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 3,
+      "priority": "medium",
+      "dependencies": [
+        "BE-003"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "Read-only computation, new files only.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Controllers/MatchmakingController.cs"
+      ],
+      "completedAt": "2026-02-08T22:27:18.822019",
       "source": "template"
     }
   ]
