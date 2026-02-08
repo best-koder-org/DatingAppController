@@ -43,7 +43,6 @@ def main():
     dest.write_text(tpl.read_text())
     print(f"Created {dest.name}")
 
-    # Skip flutter analyze - templates are pre-validated locally
     print("Skipping flutter analyze (pre-validated templates)")
 
     run(f"git add {dest}", cwd=mobile)
@@ -52,11 +51,16 @@ def main():
     run(f'gh pr create --base main --head {branch} --title "feat(onboarding): {task["title"]}" --body "Auto-generated from task queue"', cwd=mobile)
     print(f"PR created for {tid}")
 
+    # Update queue and push back to controller repo
     queue["queue"].pop(0)
     queue["completed"].append({**task, "completedAt": datetime.now().isoformat()})
     with open(queue_file, "w") as f:
         json.dump(queue, f, indent=2)
-    print("Done!")
+
+    run(f"git add {queue_file}", cwd=root)
+    run(f'git commit -m "ci: Mark {tid} as completed"', cwd=root)
+    run("git push origin main", cwd=root)
+    print(f"Queue updated and pushed. Done!")
 
 if __name__ == "__main__":
     main()

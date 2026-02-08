@@ -3,37 +3,6 @@
   "lastUpdated": "2026-02-08T09:00:00Z",
   "queue": [
     {
-      "id": "ONB-070",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Birthday Entry Screen",
-      "filePath": "lib/screens/wizard/birthday_screen.dart",
-      "description": "Date input screen with three separate fields (month, day, year) and 18+ validation",
-      "acceptanceCriteria": [
-        "Progress bar (30%)",
-        "Header: 'Your b-day?'",
-        "Three separate inputs: Month (dropdown 1-12), Day (input 1-31), Year (input 1900-2008)",
-        "Privacy note: 'Your profile shows your age, not your birthdate'",
-        "Real date validation (Feb 30 = error, leap years handled)",
-        "Calculate age from date, must be >= 18",
-        "Next button (disabled until valid date AND 18+)",
-        "Under-18 error modal: 'You must be 18 or older to use this app' with 'Go back' button",
-        "Can't select future dates"
-      ],
-      "estimatedHours": 4,
-      "priority": "high",
-      "dependencies": [
-        "ONB-060"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Date math only, no user data storage, straightforward validation",
-      "testCommand": "flutter analyze lib/screens/wizard/birthday_screen.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/first_name_screen.dart (for progress bar and layout)"
-      ]
-    },
-    {
       "id": "ONB-080",
       "type": "screen",
       "tier": 1,
@@ -128,6 +97,38 @@
         "lib/screens/wizard/phone_entry_screen.dart (for input field pattern)"
       ],
       "completedAt": "2026-02-08T17:57:23.069598"
+    },
+    {
+      "id": "ONB-070",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Birthday Entry Screen",
+      "filePath": "lib/screens/wizard/birthday_screen.dart",
+      "description": "Date input screen with three separate fields (month, day, year) and 18+ validation",
+      "acceptanceCriteria": [
+        "Progress bar (30%)",
+        "Header: 'Your b-day?'",
+        "Three separate inputs: Month (dropdown 1-12), Day (input 1-31), Year (input 1900-2008)",
+        "Privacy note: 'Your profile shows your age, not your birthdate'",
+        "Real date validation (Feb 30 = error, leap years handled)",
+        "Calculate age from date, must be >= 18",
+        "Next button (disabled until valid date AND 18+)",
+        "Under-18 error modal: 'You must be 18 or older to use this app' with 'Go back' button",
+        "Can't select future dates"
+      ],
+      "estimatedHours": 4,
+      "priority": "high",
+      "dependencies": [
+        "ONB-060"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "Date math only, no user data storage, straightforward validation",
+      "testCommand": "flutter analyze lib/screens/wizard/birthday_screen.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/first_name_screen.dart (for progress bar and layout)"
+      ],
+      "completedAt": "2026-02-08T17:35:00Z"
     }
   ]
 }
