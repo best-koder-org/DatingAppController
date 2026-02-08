@@ -151,6 +151,33 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .modal table{width:100%;font-size:13px;border-collapse:collapse}
 .modal td{padding:4px 8px;border-bottom:1px solid var(--border)}
 .modal td:first-child{text-align:right;color:var(--muted);width:80px}
+
+/* Live run panel */
+.live-panel{border:2px solid var(--yellow);border-radius:var(--radius);background:var(--s2);animation:glow 2s infinite}
+@keyframes glow{0%,100%{border-color:var(--yellow)}50%{border-color:rgba(210,153,34,.4)}}
+.live-panel.done{animation:none;border-color:var(--green)}
+.live-panel.failed{animation:none;border-color:var(--red)}
+.live-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
+.live-header .live-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.live-header .live-elapsed{font-size:12px;color:var(--muted);font-family:monospace}
+.live-jobs{padding:8px 16px}
+.job{margin-bottom:8px;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.job-header{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--s1);cursor:pointer;font-size:13px;font-weight:500}
+.job-header:hover{background:var(--border)}
+.job-icon{width:18px;text-align:center;font-size:13px}
+.job-name{flex:1}
+.job-dur{font-size:11px;color:var(--muted);font-family:monospace}
+.job-steps{padding:0 12px 8px;background:var(--s1)}
+.step{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12px;color:var(--muted)}
+.step-icon{width:16px;text-align:center;font-size:11px}
+.step-name{flex:1}
+.step.active{color:var(--text);font-weight:500}
+.step.active .step-icon{color:var(--yellow)}
+.step-dur{font-size:10px;font-family:monospace}
+.progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin:0 16px 4px}
+.progress-fill{height:100%;background:var(--yellow);border-radius:2px;transition:width .5s}
+.progress-fill.done{background:var(--green)}
+.live-elapsed-big{font-size:20px;font-family:monospace;font-weight:600;color:var(--yellow)}
 .hidden{display:none!important}
 </style>
 </head>
@@ -207,6 +234,22 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
       <button class="btn danger" onclick="cancelRun()" id="btn-cancel" title="X">✕ Cancel Run</button>
       <div class="divider"></div>
       <button class="btn" onclick="refreshAll()" title="R">🔄 Refresh</button>
+    </div>
+  </div>
+
+
+  <!-- ═══ Live Run Details ═══ -->
+  <div class="card full-width hidden" id="live-panel-card">
+    <div class="live-panel" id="live-panel">
+      <div class="live-header">
+        <div class="live-title"><span id="live-icon">🔄</span> <span id="live-run-title">Pipeline Running</span></div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <span class="live-elapsed-big" id="live-elapsed">00:00</span>
+          <a id="live-gh-link" href="#" target="_blank" class="btn sm">View on GitHub</a>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="live-progress" style="width:0%"></div></div>
+      <div class="live-jobs" id="live-jobs"></div>
     </div>
   </div>
 
@@ -439,7 +482,7 @@ function renderRuns(runs){
 function updateLiveStatus(runs){
   const dot=document.getElementById('live-dot'),lbl=document.getElementById('live-status');
   const active=runs.find(r=>r.status==='in_progress'||r.status==='queued');
-  if(active){dot.className='dot yellow';lbl.textContent=active.status==='queued'?'Queued...':'Running...';}
+  if(active){dot.className='dot yellow';lbl.textContent=active.status==='queued'?'Queued...':'Running — '+timeAgo(new Date(active.created_at));}
   else if(paused){dot.className='dot yellow';lbl.textContent='Paused'}
   else{
     const l=runs[0];
@@ -447,6 +490,123 @@ function updateLiveStatus(runs){
     else if(l?.conclusion==='failure'){dot.className='dot red';lbl.textContent='Idle — last failed'}
     else{dot.className='dot green';lbl.textContent='Idle'}
   }
+}
+
+
+// ── Live Run Tracking ──────────────────────────────────────────
+let activeRunId=null, liveTimer=null, liveStartTime=null, fastPollTimer=null;
+
+async function fetchLiveDetails(){
+  // Find active run
+  try{
+    const d=await api(`/repos/${O}/${CR}/actions/workflows/${WF}/runs?per_page=3`);
+    const runs=d.workflow_runs||[];
+    const active=runs.find(r=>r.status==='in_progress'||r.status==='queued');
+    
+    if(active){
+      activeRunId=active.id;
+      if(!liveStartTime)liveStartTime=new Date(active.created_at);
+      document.getElementById('live-panel-card').classList.remove('hidden');
+      
+      // Fetch jobs for this run
+      const jobs=await api(`/repos/${O}/${CR}/actions/runs/${active.id}/jobs`);
+      renderLivePanel(active,jobs.jobs||[]);
+      
+      // Start fast polling if not already
+      if(!fastPollTimer){
+        fastPollTimer=setInterval(fetchLiveDetails,8000);
+      }
+    }else{
+      // Check if the run just finished
+      if(activeRunId){
+        // Fetch one last time to show final state
+        try{
+          const jobs=await api(`/repos/${O}/${CR}/actions/runs/${activeRunId}/jobs`);
+          const finishedRun=runs.find(r=>r.id===activeRunId)||runs[0];
+          if(finishedRun){
+            renderLivePanel(finishedRun,jobs.jobs||[],true);
+            // Keep showing for 60s then hide
+            setTimeout(()=>{
+              document.getElementById('live-panel-card').classList.add('hidden');
+              activeRunId=null;liveStartTime=null;
+            },60000);
+          }
+        }catch{}
+      }else{
+        document.getElementById('live-panel-card').classList.add('hidden');
+      }
+      // Stop fast polling
+      if(fastPollTimer){clearInterval(fastPollTimer);fastPollTimer=null;}
+      if(liveTimer){clearInterval(liveTimer);liveTimer=null;}
+    }
+  }catch(e){console.error('Live tracking error:',e)}
+}
+
+function renderLivePanel(run,jobs,finished=false){
+  const panel=document.getElementById('live-panel');
+  const icon=document.getElementById('live-icon');
+  const title=document.getElementById('live-run-title');
+  const link=document.getElementById('live-gh-link');
+  const progress=document.getElementById('live-progress');
+  
+  link.href=run.html_url;
+  
+  if(finished){
+    panel.className=run.conclusion==='success'?'live-panel done':'live-panel failed';
+    icon.textContent=run.conclusion==='success'?'✅':'❌';
+    title.textContent=`${run.display_title||'Pipeline'} — ${run.conclusion}`;
+    progress.style.width='100%';
+    progress.className=run.conclusion==='success'?'progress-fill done':'progress-fill';
+  }else{
+    panel.className='live-panel';
+    icon.textContent='🔄';
+    // Find current job name
+    const currentJob=jobs.find(j=>j.status==='in_progress');
+    const currentStep=currentJob?.steps?.find(s=>s.status==='in_progress');
+    const stepName=currentStep?` → ${currentStep.name}`:'';
+    title.textContent=`${currentJob?.name||run.display_title||'Pipeline'}${stepName}`;
+    
+    // Progress: completed jobs / total jobs
+    const total=jobs.length||1;
+    const done=jobs.filter(j=>j.conclusion==='success').length;
+    const inProg=jobs.filter(j=>j.status==='in_progress').length;
+    const pct=Math.round(((done+inProg*0.5)/total)*100);
+    progress.style.width=pct+'%';
+    progress.className='progress-fill';
+  }
+  
+  // Elapsed timer
+  if(!finished&&!liveTimer){
+    liveTimer=setInterval(()=>{
+      if(!liveStartTime)return;
+      const el=document.getElementById('live-elapsed');
+      const s=Math.floor((Date.now()-liveStartTime)/1000);
+      const m=Math.floor(s/60);
+      const sec=s%60;
+      el.textContent=`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    },1000);
+  }
+  if(finished){
+    if(liveTimer){clearInterval(liveTimer);liveTimer=null}
+    const s=Math.floor((new Date(run.updated_at)-new Date(run.created_at))/1000);
+    const m=Math.floor(s/60);
+    document.getElementById('live-elapsed').textContent=`${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  }
+  
+  // Render jobs
+  const el=document.getElementById('live-jobs');
+  el.innerHTML=jobs.map(j=>{
+    const jIcon=j.conclusion==='success'?'✅':j.conclusion==='failure'?'❌':j.conclusion==='skipped'?'⏭':j.status==='in_progress'?'🔄':j.status==='queued'?'⏳':'⚪';
+    const jDur=j.completed_at&&j.started_at?fmtDur(new Date(j.completed_at)-new Date(j.started_at)):j.started_at?fmtDur(Date.now()-new Date(j.started_at)):'';
+    const steps=(j.steps||[]).map(s=>{
+      const sIcon=s.conclusion==='success'?'✓':s.conclusion==='failure'?'✕':s.conclusion==='skipped'?'⏭':s.status==='in_progress'?'●':'○';
+      const sClass=s.status==='in_progress'?'step active':'step';
+      const sDur=s.completed_at&&s.started_at?fmtDur(new Date(s.completed_at)-new Date(s.started_at)):'';
+      return`<div class="${sClass}"><span class="step-icon">${sIcon}</span><span class="step-name">${esc(s.name)}</span><span class="step-dur">${sDur}</span></div>`;
+    }).join('');
+    const expanded=j.status==='in_progress'||j.conclusion==='failure';
+    return`<div class="job"><div class="job-header" onclick="this.nextElementSibling.classList.toggle('hidden')"><span class="job-icon">${jIcon}</span><span class="job-name">${esc(j.name)}</span><span class="job-dur">${jDur}</span></div><div class="job-steps${expanded?'':' hidden'}">${steps}</div></div>`;
+  }).join('');
 }
 
 // ── Evals ──────────────────────────────────────────────────────
@@ -655,7 +815,7 @@ async function refreshAll(){
   if(!TOKEN){showSetup();return}
   document.getElementById('last-refresh').textContent='refreshing...';
   try{
-    await Promise.all([fetchQueue(),fetchPRs(),fetchRuns(),fetchEvals(),fetchBuildPlan(),fetchPauseState()]);
+    await Promise.all([fetchQueue(),fetchPRs(),fetchRuns(),fetchEvals(),fetchBuildPlan(),fetchPauseState(),fetchLiveDetails()]);
     // Catalog depends on queue data
     await fetchCatalog();
     document.getElementById('last-refresh').textContent=`Updated ${new Date().toLocaleTimeString()}`;
@@ -686,7 +846,7 @@ if(!TOKEN){
   document.querySelectorAll('.loading').forEach(e=>e.textContent='Enter token to load');
 }else{
   refreshAll();
-  setInterval(refreshAll,30000);
+  setInterval(()=>{if(!fastPollTimer)refreshAll()},30000); // skip if fast poll active
   // Request notification permission
   if('Notification' in window && Notification.permission==='default'){
     Notification.requestPermission();
