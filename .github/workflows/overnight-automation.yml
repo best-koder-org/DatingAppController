@@ -39,7 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          python3 scripts/process-next-task.py || echo 'Task processing completed or failed'
+          python3 scripts/process-next-task.py
       
       - name: Upload logs
         if: always()
