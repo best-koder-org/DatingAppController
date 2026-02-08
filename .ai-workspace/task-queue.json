@@ -3,36 +3,6 @@
   "lastUpdated": "2026-02-08T20:30:37.823150",
   "queue": [
     {
-      "id": "BE-002",
-      "type": "backend",
-      "tier": 1,
-      "service": "swipe-service",
-      "title": "Add Daily Swipe Limit Middleware",
-      "filePath": "Services/SwipeLimitService.cs",
-      "additionalFiles": [
-        "DTOs/SwipeLimitDto.cs"
-      ],
-      "description": "Create a swipe rate-limiting service that tracks daily swipe counts per user. Free tier = 100 swipes/day. Includes SwipeLimitService (ISwipeLimitService interface + implementation) and SwipeLimitDto. Uses in-memory tracking via ConcurrentDictionary (production will use Redis later). Includes GET /api/swipes/limit endpoint on existing SwipesController to check remaining.",
-      "acceptanceCriteria": [
-        "ISwipeLimitService interface with CanSwipe(userId), IncrementSwipe(userId), GetRemaining(userId)",
-        "SwipeLimitService implementation using ConcurrentDictionary<string, (int count, DateTime resetAt)>",
-        "100 swipes/day limit hardcoded as const",
-        "Auto-reset at midnight UTC",
-        "SwipeLimitDto with DailyLimit, Used, Remaining, ResetsAt fields",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 2,
-      "priority": "high",
-      "dependencies": [],
-      "safetyTier": 1,
-      "safetyNotes": "New files only, in-memory tracking, no DB changes. Rate limit is additive.",
-      "testCommand": "dotnet build",
-      "referenceFiles": [
-        "Controllers/SwipesController.cs",
-        "Common/"
-      ]
-    },
-    {
       "id": "BE-003",
       "type": "backend",
       "tier": 1,
@@ -177,6 +147,38 @@
         "DTOs/"
       ],
       "completedAt": "2026-02-08T20:41:10.183913",
+      "source": "template"
+    },
+    {
+      "id": "BE-002",
+      "type": "backend",
+      "tier": 1,
+      "service": "swipe-service",
+      "title": "Add Daily Swipe Limit Middleware",
+      "filePath": "Services/SwipeLimitService.cs",
+      "additionalFiles": [
+        "DTOs/SwipeLimitDto.cs"
+      ],
+      "description": "Create a swipe rate-limiting service that tracks daily swipe counts per user. Free tier = 100 swipes/day. Includes SwipeLimitService (ISwipeLimitService interface + implementation) and SwipeLimitDto. Uses in-memory tracking via ConcurrentDictionary (production will use Redis later). Includes GET /api/swipes/limit endpoint on existing SwipesController to check remaining.",
+      "acceptanceCriteria": [
+        "ISwipeLimitService interface with CanSwipe(userId), IncrementSwipe(userId), GetRemaining(userId)",
+        "SwipeLimitService implementation using ConcurrentDictionary<string, (int count, DateTime resetAt)>",
+        "100 swipes/day limit hardcoded as const",
+        "Auto-reset at midnight UTC",
+        "SwipeLimitDto with DailyLimit, Used, Remaining, ResetsAt fields",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 2,
+      "priority": "high",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "New files only, in-memory tracking, no DB changes. Rate limit is additive.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Controllers/SwipesController.cs",
+        "Common/"
+      ],
+      "completedAt": "2026-02-08T20:42:37.520123",
       "source": "template"
     }
   ]
