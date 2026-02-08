@@ -227,6 +227,203 @@ TASK_CATALOG = {
     },
 }
 
+# ── Backend task definitions ───────────────────────────────────────
+BACKEND_TASK_CATALOG = {
+    "BE-001": {
+        "id": "BE-001",
+        "type": "backend",
+        "tier": 1,
+        "service": "messaging-service",
+        "title": "Add Read Receipts DTO and Endpoint",
+        "filePath": "DTOs/ReadReceiptDto.cs",
+        "additionalFiles": ["Controllers/ReadReceiptsController.cs"],
+        "description": "Add read receipt tracking for messages — DTO model + REST API endpoints.",
+        "acceptanceCriteria": [
+            "ReadReceiptDto with MessageId, ReaderId, ReadAt fields",
+            "POST /api/readreceipts endpoint",
+            "GET /api/readreceipts/{conversationId}/unread-count",
+            "Authorize attribute on both endpoints",
+            "dotnet build passes"
+        ],
+        "estimatedHours": 3,
+        "priority": "high",
+        "dependencies": [],
+        "safetyTier": 1,
+        "safetyNotes": "New files only, additive feature.",
+        "testCommand": "dotnet build",
+        "referenceFiles": ["Controllers/MessagesController.cs"]
+    },
+    "BE-002": {
+        "id": "BE-002",
+        "type": "backend",
+        "tier": 1,
+        "service": "swipe-service",
+        "title": "Add Daily Swipe Limit Middleware",
+        "filePath": "Services/SwipeLimitService.cs",
+        "additionalFiles": ["DTOs/SwipeLimitDto.cs"],
+        "description": "Create swipe rate-limiting service with daily swipe counts per user.",
+        "acceptanceCriteria": [
+            "ISwipeLimitService interface",
+            "SwipeLimitService with ConcurrentDictionary",
+            "100 swipes/day limit",
+            "SwipeLimitDto with DailyLimit, Used, Remaining, ResetsAt",
+            "dotnet build passes"
+        ],
+        "estimatedHours": 2,
+        "priority": "high",
+        "dependencies": [],
+        "safetyTier": 1,
+        "safetyNotes": "New files only, in-memory tracking.",
+        "testCommand": "dotnet build",
+        "referenceFiles": ["Controllers/SwipesController.cs"]
+    },
+    "BE-003": {
+        "id": "BE-003",
+        "type": "backend",
+        "tier": 1,
+        "service": "MatchmakingService",
+        "title": "Add Match Statistics Endpoint",
+        "filePath": "DTOs/MatchStatsDto.cs",
+        "additionalFiles": ["Controllers/MatchStatsController.cs"],
+        "description": "Add controller for user match statistics with read-only queries.",
+        "acceptanceCriteria": [
+            "MatchStatsDto with TotalMatches, PendingMatches, MatchRate",
+            "MatchStatsController with GET /api/matchstats/{userId}",
+            "Uses existing MatchmakingDbContext",
+            "dotnet build passes"
+        ],
+        "estimatedHours": 2,
+        "priority": "medium",
+        "dependencies": [],
+        "safetyTier": 1,
+        "safetyNotes": "Read-only endpoint, new files only.",
+        "testCommand": "dotnet build",
+        "referenceFiles": ["Controllers/MatchmakingController.cs"]
+    },
+    "BE-004": {
+        "id": "BE-004",
+        "type": "backend",
+        "tier": 1,
+        "service": "UserService",
+        "title": "Add Profile Completeness Calculator",
+        "filePath": "Services/ProfileCompletenessService.cs",
+        "additionalFiles": ["DTOs/ProfileCompletenessDto.cs"],
+        "description": "Create service calculating profile completeness percentage.",
+        "acceptanceCriteria": [
+            "IProfileCompletenessService interface",
+            "ProfileCompletenessService with weighted checks",
+            "ProfileCompletenessDto with Percentage, FilledFields, MissingFields",
+            "GET endpoint on ProfileController",
+            "dotnet build passes"
+        ],
+        "estimatedHours": 3,
+        "priority": "medium",
+        "dependencies": [],
+        "safetyTier": 1,
+        "safetyNotes": "Read-only calculation, new files only.",
+        "testCommand": "dotnet build",
+        "referenceFiles": ["Controllers/ProfileController.cs"]
+    },
+    "BE-005": {
+        "id": "BE-005",
+        "type": "backend",
+        "tier": 1,
+        "service": "messaging-service",
+        "title": "Add Typing Indicator DTO",
+        "filePath": "DTOs/TypingIndicatorDto.cs",
+        "additionalFiles": ["Controllers/TypingController.cs"],
+        "description": "Add typing indicator support — DTO + REST endpoints to post/get typing state per conversation.",
+        "acceptanceCriteria": [
+            "TypingIndicatorDto with UserId, ConversationId, IsTyping, Timestamp",
+            "POST /api/typing endpoint to broadcast typing state",
+            "GET /api/typing/{conversationId} for current typers",
+            "Authorize attribute",
+            "dotnet build passes"
+        ],
+        "estimatedHours": 2,
+        "priority": "medium",
+        "dependencies": ["BE-001"],
+        "safetyTier": 1,
+        "safetyNotes": "New files only, ephemeral state.",
+        "testCommand": "dotnet build",
+        "referenceFiles": ["Controllers/MessagesController.cs"]
+    },
+    "BE-006": {
+        "id": "BE-006",
+        "type": "backend",
+        "tier": 1,
+        "service": "swipe-service",
+        "title": "Add Swipe Analytics Endpoint",
+        "filePath": "DTOs/SwipeAnalyticsDto.cs",
+        "additionalFiles": ["Controllers/SwipeAnalyticsController.cs"],
+        "description": "Add analytics endpoint showing swipe patterns — total swipes, like ratio, peak hours, streak days.",
+        "acceptanceCriteria": [
+            "SwipeAnalyticsDto with TotalSwipes, LikeRatio, PeakHour, StreakDays",
+            "GET /api/swipes/analytics/{userId}",
+            "Uses existing SwipeDbContext",
+            "Authorize attribute",
+            "dotnet build passes"
+        ],
+        "estimatedHours": 2,
+        "priority": "medium",
+        "dependencies": ["BE-002"],
+        "safetyTier": 1,
+        "safetyNotes": "Read-only analytics, new files only.",
+        "testCommand": "dotnet build",
+        "referenceFiles": ["Controllers/SwipesController.cs"]
+    },
+    "BE-007": {
+        "id": "BE-007",
+        "type": "backend",
+        "tier": 1,
+        "service": "MatchmakingService",
+        "title": "Add Compatibility Score Endpoint",
+        "filePath": "DTOs/CompatibilityScoreDto.cs",
+        "additionalFiles": ["Controllers/CompatibilityController.cs"],
+        "description": "Add endpoint to compute compatibility score between two users based on shared interests, location proximity, and preference alignment.",
+        "acceptanceCriteria": [
+            "CompatibilityScoreDto with OverallScore, InterestsScore, LocationScore, PreferenceScore",
+            "GET /api/compatibility/{userId1}/{userId2}",
+            "Score 0-100 based on weighted factors",
+            "Authorize attribute",
+            "dotnet build passes"
+        ],
+        "estimatedHours": 3,
+        "priority": "medium",
+        "dependencies": ["BE-003"],
+        "safetyTier": 1,
+        "safetyNotes": "Read-only computation, new files only.",
+        "testCommand": "dotnet build",
+        "referenceFiles": ["Controllers/MatchmakingController.cs"]
+    },
+    "BE-008": {
+        "id": "BE-008",
+        "type": "backend",
+        "tier": 1,
+        "service": "UserService",
+        "title": "Add Profile Verification Status DTO",
+        "filePath": "DTOs/VerificationStatusDto.cs",
+        "additionalFiles": ["Controllers/VerificationController.cs"],
+        "description": "Add verification status tracking — DTO + endpoints to check and request profile verification (photo, email, phone).",
+        "acceptanceCriteria": [
+            "VerificationStatusDto with PhotoVerified, EmailVerified, PhoneVerified, OverallLevel",
+            "GET /api/verification/{userId} returns current status",
+            "POST /api/verification/{userId}/request to initiate verification",
+            "VerificationLevel enum (None, Basic, Full)",
+            "Authorize attribute",
+            "dotnet build passes"
+        ],
+        "estimatedHours": 3,
+        "priority": "medium",
+        "dependencies": ["BE-004"],
+        "safetyTier": 1,
+        "safetyNotes": "New files only, no actual verification logic yet.",
+        "testCommand": "dotnet build",
+        "referenceFiles": ["Controllers/ProfileController.cs"]
+    },
+}
+
+
 def main():
     root = Path(__file__).parent.parent
     queue_file = root / ".ai-workspace/task-queue.json"
