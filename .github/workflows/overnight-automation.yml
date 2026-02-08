@@ -4,32 +4,36 @@ on:
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'What to run'
+        required: true
+        default: 'create-pr'
+        type: choice
+        options:
+          - create-pr
+          - analyze-merges
+          - merge-wave
 
 jobs:
-  process-tasks:
+  # Job 1: Create a PR from the next task in queue
+  create-pr:
+    if: github.event.inputs.mode == 'create-pr' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout main repo
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_PAT }}
-      
-      - name: Checkout mobile app submodule only
-        run: |
-          git submodule update --init repos/mobile_dejtingapp
-      
+
+      - name: Checkout mobile app submodule
+        run: git submodule update --init repos/mobile_dejtingapp
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.32.1'
-          channel: 'stable'
-      
+
       - name: Configure Git and Auth
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
@@ -37,17 +41,86 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
           git config --global url."https://x-access-token:${GH_PAT}@github.com/".insteadOf "https://github.com/"
-      
+
       - name: Process Next Task
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: python3 scripts/process-next-task.py
+
+  # Job 2: Analyze all open PRs for merge conflicts
+  analyze-merges:
+    if: github.event.inputs.mode == 'analyze-merges'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Checkout mobile app submodule
+        run: git submodule update --init repos/mobile_dejtingapp
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Configure Git and Auth
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          python3 scripts/process-next-task.py
-      
-      - name: Upload logs
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git config --global url."https://x-access-token:${GH_PAT}@github.com/".insteadOf "https://github.com/"
+
+      - name: Analyze Merge Waves
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: python3 scripts/merge-wave-analyzer.py
+
+      - name: Upload merge report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: execution-logs
-          path: .ai-workspace/execution.log
+          name: merge-report
+          path: .ai-workspace/merge-report.json
+          if-no-files-found: ignore
+
+  # Job 3: Merge safe wave (PRs that won't conflict)
+  merge-wave:
+    if: github.event.inputs.mode == 'merge-wave'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Checkout mobile app submodule
+        run: git submodule update --init repos/mobile_dejtingapp
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Configure Git and Auth
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git config --global url."https://x-access-token:${GH_PAT}@github.com/".insteadOf "https://github.com/"
+
+      - name: Analyze then merge safe wave
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: python3 scripts/merge-safe-wave.py
+
+      - name: Upload merge report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merge-report
+          path: .ai-workspace/merge-report.json
           if-no-files-found: ignore

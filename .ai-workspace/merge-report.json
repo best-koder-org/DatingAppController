@@ -1,0 +1,43 @@
+{
+  "analyzedAt": "2026-02-08T18:48:34+01:00",
+  "totalPRs": 4,
+  "waves": [
+    {
+      "waveNumber": 1,
+      "prs": [
+        {
+          "number": 1,
+          "title": "feat(onboarding): Add Community Guidelines Screen (ONB-050)",
+          "url": "https://github.com/best-koder-ever/mobile_dejtingapp/pull/1",
+          "branch": "automation/onb-050-community-guidelines",
+          "status": "safe"
+        },
+        {
+          "number": 2,
+          "title": "feat(onboarding): First Name Entry Screen",
+          "url": "https://github.com/best-koder-ever/mobile_dejtingapp/pull/2",
+          "branch": "automation/onb-060-first-name-entry-screen",
+          "status": "safe"
+        },
+        {
+          "number": 3,
+          "title": "feat(onboarding): Birthday Entry Screen",
+          "url": "https://github.com/best-koder-ever/mobile_dejtingapp/pull/3",
+          "branch": "automation/onb-070-birthday-entry-screen",
+          "status": "safe"
+        },
+        {
+          "number": 4,
+          "title": "feat(onboarding): Gender Selection Screen",
+          "url": "https://github.com/best-koder-ever/mobile_dejtingapp/pull/4",
+          "branch": "automation/onb-080-gender-selection-screen",
+          "status": "safe"
+        }
+      ],
+      "status": "ready",
+      "mergeCommand": "gh pr merge 1 --merge && gh pr merge 2 --merge && gh pr merge 3 --merge && gh pr merge 4 --merge"
+    }
+  ],
+  "conflicts": [],
+  "summary": "4 PRs safe to merge, 0 have conflicts\nWave 1: #1 feat(onboarding): Add Community Guidelines Screen (ONB-050), #2 feat(onboarding): First Name Entry Screen, #3 feat(onboarding): Birthday Entry Screen, #4 feat(onboarding): Gender Selection Screen"
+}
