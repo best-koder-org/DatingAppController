@@ -3,36 +3,6 @@
   "lastUpdated": "2026-02-08T20:30:37.823150",
   "queue": [
     {
-      "id": "BE-004",
-      "type": "backend",
-      "tier": 1,
-      "service": "UserService",
-      "title": "Add Profile Completeness Calculator",
-      "filePath": "Services/ProfileCompletenessService.cs",
-      "additionalFiles": [
-        "DTOs/ProfileCompletenessDto.cs"
-      ],
-      "description": "Create a service that calculates profile completeness percentage. Checks: has name (10%), has birthday (10%), has gender (10%), has bio (15%), has photos >= 1 (20%), has photos >= 3 (10%), has location (10%), has interests (15%). Returns a DTO with overall percentage, per-field status, and suggestions for next steps. Add GET /api/userprofiles/{userId}/completeness endpoint.",
-      "acceptanceCriteria": [
-        "IProfileCompletenessService interface with CalculateCompleteness(UserProfile)",
-        "ProfileCompletenessService implementation with weighted field checks",
-        "ProfileCompletenessDto with Percentage, FilledFields list, MissingFields list, NextSuggestion",
-        "ProfileFieldStatus enum or record with FieldName, IsFilled, Weight",
-        "GET endpoint on ProfileController returning completeness DTO",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 3,
-      "priority": "medium",
-      "dependencies": [],
-      "safetyTier": 1,
-      "safetyNotes": "Read-only calculation, new files only, uses existing UserProfile model.",
-      "testCommand": "dotnet build",
-      "referenceFiles": [
-        "Controllers/ProfileController.cs",
-        "Models/UserProfile.cs"
-      ]
-    },
-    {
       "id": "ONB-090",
       "type": "screen",
       "tier": 1,
@@ -181,6 +151,38 @@
         "Controllers/MatchmakingController.cs"
       ],
       "completedAt": "2026-02-08T20:44:04.652573",
+      "source": "template"
+    },
+    {
+      "id": "BE-004",
+      "type": "backend",
+      "tier": 1,
+      "service": "UserService",
+      "title": "Add Profile Completeness Calculator",
+      "filePath": "Services/ProfileCompletenessService.cs",
+      "additionalFiles": [
+        "DTOs/ProfileCompletenessDto.cs"
+      ],
+      "description": "Create a service that calculates profile completeness percentage. Checks: has name (10%), has birthday (10%), has gender (10%), has bio (15%), has photos >= 1 (20%), has photos >= 3 (10%), has location (10%), has interests (15%). Returns a DTO with overall percentage, per-field status, and suggestions for next steps. Add GET /api/userprofiles/{userId}/completeness endpoint.",
+      "acceptanceCriteria": [
+        "IProfileCompletenessService interface with CalculateCompleteness(UserProfile)",
+        "ProfileCompletenessService implementation with weighted field checks",
+        "ProfileCompletenessDto with Percentage, FilledFields list, MissingFields list, NextSuggestion",
+        "ProfileFieldStatus enum or record with FieldName, IsFilled, Weight",
+        "GET endpoint on ProfileController returning completeness DTO",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 3,
+      "priority": "medium",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "Read-only calculation, new files only, uses existing UserProfile model.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Controllers/ProfileController.cs",
+        "Models/UserProfile.cs"
+      ],
+      "completedAt": "2026-02-08T20:45:21.491406",
       "source": "template"
     }
   ]
