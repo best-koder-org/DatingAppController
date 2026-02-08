@@ -3,36 +3,6 @@
   "lastUpdated": "2026-02-08T20:30:37.823150",
   "queue": [
     {
-      "id": "BE-001",
-      "type": "backend",
-      "tier": 1,
-      "service": "messaging-service",
-      "title": "Add Read Receipts DTO and Endpoint",
-      "filePath": "DTOs/ReadReceiptDto.cs",
-      "additionalFiles": [
-        "Controllers/ReadReceiptsController.cs"
-      ],
-      "description": "Add read receipt tracking for messages \u2014 DTO model + a simple controller with POST /api/readreceipts (mark message read) and GET /api/readreceipts/{conversationId} (get unread count). No SignalR push yet, just the REST API. Uses existing DbContext and auth pattern from MessagesController.",
-      "acceptanceCriteria": [
-        "ReadReceiptDto with MessageId, ReaderId, ReadAt fields",
-        "ReadReceipt EF entity model with Id, MessageId, ReaderId, ReadAt",
-        "POST /api/readreceipts endpoint accepting {messageId} and marking as read",
-        "GET /api/readreceipts/{conversationId}/unread-count returns int count",
-        "Authorize attribute on both endpoints (uses existing Keycloak JWT)",
-        "dotnet build passes without errors"
-      ],
-      "estimatedHours": 3,
-      "priority": "high",
-      "dependencies": [],
-      "safetyTier": 1,
-      "safetyNotes": "New files only, does not modify existing code. Read receipt is additive feature.",
-      "testCommand": "dotnet build",
-      "referenceFiles": [
-        "Controllers/MessagesController.cs",
-        "DTOs/"
-      ]
-    },
-    {
       "id": "BE-002",
       "type": "backend",
       "tier": 1,
@@ -176,6 +146,38 @@
       "service": "mobile_dejtingapp",
       "title": "Gender Selection Screen",
       "completedAt": "2026-02-08T17:40:51Z"
+    },
+    {
+      "id": "BE-001",
+      "type": "backend",
+      "tier": 1,
+      "service": "messaging-service",
+      "title": "Add Read Receipts DTO and Endpoint",
+      "filePath": "DTOs/ReadReceiptDto.cs",
+      "additionalFiles": [
+        "Controllers/ReadReceiptsController.cs"
+      ],
+      "description": "Add read receipt tracking for messages \u2014 DTO model + a simple controller with POST /api/readreceipts (mark message read) and GET /api/readreceipts/{conversationId} (get unread count). No SignalR push yet, just the REST API. Uses existing DbContext and auth pattern from MessagesController.",
+      "acceptanceCriteria": [
+        "ReadReceiptDto with MessageId, ReaderId, ReadAt fields",
+        "ReadReceipt EF entity model with Id, MessageId, ReaderId, ReadAt",
+        "POST /api/readreceipts endpoint accepting {messageId} and marking as read",
+        "GET /api/readreceipts/{conversationId}/unread-count returns int count",
+        "Authorize attribute on both endpoints (uses existing Keycloak JWT)",
+        "dotnet build passes without errors"
+      ],
+      "estimatedHours": 3,
+      "priority": "high",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "New files only, does not modify existing code. Read receipt is additive feature.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Controllers/MessagesController.cs",
+        "DTOs/"
+      ],
+      "completedAt": "2026-02-08T20:41:10.183913",
+      "source": "template"
     }
   ]
 }
