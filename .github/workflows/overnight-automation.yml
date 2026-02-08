@@ -1,0 +1,48 @@
+name: Overnight Task Processor
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Runs at 2 AM every night
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  process-tasks:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GH_PAT }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.1'
+          channel: 'stable'
+      
+      - name: Configure Git
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+      
+      - name: Process Next Task
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          cd $GITHUB_WORKSPACE
+          python3 scripts/process-next-task.py || echo 'No tasks or task failed'
+      
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-logs
+          path: .ai-workspace/execution.log
+
