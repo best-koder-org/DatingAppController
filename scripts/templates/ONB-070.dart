@@ -10,7 +10,6 @@ class _BirthdayScreenState extends State<BirthdayScreen> {
   int? _month;
   final _dayCtrl = TextEditingController();
   final _yearCtrl = TextEditingController();
-  String? _error;
 
   bool get _isValid {
     if (_month == null) return false;
