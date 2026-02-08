@@ -2,19 +2,22 @@ name: Overnight Task Processor
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Runs at 2 AM every night
-  workflow_dispatch:  # Manual trigger
+    - cron: '0 2 * * *'
+  workflow_dispatch:
 
 jobs:
   process-tasks:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout with submodules
+      - name: Checkout main repo
         uses: actions/checkout@v4
         with:
-          submodules: recursive
           token: ${{ secrets.GH_PAT }}
+      
+      - name: Checkout mobile app submodule only
+        run: |
+          git submodule update --init repos/mobile_dejtingapp
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -36,8 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          cd $GITHUB_WORKSPACE
-          python3 scripts/process-next-task.py || echo 'No tasks or task failed'
+          python3 scripts/process-next-task.py || echo 'Task processing completed or failed'
       
       - name: Upload logs
         if: always()
@@ -45,4 +47,4 @@ jobs:
         with:
           name: execution-logs
           path: .ai-workspace/execution.log
-
+          if-no-files-found: ignore
