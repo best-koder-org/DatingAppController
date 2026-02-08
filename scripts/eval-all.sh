@@ -15,7 +15,7 @@ echo "────────────────────────�
 
 for f in "$TEMPLATES"/ONB-*.dart; do
   [ -f "$f" ] || continue
-  result=$(python3 "$DIR/eval-screen.py" "$f" --format json 2>/dev/null)
+  result=$(python3 "$DIR/eval_screen.py" "$f" --format json 2>/dev/null)
   task=$(echo "$result" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['task_id'])" 2>/dev/null)
   grade=$(echo "$result" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['grade'])" 2>/dev/null)
   score=$(echo "$result" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['total_score'])" 2>/dev/null)
