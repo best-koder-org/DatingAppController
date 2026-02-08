@@ -331,19 +331,75 @@ def main():
 
     # ── Validate ────────────────────────────────────────────────
     if is_flutter:
-        # Run flutter analyze on the new file only
-        r = run(f"flutter analyze {dest}", cwd=repo_dir, check=False)
+        # flutter analyze — HARD GATE for errors, warn for hints/infos
+        print("Running flutter pub get...")
+        run("flutter pub get", cwd=repo_dir, check=False)
+        print("Running flutter analyze...")
+        r = run("flutter analyze --no-fatal-infos --no-fatal-warnings", cwd=repo_dir, check=False)
         if r.returncode != 0:
-            print(f"WARNING: flutter analyze issues (non-blocking):\n{r.stdout}\n{r.stderr}")
+            print(f"FLUTTER ANALYZE FAILED — aborting PR creation for {tid}")
+            print(f"Output:\n{r.stdout[-1000:]}")
+            # Revert: checkout main, delete branch
+            run("git checkout main", cwd=repo_dir, check=False)
+            run(f"git branch -D {branch}", cwd=repo_dir, check=False)
+            queue["queue"].pop(0)
+            queue.setdefault("failed", [])
+            queue["failed"].append({**task, "failedAt": datetime.now().isoformat(), "reason": "flutter analyze failed"})
+            with open(queue_file, "w") as f:
+                json.dump(queue, f, indent=2)
+            run(f"git add {queue_file}", cwd=root)
+            run(f'git commit -m "ci: {tid} FAILED analyze gate"', cwd=root)
+            run("git push origin main", cwd=root)
+            sys.exit(1)
         else:
-            print("flutter analyze: PASS")
+            print("flutter analyze: PASS ✅")
+        # Also run flutter test if test file exists
+        if test_file and test_file.exists():
+            print("Running flutter test...")
+            r_test = run(f"flutter test {test_file.relative_to(repo_dir)}", cwd=repo_dir, check=False)
+            if r_test.returncode != 0:
+                print(f"FLUTTER TEST FAILED — aborting PR creation for {tid}")
+                print(f"Output:\n{r_test.stdout[-1000:]}")
+                run("git checkout main", cwd=repo_dir, check=False)
+                run(f"git branch -D {branch}", cwd=repo_dir, check=False)
+                queue["queue"].pop(0)
+                queue.setdefault("failed", [])
+                queue["failed"].append({**task, "failedAt": datetime.now().isoformat(), "reason": "flutter test failed"})
+                with open(queue_file, "w") as f:
+                    json.dump(queue, f, indent=2)
+                run(f"git add {queue_file}", cwd=root)
+                run(f'git commit -m "ci: {tid} FAILED test gate"', cwd=root)
+                run("git push origin main", cwd=root)
+                sys.exit(1)
+            else:
+                print("flutter test: PASS ✅")
     elif not is_flutter:
-        # Quick dotnet build check
-        r = run("dotnet build --no-restore -warnaserrors", cwd=repo_dir, check=False)
+        # dotnet build — HARD GATE, PR not created if build fails
+        print("Running dotnet restore...")
+        r_restore = run("dotnet restore", cwd=repo_dir, check=False)
+        if r_restore.returncode != 0:
+            print(f"WARNING: dotnet restore failed, trying build anyway")
+        print("Running dotnet build...")
+        r = run("dotnet build --configuration Release", cwd=repo_dir, check=False)
         if r.returncode != 0:
-            print(f"WARNING: dotnet build issues (non-blocking):\n{r.stdout[-500:]}")
+            print(f"BUILD FAILED — aborting PR creation for {tid}")
+            print(f"Build output:\n{r.stdout[-1000:]}")
+            print(f"Build errors:\n{r.stderr[-1000:]}")
+            # Revert: checkout main, delete branch
+            run("git checkout main", cwd=repo_dir, check=False)
+            run(f"git branch -D {branch}", cwd=repo_dir, check=False)
+            # Mark task as failed, not completed
+            queue["queue"].pop(0)
+            queue.setdefault("failed", [])
+            queue["failed"].append({**task, "failedAt": datetime.now().isoformat(), "reason": "dotnet build failed"})
+            with open(queue_file, "w") as f:
+                json.dump(queue, f, indent=2)
+            run(f"git add {queue_file}", cwd=root)
+            run(f'git commit -m "ci: {tid} FAILED build gate"', cwd=root)
+            run("git push origin main", cwd=root)
+            sys.exit(1)
         else:
-            print("dotnet build: PASS")
+            print("dotnet build: PASS ✅")
 
 
     # ── Eval quality gate ───────────────────────────────────────
