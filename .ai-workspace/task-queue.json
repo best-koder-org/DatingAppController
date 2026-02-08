@@ -3,36 +3,6 @@
   "lastUpdated": "2026-02-08T22:20:55.107767",
   "queue": [
     {
-      "id": "BE-006",
-      "type": "backend",
-      "tier": 1,
-      "service": "swipe-service",
-      "title": "Add Swipe Analytics Endpoint",
-      "filePath": "DTOs/SwipeAnalyticsDto.cs",
-      "additionalFiles": [
-        "Controllers/SwipeAnalyticsController.cs"
-      ],
-      "description": "Add analytics endpoint showing swipe patterns \u2014 total swipes, like ratio, peak hours, streak days.",
-      "acceptanceCriteria": [
-        "SwipeAnalyticsDto with TotalSwipes, LikeRatio, PeakHour, StreakDays",
-        "GET /api/swipes/analytics/{userId}",
-        "Uses existing SwipeDbContext",
-        "Authorize attribute",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 2,
-      "priority": "medium",
-      "dependencies": [
-        "BE-002"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Read-only analytics, new files only.",
-      "testCommand": "dotnet build",
-      "referenceFiles": [
-        "Controllers/SwipesController.cs"
-      ]
-    },
-    {
       "id": "BE-007",
       "type": "backend",
       "tier": 1,
@@ -308,6 +278,38 @@
         "Controllers/MessagesController.cs"
       ],
       "completedAt": "2026-02-08T22:24:21.966704",
+      "source": "template"
+    },
+    {
+      "id": "BE-006",
+      "type": "backend",
+      "tier": 1,
+      "service": "swipe-service",
+      "title": "Add Swipe Analytics Endpoint",
+      "filePath": "DTOs/SwipeAnalyticsDto.cs",
+      "additionalFiles": [
+        "Controllers/SwipeAnalyticsController.cs"
+      ],
+      "description": "Add analytics endpoint showing swipe patterns \u2014 total swipes, like ratio, peak hours, streak days.",
+      "acceptanceCriteria": [
+        "SwipeAnalyticsDto with TotalSwipes, LikeRatio, PeakHour, StreakDays",
+        "GET /api/swipes/analytics/{userId}",
+        "Uses existing SwipeDbContext",
+        "Authorize attribute",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 2,
+      "priority": "medium",
+      "dependencies": [
+        "BE-002"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "Read-only analytics, new files only.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Controllers/SwipesController.cs"
+      ],
+      "completedAt": "2026-02-08T22:25:56.433183",
       "source": "template"
     }
   ]
