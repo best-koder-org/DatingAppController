@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-02-08T23:00:00Z",
+  "lastUpdated": "2026-02-08T20:30:37.823150",
   "queue": [
     {
       "id": "BE-001",
@@ -12,7 +12,7 @@
       "additionalFiles": [
         "Controllers/ReadReceiptsController.cs"
       ],
-      "description": "Add read receipt tracking for messages — DTO model + a simple controller with POST /api/readreceipts (mark message read) and GET /api/readreceipts/{conversationId} (get unread count). No SignalR push yet, just the REST API. Uses existing DbContext and auth pattern from MessagesController.",
+      "description": "Add read receipt tracking for messages \u2014 DTO model + a simple controller with POST /api/readreceipts (mark message read) and GET /api/readreceipts/{conversationId} (get unread count). No SignalR push yet, just the REST API. Uses existing DbContext and auth pattern from MessagesController.",
       "acceptanceCriteria": [
         "ReadReceiptDto with MessageId, ReaderId, ReadAt fields",
         "ReadReceipt EF entity model with Id, MessageId, ReaderId, ReadAt",
@@ -27,7 +27,10 @@
       "safetyTier": 1,
       "safetyNotes": "New files only, does not modify existing code. Read receipt is additive feature.",
       "testCommand": "dotnet build",
-      "referenceFiles": ["Controllers/MessagesController.cs", "DTOs/"]
+      "referenceFiles": [
+        "Controllers/MessagesController.cs",
+        "DTOs/"
+      ]
     },
     {
       "id": "BE-002",
@@ -54,7 +57,10 @@
       "safetyTier": 1,
       "safetyNotes": "New files only, in-memory tracking, no DB changes. Rate limit is additive.",
       "testCommand": "dotnet build",
-      "referenceFiles": ["Controllers/SwipesController.cs", "Common/"]
+      "referenceFiles": [
+        "Controllers/SwipesController.cs",
+        "Common/"
+      ]
     },
     {
       "id": "BE-003",
@@ -81,7 +87,9 @@
       "safetyTier": 1,
       "safetyNotes": "Read-only endpoint, new files only, no mutations.",
       "testCommand": "dotnet build",
-      "referenceFiles": ["Controllers/MatchmakingController.cs"]
+      "referenceFiles": [
+        "Controllers/MatchmakingController.cs"
+      ]
     },
     {
       "id": "BE-004",
@@ -108,7 +116,39 @@
       "safetyTier": 1,
       "safetyNotes": "Read-only calculation, new files only, uses existing UserProfile model.",
       "testCommand": "dotnet build",
-      "referenceFiles": ["Controllers/ProfileController.cs", "Models/UserProfile.cs"]
+      "referenceFiles": [
+        "Controllers/ProfileController.cs",
+        "Models/UserProfile.cs"
+      ]
+    },
+    {
+      "id": "ONB-090",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Sexual Orientation Screen",
+      "filePath": "lib/screens/wizard/orientation_screen.dart",
+      "description": "Multi-select orientation screen with toggle chips and privacy control",
+      "acceptanceCriteria": [
+        "Progress bar (50%)",
+        "Header: 'What's your sexual orientation?'",
+        "Multi-select toggle chips (Straight, Gay, Lesbian, Bisexual, Asexual, Demisexual, Pansexual, Queer, Questioning)",
+        "Can select up to 3 options",
+        "Privacy toggle: 'Show my orientation on my profile' (default OFF)",
+        "Next button (disabled until >= 1 selection)",
+        "Back arrow + close X navigation"
+      ],
+      "estimatedHours": 4,
+      "priority": "high",
+      "dependencies": [
+        "ONB-080"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "Pure UI, hardcoded options, no backend calls",
+      "testCommand": "flutter analyze lib/screens/wizard/orientation_screen.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/gender_screen.dart"
+      ]
     }
   ],
   "inProgress": [],
