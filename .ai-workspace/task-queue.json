@@ -3,35 +3,6 @@
   "lastUpdated": "2026-02-08T20:30:37.823150",
   "queue": [
     {
-      "id": "BE-003",
-      "type": "backend",
-      "tier": 1,
-      "service": "MatchmakingService",
-      "title": "Add Match Statistics Endpoint",
-      "filePath": "DTOs/MatchStatsDto.cs",
-      "additionalFiles": [
-        "Controllers/MatchStatsController.cs"
-      ],
-      "description": "Add a controller for user match statistics. GET /api/matchstats/{userId} returns stats like total matches, pending matches, match rate (matches/swipes), most active day. Uses existing MatchmakingDbContext and models. Read-only queries, no mutations.",
-      "acceptanceCriteria": [
-        "MatchStatsDto with TotalMatches, PendingMatches, MatchRate, MostActiveDay, LastMatchAt fields",
-        "MatchStatsController with GET /api/matchstats/{userId}",
-        "Uses existing MatchmakingDbContext for queries",
-        "Authorize attribute (Keycloak JWT)",
-        "Returns ApiResponse wrapper if available, otherwise plain DTO",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 2,
-      "priority": "medium",
-      "dependencies": [],
-      "safetyTier": 1,
-      "safetyNotes": "Read-only endpoint, new files only, no mutations.",
-      "testCommand": "dotnet build",
-      "referenceFiles": [
-        "Controllers/MatchmakingController.cs"
-      ]
-    },
-    {
       "id": "BE-004",
       "type": "backend",
       "tier": 1,
@@ -179,6 +150,37 @@
         "Common/"
       ],
       "completedAt": "2026-02-08T20:42:37.520123",
+      "source": "template"
+    },
+    {
+      "id": "BE-003",
+      "type": "backend",
+      "tier": 1,
+      "service": "MatchmakingService",
+      "title": "Add Match Statistics Endpoint",
+      "filePath": "DTOs/MatchStatsDto.cs",
+      "additionalFiles": [
+        "Controllers/MatchStatsController.cs"
+      ],
+      "description": "Add a controller for user match statistics. GET /api/matchstats/{userId} returns stats like total matches, pending matches, match rate (matches/swipes), most active day. Uses existing MatchmakingDbContext and models. Read-only queries, no mutations.",
+      "acceptanceCriteria": [
+        "MatchStatsDto with TotalMatches, PendingMatches, MatchRate, MostActiveDay, LastMatchAt fields",
+        "MatchStatsController with GET /api/matchstats/{userId}",
+        "Uses existing MatchmakingDbContext for queries",
+        "Authorize attribute (Keycloak JWT)",
+        "Returns ApiResponse wrapper if available, otherwise plain DTO",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 2,
+      "priority": "medium",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "Read-only endpoint, new files only, no mutations.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Controllers/MatchmakingController.cs"
+      ],
+      "completedAt": "2026-02-08T20:44:04.652573",
       "source": "template"
     }
   ]
