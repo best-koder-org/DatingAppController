@@ -4,497 +4,694 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DatingApp — AI Automation Dashboard</title>
+<meta name="theme-color" content="#0d1117">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+<link rel="manifest" href="manifest.json">
 <style>
-  :root {
-    --bg: #0d1117; --surface: #161b22; --border: #30363d;
-    --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
-    --green: #3fb950; --red: #f85149; --yellow: #d29922; --orange: #db6d28;
-    --coral: #ff6b6b;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+:root {
+  --bg:#0d1117;--s1:#161b22;--s2:#1c2128;--border:#30363d;
+  --text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;
+  --green:#3fb950;--red:#f85149;--yellow:#d29922;--orange:#db6d28;--coral:#ff6b6b;--purple:#bc8cff;
+  --radius:8px;--shadow:0 2px 8px rgba(0,0,0,.3);
+}
+[data-theme="light"] {
+  --bg:#f6f8fa;--s1:#fff;--s2:#f0f3f6;--border:#d0d7de;
+  --text:#1f2328;--muted:#656d76;--accent:#0969da;
+  --green:#1a7f37;--red:#cf222e;--yellow:#9a6700;--orange:#bc4c00;--coral:#cf222e;--purple:#8250df;
+  --shadow:0 2px 8px rgba(0,0,0,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 
-  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
-  .header h1 { font-size: 20px; font-weight: 600; }
-  .header h1 span { color: var(--coral); }
-  .header .status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
-  .header .dot { width: 8px; height: 8px; border-radius: 50%; }
-  .dot.green { background: var(--green); }
-  .dot.red { background: var(--red); }
-  .dot.yellow { background: var(--yellow); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+/* Toast */
+.toast-container{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:12px 20px;box-shadow:var(--shadow);font-size:13px;display:flex;align-items:center;gap:8px;animation:slideIn .3s ease;max-width:380px}
+.toast.success{border-left:3px solid var(--green)}.toast.error{border-left:3px solid var(--red)}.toast.info{border-left:3px solid var(--accent)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideOut{from{opacity:1}to{opacity:0;transform:translateX(100%)}}
 
-  .setup-banner { background: #1c2333; border: 1px solid var(--accent); border-radius: 8px; margin: 16px 24px; padding: 16px; }
-  .setup-banner h3 { color: var(--accent); margin-bottom: 8px; }
-  .setup-banner input { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; width: 400px; font-family: monospace; font-size: 13px; }
-  .setup-banner button { background: var(--accent); color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-left: 8px; }
-  .setup-banner button:hover { opacity: 0.9; }
-  .setup-banner .note { color: var(--muted); font-size: 12px; margin-top: 8px; }
+/* Header */
+.header{background:var(--s1);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:16px}
+.header h1{font-size:18px;font-weight:600}.header h1 span{color:var(--coral)}
+.header-right{display:flex;align-items:center;gap:12px}
+.status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%}
+.dot.green{background:var(--green)}.dot.red{background:var(--red)}.dot.yellow{background:var(--yellow);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.theme-toggle{background:none;border:1px solid var(--border);color:var(--text);cursor:pointer;padding:4px 8px;border-radius:var(--radius);font-size:16px}
+.kbd{background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:10px;color:var(--muted);font-family:monospace}
 
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 24px; }
-  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+/* Setup */
+.setup-banner{background:var(--s2);border:1px solid var(--accent);border-radius:var(--radius);margin:16px 24px;padding:16px}
+.setup-banner h3{color:var(--accent);margin-bottom:8px}
+.setup-banner input{background:var(--s1);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;width:400px;font-family:monospace;font-size:13px}
+.setup-banner .btn{margin-left:8px}
+.setup-banner .note{color:var(--muted);font-size:12px;margin-top:8px}
 
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-  .card h2 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-  .card h2 .count { background: var(--border); color: var(--text); padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+/* Stats */
+.stats{display:flex;gap:0;padding:0;background:var(--s1);border-bottom:1px solid var(--border)}
+.stat{flex:1;text-align:center;padding:12px 8px;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat .num{font-size:28px;font-weight:700}
+.stat .label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.stat.green .num{color:var(--green)}.stat.yellow .num{color:var(--yellow)}.stat.red .num{color:var(--red)}.stat.blue .num{color:var(--accent)}.stat.purple .num{color:var(--purple)}
 
-  .full-width { grid-column: 1 / -1; }
+/* Grid */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px 24px}
+@media(max-width:1024px){.grid{grid-template-columns:1fr}}
+.full-width{grid-column:1/-1}
+.third{grid-column:span 1}
 
-  /* Controls */
-  .controls { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-  .btn { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
-  .btn:hover { border-color: var(--accent); color: var(--accent); }
-  .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
-  .btn.primary:hover { opacity: 0.9; }
-  .btn.danger { border-color: var(--red); color: var(--red); }
-  .btn.danger:hover { background: var(--red); color: #fff; }
-  .btn.warning { border-color: var(--yellow); color: var(--yellow); }
-  .btn.warning:hover { background: var(--yellow); color: #000; }
-  .btn.success { border-color: var(--green); color: var(--green); }
-  .btn.success:hover { background: var(--green); color: #000; }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+/* Cards */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.card h2{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.card h2 .count{background:var(--border);color:var(--text);padding:2px 8px;border-radius:10px;font-size:11px}
+.card-body{max-height:400px;overflow-y:auto}
 
-  /* Queue */
-  .task-list { list-style: none; }
-  .task-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-  .task-item:last-child { border-bottom: none; }
-  .task-id { font-family: monospace; font-size: 12px; background: var(--border); padding: 2px 6px; border-radius: 4px; color: var(--accent); min-width: 60px; text-align: center; }
-  .task-title { flex: 1; font-size: 14px; }
-  .task-service { font-size: 11px; color: var(--muted); background: rgba(88,166,255,0.1); padding: 2px 8px; border-radius: 4px; }
+/* Buttons */
+.btn{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--s1);color:var(--text);cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.sm{padding:4px 10px;font-size:11px}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.primary:hover{opacity:.85}
+.btn.danger{border-color:var(--red);color:var(--red)}.btn.danger:hover{background:var(--red);color:#fff}
+.btn.warning{border-color:var(--yellow);color:var(--yellow)}.btn.warning:hover{background:var(--yellow);color:#000}
+.btn.success{border-color:var(--green);color:var(--green)}.btn.success:hover{background:var(--green);color:#fff}
+.btn.purple{border-color:var(--purple);color:var(--purple)}.btn.purple:hover{background:var(--purple);color:#fff}
+.btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
+.controls{display:flex;gap:6px;flex-wrap:wrap}
+.divider{border-left:1px solid var(--border);height:24px;margin:0 4px}
 
-  /* PRs */
-  .pr-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-  .pr-item:last-child { border-bottom: none; }
-  .pr-number { font-family: monospace; color: var(--accent); font-weight: 600; min-width: 35px; }
-  .pr-title { flex: 1; font-size: 14px; }
-  .pr-repo { font-size: 11px; color: var(--muted); }
-  .pr-ci { font-size: 12px; padding: 2px 8px; border-radius: 4px; }
-  .ci-pass { background: rgba(63,185,80,0.15); color: var(--green); }
-  .ci-fail { background: rgba(248,81,73,0.15); color: var(--red); }
-  .ci-pending { background: rgba(210,153,34,0.15); color: var(--yellow); }
+/* Tasks */
+.task-list{list-style:none}
+.task-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.task-item:last-child{border-bottom:none}
+.task-id{font-family:monospace;font-size:11px;background:var(--border);padding:2px 6px;border-radius:4px;color:var(--accent);min-width:56px;text-align:center}
+.task-title{flex:1;font-size:13px}
+.task-service{font-size:10px;color:var(--muted);background:rgba(88,166,255,.08);padding:2px 8px;border-radius:4px}
 
-  /* Workflow runs */
-  .run-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-  .run-item:last-child { border-bottom: none; }
-  .run-status { width: 20px; text-align: center; }
-  .run-title { flex: 1; }
-  .run-time { color: var(--muted); font-size: 12px; }
-  .run-id { font-family: monospace; font-size: 11px; color: var(--muted); }
+/* PRs */
+.pr-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.pr-item:last-child{border-bottom:none}
+.pr-number{font-family:monospace;color:var(--accent);font-weight:600;min-width:32px}
+.pr-title{flex:1}
+.pr-repo{font-size:10px;color:var(--muted)}
+.ci-badge{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+.ci-pass{background:rgba(63,185,80,.12);color:var(--green)}
+.ci-fail{background:rgba(248,81,73,.12);color:var(--red)}
+.ci-pending{background:rgba(210,153,34,.12);color:var(--yellow)}
 
-  /* Stats bar */
-  .stats { display: flex; gap: 24px; padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--border); }
-  .stat { text-align: center; }
-  .stat .num { font-size: 24px; font-weight: 700; }
-  .stat .label { font-size: 11px; color: var(--muted); text-transform: uppercase; }
-  .stat.green .num { color: var(--green); }
-  .stat.yellow .num { color: var(--yellow); }
-  .stat.red .num { color: var(--red); }
-  .stat.blue .num { color: var(--accent); }
+/* Runs */
+.run-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.run-item:last-child{border-bottom:none}
+.run-status{width:18px;text-align:center;font-size:14px}
+.run-title{flex:1}.run-time{color:var(--muted);font-size:11px}
+.run-id{font-family:monospace;font-size:10px;color:var(--muted)}
 
-  /* Timeline */
-  .timeline { position: relative; padding-left: 20px; }
-  .timeline::before { content: ''; position: absolute; left: 6px; top: 0; bottom: 0; width: 2px; background: var(--border); }
-  .timeline-item { position: relative; padding: 8px 0 8px 16px; font-size: 13px; }
-  .timeline-item::before { content: ''; position: absolute; left: -17px; top: 14px; width: 8px; height: 8px; border-radius: 50%; background: var(--green); border: 2px solid var(--surface); }
-  .timeline-date { color: var(--muted); font-size: 11px; }
+/* Timeline */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{position:relative;padding:6px 0 6px 16px;font-size:12px}
+.tl-item::before{content:'';position:absolute;left:-17px;top:12px;width:8px;height:8px;border-radius:50%;background:var(--green);border:2px solid var(--s1)}
+.tl-date{color:var(--muted);font-size:10px}
 
-  .empty { color: var(--muted); font-style: italic; padding: 16px 0; text-align: center; }
-  .loading { text-align: center; padding: 24px; color: var(--muted); }
-  .error-msg { color: var(--red); background: rgba(248,81,73,0.1); padding: 12px; border-radius: 6px; font-size: 13px; }
+/* Eval */
+.eval-bar{display:flex;align-items:center;gap:8px;margin:4px 0}
+.eval-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.eval-fill{height:100%;border-radius:3px;transition:width .3s}
+.eval-score{font-family:monospace;font-size:12px;font-weight:600;min-width:36px}
+.grade-A{color:var(--green)}.grade-B{color:var(--accent)}.grade-C{color:var(--yellow)}.grade-D{color:var(--orange)}.grade-F{color:var(--red)}
 
-  .refresh-hint { font-size: 11px; color: var(--muted); }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
+/* Catalog */
+.catalog-group{margin-bottom:12px}
+.catalog-group h3{font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
+.catalog-item{display:flex;align-items:center;gap:8px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;margin-bottom:4px;font-size:12px;background:var(--s2)}
+.catalog-item .task-id{font-size:10px;min-width:50px}
+.catalog-item .cat-title{flex:1}
+.catalog-item .btn{padding:2px 8px;font-size:10px}
+.queued-tag{font-size:9px;color:var(--green);background:rgba(63,185,80,.12);padding:1px 6px;border-radius:4px}
+.done-tag{font-size:9px;color:var(--muted);background:var(--border);padding:1px 6px;border-radius:4px}
+
+/* Plan editor */
+.plan-form{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;font-size:13px}
+.plan-form label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}
+.plan-form input,.plan-form select,.plan-form textarea{background:var(--s2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:12px;width:100%;font-family:inherit}
+.plan-form textarea{grid-column:1/-1;min-height:50px;resize:vertical}
+.plan-actions{display:flex;gap:8px;margin-top:8px;grid-column:1/-1}
+
+.empty{color:var(--muted);font-style:italic;padding:12px 0;text-align:center;font-size:13px}
+.loading{text-align:center;padding:20px;color:var(--muted);font-size:13px}
+.error-msg{color:var(--red);background:rgba(248,81,73,.08);padding:10px;border-radius:6px;font-size:12px}
+
+/* Shortcuts modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:420px;width:90%;box-shadow:var(--shadow)}
+.modal h3{margin-bottom:12px}
+.modal table{width:100%;font-size:13px;border-collapse:collapse}
+.modal td{padding:4px 8px;border-bottom:1px solid var(--border)}
+.modal td:first-child{text-align:right;color:var(--muted);width:80px}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
 
+<div class="toast-container" id="toasts"></div>
+
 <div class="header">
-  <h1>🤖 <span>DatingApp</span> AI Dashboard</h1>
-  <div class="status">
-    <span class="dot" id="live-dot"></span>
-    <span id="live-status">Connecting...</span>
-    <span class="refresh-hint">| Auto-refresh 30s</span>
+  <div class="header-left">
+    <h1>🤖 <span>DatingApp</span> AI</h1>
+    <div class="status">
+      <span class="dot" id="live-dot"></span>
+      <span id="live-status">Connecting...</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="kbd" title="Press ? for shortcuts">?</span>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme (T)">🌙</button>
+    <span style="font-size:11px;color:var(--muted)" id="last-refresh"></span>
   </div>
 </div>
 
-<div id="setup-banner" class="setup-banner" style="display:none">
+<div id="setup-banner" class="setup-banner hidden">
   <h3>🔑 GitHub Token Required</h3>
-  <p style="margin-bottom:8px;font-size:13px;">Paste a GitHub PAT (needs <code>repo</code> + <code>workflow</code> scopes). Stored in localStorage only — never sent anywhere except api.github.com.</p>
-  <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx">
-  <button onclick="saveToken()">Save</button>
-  <p class="note">Token is stored locally in your browser. <a href="https://github.com/settings/tokens/new?scopes=repo,workflow" target="_blank">Create token →</a></p>
+  <p style="margin-bottom:8px;font-size:13px">Paste a PAT with <code>repo</code> + <code>workflow</code> scopes. Stored in localStorage only.</p>
+  <div style="display:flex;align-items:center">
+    <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx">
+    <button class="btn primary" onclick="saveToken()">Save</button>
+  </div>
+  <p class="note">Your browser only → api.github.com. <a href="https://github.com/settings/tokens/new?scopes=repo,workflow" target="_blank">Create token →</a></p>
 </div>
 
-<div class="stats" id="stats-bar">
-  <div class="stat blue"><div class="num" id="stat-queued">-</div><div class="label">Queued</div></div>
-  <div class="stat yellow"><div class="num" id="stat-progress">-</div><div class="label">In Progress</div></div>
-  <div class="stat green"><div class="num" id="stat-completed">-</div><div class="label">Completed</div></div>
-  <div class="stat"><div class="num" id="stat-prs">-</div><div class="label">Open PRs</div></div>
+<div class="stats">
+  <div class="stat blue"><div class="num" id="stat-queued">—</div><div class="label">Queued</div></div>
+  <div class="stat yellow"><div class="num" id="stat-progress">—</div><div class="label">In Progress</div></div>
+  <div class="stat green"><div class="num" id="stat-completed">—</div><div class="label">Completed</div></div>
+  <div class="stat purple"><div class="num" id="stat-prs">—</div><div class="label">Open PRs</div></div>
+  <div class="stat"><div class="num" id="stat-eval">—</div><div class="label">Avg Eval</div></div>
+  <div class="stat"><div class="num" id="stat-runs">—</div><div class="label">Runs Today</div></div>
 </div>
 
 <div class="grid">
-  <!-- Controls -->
+
+  <!-- ═══ Controls ═══ -->
   <div class="card full-width">
     <h2>Pipeline Controls</h2>
     <div class="controls">
-      <button class="btn primary" onclick="triggerRun('full')" id="btn-full">▶ Run Full Pipeline</button>
-      <button class="btn success" onclick="triggerRun('create-only')" id="btn-create">📝 Create PRs Only</button>
-      <button class="btn warning" onclick="triggerRun('merge-only')">🔀 Merge Only</button>
-      <button class="btn" onclick="triggerRun('report-only')">📊 Report Only</button>
-      <span style="border-left:1px solid var(--border);margin:0 4px"></span>
-      <button class="btn danger" onclick="togglePause()" id="btn-pause">⏸ Pause</button>
-      <button class="btn" onclick="refreshAll()">🔄 Refresh Now</button>
+      <button class="btn primary" onclick="triggerRun('full')" title="Shift+Enter">▶ Full Pipeline</button>
+      <button class="btn success" onclick="triggerRun('create-only')">📝 Create PRs</button>
+      <button class="btn warning" onclick="triggerRun('merge-only')">🔀 Merge Wave</button>
+      <button class="btn" onclick="triggerRun('report-only')">📊 Report</button>
+      <div class="divider"></div>
+      <button class="btn danger" onclick="togglePause()" id="btn-pause" title="P">⏸ Pause</button>
+      <button class="btn danger" onclick="cancelRun()" id="btn-cancel" title="X">✕ Cancel Run</button>
+      <div class="divider"></div>
+      <button class="btn" onclick="refreshAll()" title="R">🔄 Refresh</button>
     </div>
   </div>
 
-  <!-- Task Queue -->
+  <!-- ═══ Task Queue ═══ -->
   <div class="card">
     <h2>Task Queue <span class="count" id="queue-count">0</span></h2>
-    <ul class="task-list" id="queue-list">
-      <li class="loading">Loading...</li>
-    </ul>
+    <div class="card-body">
+      <ul class="task-list" id="queue-list"><li class="loading">Loading...</li></ul>
+    </div>
   </div>
 
-  <!-- Open PRs -->
+  <!-- ═══ Open PRs ═══ -->
   <div class="card">
     <h2>Open PRs <span class="count" id="pr-count">0</span></h2>
-    <div id="pr-list">
-      <div class="loading">Loading...</div>
-    </div>
+    <div class="card-body" id="pr-list"><div class="loading">Loading...</div></div>
   </div>
 
-  <!-- Recent Workflow Runs -->
+  <!-- ═══ Recent Runs ═══ -->
   <div class="card">
     <h2>Recent Runs</h2>
-    <div id="runs-list">
-      <div class="loading">Loading...</div>
-    </div>
+    <div class="card-body" id="runs-list"><div class="loading">Loading...</div></div>
   </div>
 
-  <!-- Completed Timeline -->
+  <!-- ═══ Eval Leaderboard ═══ -->
   <div class="card">
-    <h2>Completed Tasks</h2>
-    <div class="timeline" id="completed-timeline">
-      <div class="loading">Loading...</div>
+    <h2>Eval Scores <span class="count" id="eval-count">0</span></h2>
+    <div class="card-body" id="eval-list"><div class="loading">Loading...</div></div>
+  </div>
+
+  <!-- ═══ Task Catalog ═══ -->
+  <div class="card full-width">
+    <h2>Task Catalog <span style="font-size:10px;color:var(--muted);text-transform:none;letter-spacing:0">Click + to add to queue</span></h2>
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <button class="btn sm" onclick="filterCatalog('all')" id="cat-all">All</button>
+      <button class="btn sm" onclick="filterCatalog('flutter')">Flutter</button>
+      <button class="btn sm" onclick="filterCatalog('backend')">Backend</button>
+      <button class="btn sm" onclick="filterCatalog('available')">Available</button>
+    </div>
+    <div class="card-body" id="catalog-list"><div class="loading">Loading...</div></div>
+  </div>
+
+  <!-- ═══ Build Plan Editor ═══ -->
+  <div class="card full-width">
+    <h2>Build Plan Editor <span style="font-size:10px;color:var(--muted);text-transform:none;letter-spacing:0">Plan tomorrow's overnight run</span></h2>
+    <div class="plan-form" id="plan-form">
+      <div><label>Date</label><input type="date" id="plan-date"></div>
+      <div><label>Max Tasks</label><input type="number" id="plan-max" value="4" min="1" max="8"></div>
+      <div><label>Mode</label><select id="plan-mode"><option value="full">Full</option><option value="create-only">Create PRs Only</option><option value="merge-only">Merge Only</option></select></div>
+      <div><label>Status</label><select id="plan-approved"><option value="false">Draft</option><option value="true">Approved ✅</option></select></div>
+      <div style="grid-column:1/-1"><label>Tasks (comma-separated IDs, leave empty for auto-refill)</label><input id="plan-tasks" placeholder="ONB-090, BE-005, BE-006"></div>
+      <textarea id="plan-notes" placeholder="Notes for this build..."></textarea>
+      <div class="plan-actions">
+        <button class="btn primary" onclick="saveBuildPlan()">💾 Save Plan</button>
+        <button class="btn" onclick="clearBuildPlan()">Clear</button>
+      </div>
     </div>
   </div>
 
-  <!-- Build Plan -->
+  <!-- ═══ Completed Timeline ═══ -->
   <div class="card full-width">
-    <h2>Build Plan <span style="font-size:11px;color:var(--muted);text-transform:none;letter-spacing:0">(edit in .ai-workspace/build-plan.json)</span></h2>
-    <div id="build-plan">
-      <div class="loading">Loading...</div>
-    </div>
+    <h2>Completed Tasks Timeline</h2>
+    <div class="card-body timeline" id="completed-timeline"><div class="loading">Loading...</div></div>
+  </div>
+
+</div>
+
+<!-- Shortcuts modal -->
+<div class="modal-overlay hidden" id="shortcuts-modal" onclick="if(event.target===this)this.classList.add('hidden')">
+  <div class="modal">
+    <h3>⌨️ Keyboard Shortcuts</h3>
+    <table>
+      <tr><td><span class="kbd">R</span></td><td>Refresh all data</td></tr>
+      <tr><td><span class="kbd">P</span></td><td>Toggle pause/resume</td></tr>
+      <tr><td><span class="kbd">T</span></td><td>Toggle dark/light theme</td></tr>
+      <tr><td><span class="kbd">1</span></td><td>Trigger full pipeline</td></tr>
+      <tr><td><span class="kbd">2</span></td><td>Create PRs only</td></tr>
+      <tr><td><span class="kbd">3</span></td><td>Merge wave only</td></tr>
+      <tr><td><span class="kbd">X</span></td><td>Cancel running pipeline</td></tr>
+      <tr><td><span class="kbd">?</span></td><td>Show/hide shortcuts</td></tr>
+      <tr><td><span class="kbd">Esc</span></td><td>Close modal</td></tr>
+    </table>
   </div>
 </div>
 
 <script>
-const OWNER = 'best-koder-ever';
-const CONTROLLER_REPO = 'DatingAppController';
-const REPOS = [
-  'mobile_dejtingapp', 'UserService', 'MatchmakingService',
-  'swipe-service', 'photo-service', 'messaging-service', 'dejting-yarp'
-];
-const WORKFLOW_FILE = 'overnight-automation.yml';
+const O='best-koder-ever', CR='DatingAppController', WF='overnight-automation.yml';
+const REPOS=['mobile_dejtingapp','UserService','MatchmakingService','swipe-service','photo-service','messaging-service','dejting-yarp'];
+let TOKEN=localStorage.getItem('gh_dashboard_token')||'';
+let paused=false, queueData=null, planSha=null, catalogFilter='all';
 
-let TOKEN = localStorage.getItem('gh_dashboard_token') || '';
-let paused = false;
-let refreshTimer = null;
+// ── Toast ──────────────────────────────────────────────────────
+function toast(msg,type='info'){
+  const c=document.getElementById('toasts');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<span>${{success:'✅',error:'❌',info:'ℹ️'}[type]||'ℹ️'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.animation='slideOut .3s ease forwards';setTimeout(()=>t.remove(),300)},4000);
+}
 
-function api(path, opts = {}) {
-  return fetch(`https://api.github.com${path}`, {
-    headers: {
-      'Authorization': `token ${TOKEN}`,
-      'Accept': 'application/vnd.github+json',
-      ...opts.headers
-    },
+// ── Theme ──────────────────────────────────────────────────────
+function toggleTheme(){
+  const d=document.documentElement;
+  const dark=d.getAttribute('data-theme')!=='light';
+  d.setAttribute('data-theme',dark?'light':'dark');
+  document.querySelector('.theme-toggle').textContent=dark?'☀️':'🌙';
+  localStorage.setItem('gh_dashboard_theme',dark?'light':'dark');
+}
+(function(){const t=localStorage.getItem('gh_dashboard_theme');if(t==='light'){document.documentElement.setAttribute('data-theme','light');document.querySelector('.theme-toggle').textContent='☀️'}})();
+
+// ── API ────────────────────────────────────────────────────────
+async function api(path,opts={}){
+  const r=await fetch(`https://api.github.com${path}`,{
+    headers:{'Authorization':`token ${TOKEN}`,'Accept':'application/vnd.github+json',...(opts.headers||{})},
     ...opts
-  }).then(r => {
-    if (r.status === 401) { showSetup(); throw new Error('Bad token'); }
-    return r.json();
+  });
+  if(r.status===401){showSetup();throw new Error('Auth failed')}
+  if(r.status===204)return null;
+  if(r.status===404)throw new Error('Not found');
+  return r.json();
+}
+async function apiRaw(path,opts={}){
+  return fetch(`https://api.github.com${path}`,{
+    headers:{'Authorization':`token ${TOKEN}`,'Accept':'application/vnd.github+json',...(opts.headers||{})},
+    ...opts
   });
 }
 
-function showSetup() {
-  document.getElementById('setup-banner').style.display = 'block';
-}
-
-function saveToken() {
-  TOKEN = document.getElementById('token-input').value.trim();
-  localStorage.setItem('gh_dashboard_token', TOKEN);
-  document.getElementById('setup-banner').style.display = 'none';
+function showSetup(){document.getElementById('setup-banner').classList.remove('hidden')}
+function saveToken(){
+  TOKEN=document.getElementById('token-input').value.trim();
+  localStorage.setItem('gh_dashboard_token',TOKEN);
+  document.getElementById('setup-banner').classList.add('hidden');
+  toast('Token saved','success');
   refreshAll();
 }
 
-// ── Fetch queue from repo ──────────────────────────────────────
-async function fetchQueue() {
-  try {
-    const data = await api(`/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/task-queue.json`);
-    const queue = JSON.parse(atob(data.content));
-    renderQueue(queue);
-    return queue;
-  } catch (e) {
-    document.getElementById('queue-list').innerHTML = `<li class="error-msg">Failed to load queue: ${e.message}</li>`;
+// ── Queue ──────────────────────────────────────────────────────
+async function fetchQueue(){
+  try{
+    const d=await api(`/repos/${O}/${CR}/contents/.ai-workspace/task-queue.json`);
+    queueData=JSON.parse(atob(d.content));
+    renderQueue(queueData);
+    return queueData;
+  }catch(e){
+    document.getElementById('queue-list').innerHTML=`<li class="error-msg">${e.message}</li>`;
     return null;
   }
 }
-
-function renderQueue(q) {
-  const list = document.getElementById('queue-list');
-  const tasks = q.queue || [];
-  document.getElementById('queue-count').textContent = tasks.length;
-  document.getElementById('stat-queued').textContent = tasks.length;
-  document.getElementById('stat-progress').textContent = (q.inProgress || []).length;
-  document.getElementById('stat-completed').textContent = (q.completed || []).length;
-
-  if (!tasks.length) {
-    list.innerHTML = '<li class="empty">Queue empty — next refill will add tasks</li>';
-    return;
-  }
-  list.innerHTML = tasks.map(t => `
-    <li class="task-item">
-      <span class="task-id">${t.id}</span>
-      <span class="task-title">${t.title}</span>
-      <span class="task-service">${t.service || 'mobile'}</span>
-    </li>
-  `).join('');
-
-  // Completed timeline
-  const timeline = document.getElementById('completed-timeline');
-  const completed = (q.completed || []).slice(-10).reverse();
-  if (!completed.length) {
-    timeline.innerHTML = '<div class="empty">No completed tasks yet</div>';
-  } else {
-    timeline.innerHTML = completed.map(t => `
-      <div class="timeline-item">
-        <strong>${t.id}</strong> ${t.title}
-        <div class="timeline-date">${t.completedAt ? new Date(t.completedAt).toLocaleString() : 'unknown'} · ${t.source || 'unknown'}</div>
-      </div>
-    `).join('');
-  }
+function renderQueue(q){
+  const tasks=q.queue||[];
+  const ip=q.inProgress||[];
+  const done=q.completed||[];
+  set('queue-count',tasks.length);set('stat-queued',tasks.length);
+  set('stat-progress',ip.length);set('stat-completed',done.length);
+  const list=document.getElementById('queue-list');
+  if(!tasks.length&&!ip.length){list.innerHTML='<li class="empty">Queue empty</li>';return}
+  let html='';
+  ip.forEach(t=>html+=`<li class="task-item" style="background:rgba(210,153,34,.06)"><span class="task-id" style="color:var(--yellow)">⏳ ${t.id}</span><span class="task-title">${t.title}</span><span class="task-service">${t.service||'mobile'}</span></li>`);
+  tasks.forEach(t=>html+=`<li class="task-item"><span class="task-id">${t.id}</span><span class="task-title">${t.title}</span><span class="task-service">${t.service||'mobile'}</span></li>`);
+  list.innerHTML=html;
+  // Timeline
+  const tl=document.getElementById('completed-timeline');
+  const recent=done.slice(-12).reverse();
+  tl.innerHTML=recent.length?recent.map(t=>`<div class="tl-item"><strong>${t.id}</strong> ${t.title}<div class="tl-date">${t.completedAt?new Date(t.completedAt).toLocaleString():'—'} · ${t.source||''}</div></div>`).join(''):'<div class="empty">No completed tasks yet</div>';
 }
 
-// ── Fetch PRs across repos ─────────────────────────────────────
-async function fetchPRs() {
-  let allPRs = [];
-  const fetches = REPOS.map(async repo => {
-    try {
-      const prs = await api(`/repos/${OWNER}/${repo}/pulls?state=open&per_page=10`);
-      return prs.filter(p =>
-        p.head.ref.startsWith('automation/') ||
-        p.title.includes('feat(') ||
-        p.title.includes('BE-') ||
-        p.title.includes('ONB-')
-      ).map(p => ({ ...p, _repo: repo }));
-    } catch { return []; }
+// ── PRs ────────────────────────────────────────────────────────
+async function fetchPRs(){
+  const promises=REPOS.map(async repo=>{
+    try{
+      const prs=await api(`/repos/${O}/${repo}/pulls?state=open&per_page=10`);
+      const auto=prs.filter(p=>p.head.ref.startsWith('automation/')||/feat\(|BE-|ONB-/.test(p.title));
+      // fetch CI status for each
+      const enriched=await Promise.all(auto.map(async p=>{
+        try{
+          const checks=await api(`/repos/${O}/${repo}/commits/${p.head.sha}/check-runs?per_page=5`);
+          const runs=checks.check_runs||[];
+          let ci='pending';
+          if(runs.length){
+            if(runs.every(r=>r.conclusion==='success'))ci='pass';
+            else if(runs.some(r=>r.conclusion==='failure'))ci='fail';
+          }
+          return{...p,_repo:repo,_ci:ci};
+        }catch{return{...p,_repo:repo,_ci:'pending'}}
+      }));
+      return enriched;
+    }catch{return[]}
   });
-  const results = await Promise.all(fetches);
-  allPRs = results.flat();
-  renderPRs(allPRs);
-  return allPRs;
+  const all=(await Promise.all(promises)).flat();
+  renderPRs(all);
+  return all;
 }
-
-function renderPRs(prs) {
-  const el = document.getElementById('pr-list');
-  document.getElementById('pr-count').textContent = prs.length;
-  document.getElementById('stat-prs').textContent = prs.length;
-
-  if (!prs.length) {
-    el.innerHTML = '<div class="empty">No open automation PRs</div>';
-    return;
-  }
-  el.innerHTML = prs.map(p => {
-    let ci = 'pending';
-    // We'd need the checks API for real CI status but this is a good approximation
-    return `
-      <div class="pr-item">
-        <a class="pr-number" href="${p.html_url}" target="_blank">#${p.number}</a>
-        <span class="pr-title">${p.title}</span>
-        <span class="pr-repo">${p._repo}</span>
-      </div>
-    `;
+function renderPRs(prs){
+  set('pr-count',prs.length);set('stat-prs',prs.length);
+  const el=document.getElementById('pr-list');
+  if(!prs.length){el.innerHTML='<div class="empty">No open automation PRs</div>';return}
+  el.innerHTML=prs.map(p=>{
+    const ciBadge=p._ci==='pass'?'<span class="ci-badge ci-pass">✓ CI</span>':p._ci==='fail'?'<span class="ci-badge ci-fail">✕ CI</span>':'<span class="ci-badge ci-pending">⏳</span>';
+    return`<div class="pr-item"><a class="pr-number" href="${p.html_url}" target="_blank">#${p.number}</a><span class="pr-title">${esc(p.title)}</span>${ciBadge}<span class="pr-repo">${p._repo}</span></div>`;
   }).join('');
 }
 
-// ── Fetch workflow runs ────────────────────────────────────────
-async function fetchRuns() {
-  try {
-    const data = await api(`/repos/${OWNER}/${CONTROLLER_REPO}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=8`);
-    renderRuns(data.workflow_runs || []);
-    updateLiveStatus(data.workflow_runs || []);
-    return data.workflow_runs;
-  } catch (e) {
-    document.getElementById('runs-list').innerHTML = `<div class="error-msg">${e.message}</div>`;
-    return [];
+// ── Runs ───────────────────────────────────────────────────────
+async function fetchRuns(){
+  try{
+    const d=await api(`/repos/${O}/${CR}/actions/workflows/${WF}/runs?per_page=10`);
+    const runs=d.workflow_runs||[];
+    renderRuns(runs);
+    updateLiveStatus(runs);
+    // Today's count
+    const today=new Date().toISOString().slice(0,10);
+    set('stat-runs',runs.filter(r=>r.created_at?.startsWith(today)).length);
+    return runs;
+  }catch(e){
+    document.getElementById('runs-list').innerHTML=`<div class="error-msg">${e.message}</div>`;
+    return[];
+  }
+}
+function renderRuns(runs){
+  const el=document.getElementById('runs-list');
+  if(!runs.length){el.innerHTML='<div class="empty">No runs</div>';return}
+  el.innerHTML=runs.map(r=>{
+    const icon=r.conclusion==='success'?'✅':r.conclusion==='failure'?'❌':r.status==='in_progress'?'🔄':r.status==='queued'?'⏳':'⚪';
+    const dur=r.updated_at&&r.created_at?fmtDur(new Date(r.updated_at)-new Date(r.created_at)):'';
+    const canCancel=r.status==='in_progress'||r.status==='queued';
+    return`<div class="run-item"><span class="run-status">${icon}</span><span class="run-title"><a href="${r.html_url}" target="_blank">${esc(r.display_title||'Pipeline')}</a></span>${dur?`<span class="run-time">${dur}</span>`:''}<span class="run-time">${timeAgo(new Date(r.created_at))}</span><span class="run-id">#${r.run_number}</span>${canCancel?`<button class="btn sm danger" onclick="cancelSpecificRun(${r.id})">✕</button>`:''}</div>`;
+  }).join('');
+}
+function updateLiveStatus(runs){
+  const dot=document.getElementById('live-dot'),lbl=document.getElementById('live-status');
+  const active=runs.find(r=>r.status==='in_progress'||r.status==='queued');
+  if(active){dot.className='dot yellow';lbl.textContent=active.status==='queued'?'Queued...':'Running...';}
+  else if(paused){dot.className='dot yellow';lbl.textContent='Paused'}
+  else{
+    const l=runs[0];
+    if(l?.conclusion==='success'){dot.className='dot green';lbl.textContent='Idle — last passed'}
+    else if(l?.conclusion==='failure'){dot.className='dot red';lbl.textContent='Idle — last failed'}
+    else{dot.className='dot green';lbl.textContent='Idle'}
   }
 }
 
-function renderRuns(runs) {
-  const el = document.getElementById('runs-list');
-  if (!runs.length) {
-    el.innerHTML = '<div class="empty">No workflow runs found</div>';
-    return;
-  }
-  el.innerHTML = runs.map(r => {
-    const icon = r.conclusion === 'success' ? '✅' :
-                 r.conclusion === 'failure' ? '❌' :
-                 r.status === 'in_progress' ? '🔄' :
-                 r.status === 'queued' ? '⏳' : '⚪';
-    const ago = timeAgo(new Date(r.created_at));
-    return `
-      <div class="run-item">
-        <span class="run-status">${icon}</span>
-        <span class="run-title"><a href="${r.html_url}" target="_blank">${r.display_title || 'Pipeline'}</a></span>
-        <span class="run-time">${ago}</span>
-        <span class="run-id">#${r.run_number}</span>
-      </div>
-    `;
+// ── Evals ──────────────────────────────────────────────────────
+async function fetchEvals(){
+  try{
+    const d=await api(`/repos/${O}/${CR}/contents/.ai-workspace/evals`);
+    if(!Array.isArray(d)||!d.length){renderEvals([]);return}
+    const evals=await Promise.all(d.filter(f=>f.name.endsWith('.json')).map(async f=>{
+      const c=await api(`/repos/${O}/${CR}/contents/.ai-workspace/evals/${f.name}`);
+      return JSON.parse(atob(c.content));
+    }));
+    renderEvals(evals);
+  }catch{renderEvals([])}
+}
+function renderEvals(evals){
+  const el=document.getElementById('eval-list');
+  set('eval-count',evals.length);
+  if(!evals.length){el.innerHTML='<div class="empty">No eval scores yet — run eval-all.sh or process tasks</div>';set('stat-eval','—');return}
+  evals.sort((a,b)=>(b.total||0)-(a.total||0));
+  const avg=Math.round(evals.reduce((s,e)=>s+(e.total||0),0)/evals.length);
+  set('stat-eval',avg);
+  el.innerHTML=evals.map(e=>{
+    const score=e.total||0;
+    const grade=score>=80?'A':score>=70?'B':score>=60?'C':score>=50?'D':'F';
+    const color=score>=80?'var(--green)':score>=70?'var(--accent)':score>=60?'var(--yellow)':score>=50?'var(--orange)':'var(--red)';
+    return`<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px"><span>${esc(e.file||e.task||'?')}</span><span class="eval-score grade-${grade}">${score}/100 (${grade})</span></div><div class="eval-bar"><div class="eval-track"><div class="eval-fill" style="width:${score}%;background:${color}"></div></div></div></div>`;
   }).join('');
 }
 
-function updateLiveStatus(runs) {
-  const dot = document.getElementById('live-dot');
-  const label = document.getElementById('live-status');
-  const active = runs.find(r => r.status === 'in_progress' || r.status === 'queued');
-  if (active) {
-    dot.className = 'dot yellow';
-    label.textContent = active.status === 'queued' ? 'Pipeline queued...' : 'Pipeline running...';
-  } else if (paused) {
-    dot.className = 'dot yellow';
-    label.textContent = 'Paused';
-  } else {
-    const latest = runs[0];
-    if (latest?.conclusion === 'success') {
-      dot.className = 'dot green';
-      label.textContent = 'Idle — last run passed';
-    } else if (latest?.conclusion === 'failure') {
-      dot.className = 'dot red';
-      label.textContent = 'Idle — last run had issues';
-    } else {
-      dot.className = 'dot green';
-      label.textContent = 'Idle';
-    }
+// ── Catalog ────────────────────────────────────────────────────
+async function fetchCatalog(){
+  try{
+    const d=await api(`/repos/${O}/${CR}/contents/scripts/refill-queue.py`);
+    const src=atob(d.content);
+    renderCatalog(src);
+  }catch(e){
+    document.getElementById('catalog-list').innerHTML=`<div class="error-msg">${e.message}</div>`;
   }
 }
-
-// ── Fetch build plan ───────────────────────────────────────────
-async function fetchBuildPlan() {
-  try {
-    const data = await api(`/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/build-plan.json`);
-    const plan = JSON.parse(atob(data.content));
-    renderBuildPlan(plan);
-  } catch {
-    document.getElementById('build-plan').innerHTML = '<div class="empty">No build plan found</div>';
-  }
+function renderCatalog(src){
+  const tasks=[];
+  // Parse task entries with regex
+  const re=/"((?:ONB|BE)-\d+)":\s*\{[^}]*"title":\s*"([^"]+)"[^}]*"service":\s*"([^"]+)"/g;
+  let m;while(m=re.exec(src))tasks.push({id:m[1],title:m[2],service:m[3]});
+  // Determine status
+  const qIds=new Set((queueData?.queue||[]).map(t=>t.id));
+  const dIds=new Set((queueData?.completed||[]).map(t=>t.id));
+  const ipIds=new Set((queueData?.inProgress||[]).map(t=>t.id));
+  tasks.forEach(t=>{t.status=dIds.has(t.id)?'done':qIds.has(t.id)?'queued':ipIds.has(t.id)?'progress':'available'});
+  window._catalog=tasks;
+  renderCatalogFiltered();
+}
+function filterCatalog(f){catalogFilter=f;renderCatalogFiltered()}
+function renderCatalogFiltered(){
+  const tasks=(window._catalog||[]).filter(t=>{
+    if(catalogFilter==='flutter')return t.id.startsWith('ONB');
+    if(catalogFilter==='backend')return t.id.startsWith('BE');
+    if(catalogFilter==='available')return t.status==='available';
+    return true;
+  });
+  const el=document.getElementById('catalog-list');
+  if(!tasks.length){el.innerHTML='<div class="empty">No tasks match filter</div>';return}
+  el.innerHTML=tasks.map(t=>{
+    const tag=t.status==='done'?'<span class="done-tag">✓ done</span>':t.status==='queued'?'<span class="queued-tag">queued</span>':t.status==='progress'?'<span class="queued-tag" style="color:var(--yellow)">in progress</span>':'';
+    const addBtn=t.status==='available'?`<button class="btn sm success" onclick="addToQueue('${t.id}','${esc(t.title)}','${t.service}')">+ Queue</button>`:'';
+    return`<div class="catalog-item"><span class="task-id">${t.id}</span><span class="cat-title">${esc(t.title)}</span><span class="task-service">${t.service}</span>${tag}${addBtn}</div>`;
+  }).join('');
 }
 
-function renderBuildPlan(plan) {
-  const el = document.getElementById('build-plan');
-  const tasks = plan.tasks || [];
-  const approved = plan.approved ? '✅ Approved' : '⏸ Not approved';
-  el.innerHTML = `
-    <div style="display:flex;gap:24px;align-items:center;font-size:13px;margin-bottom:8px;">
-      <span><strong>Date:</strong> ${plan.date || 'unset'}</span>
-      <span><strong>Status:</strong> ${approved}</span>
-      <span><strong>Max tasks:</strong> ${plan.maxTasks || 4}</span>
-      <span><strong>Mode:</strong> ${plan.mode || 'full'}</span>
-    </div>
-    ${tasks.length ? `<div style="font-size:13px;"><strong>Planned tasks:</strong> ${tasks.map(t => `<span class="task-id">${t}</span>`).join(' ')}</div>` : '<div class="empty">No specific tasks planned — auto-refill will choose</div>'}
-    ${plan.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:8px;">${plan.notes}</div>` : ''}
-  `;
+// ── Build Plan ─────────────────────────────────────────────────
+async function fetchBuildPlan(){
+  try{
+    const d=await api(`/repos/${O}/${CR}/contents/.ai-workspace/build-plan.json`);
+    planSha=d.sha;
+    const plan=JSON.parse(atob(d.content));
+    populatePlanForm(plan);
+  }catch{planSha=null}
+}
+function populatePlanForm(p){
+  document.getElementById('plan-date').value=p.date||new Date().toISOString().slice(0,10);
+  document.getElementById('plan-max').value=p.maxTasks||4;
+  document.getElementById('plan-mode').value=p.mode||'full';
+  document.getElementById('plan-approved').value=String(p.approved||false);
+  document.getElementById('plan-tasks').value=(p.tasks||[]).join(', ');
+  document.getElementById('plan-notes').value=p.notes||'';
+}
+async function saveBuildPlan(){
+  const plan={
+    date:document.getElementById('plan-date').value,
+    description:'Build plan from dashboard',
+    tasks:document.getElementById('plan-tasks').value.split(',').map(s=>s.trim()).filter(Boolean),
+    approved:document.getElementById('plan-approved').value==='true',
+    maxTasks:parseInt(document.getElementById('plan-max').value)||4,
+    mode:document.getElementById('plan-mode').value,
+    notes:document.getElementById('plan-notes').value
+  };
+  const body={message:'Update build plan from dashboard',content:btoa(JSON.stringify(plan,null,2))};
+  if(planSha)body.sha=planSha;
+  try{
+    const r=await apiRaw(`/repos/${O}/${CR}/contents/.ai-workspace/build-plan.json`,{method:'PUT',body:JSON.stringify(body)});
+    if(r.ok){const d=await r.json();planSha=d.content.sha;toast('Build plan saved','success')}
+    else toast('Failed to save plan','error');
+  }catch(e){toast(`Error: ${e.message}`,'error')}
+}
+function clearBuildPlan(){
+  populatePlanForm({date:new Date().toISOString().slice(0,10),maxTasks:4,mode:'full',approved:false,tasks:[],notes:''});
 }
 
-// ── Fetch pause state ──────────────────────────────────────────
-async function fetchPauseState() {
-  try {
-    await api(`/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/pause.flag`);
-    paused = true;
-    document.getElementById('btn-pause').textContent = '▶ Resume';
-    document.getElementById('btn-pause').className = 'btn success';
-  } catch {
-    paused = false;
-    document.getElementById('btn-pause').textContent = '⏸ Pause';
-    document.getElementById('btn-pause').className = 'btn danger';
+// ── Pause ──────────────────────────────────────────────────────
+async function fetchPauseState(){
+  try{
+    await api(`/repos/${O}/${CR}/contents/.ai-workspace/pause.flag`);
+    paused=true;
+    const b=document.getElementById('btn-pause');b.textContent='▶ Resume';b.className='btn success';
+  }catch{
+    paused=false;
+    const b=document.getElementById('btn-pause');b.textContent='⏸ Pause';b.className='btn danger';
   }
 }
 
 // ── Actions ────────────────────────────────────────────────────
-async function triggerRun(mode) {
-  if (!confirm(`Trigger pipeline in "${mode}" mode?`)) return;
-  try {
-    await fetch(`https://api.github.com/repos/${OWNER}/${CONTROLLER_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `token ${TOKEN}`,
-        'Accept': 'application/vnd.github+json'
-      },
-      body: JSON.stringify({ ref: 'main', inputs: { mode } })
+async function triggerRun(mode){
+  try{
+    const r=await apiRaw(`/repos/${O}/${CR}/actions/workflows/${WF}/dispatches`,{
+      method:'POST',body:JSON.stringify({ref:'main',inputs:{mode}})
     });
-    alert(`✅ Pipeline triggered (mode: ${mode})`);
-    setTimeout(refreshAll, 5000);
-  } catch (e) {
-    alert(`❌ Failed: ${e.message}`);
-  }
+    if(r.status===204)toast(`Pipeline triggered (${mode})`,'success');
+    else toast('Failed to trigger','error');
+    setTimeout(refreshAll,5000);
+  }catch(e){toast(`Error: ${e.message}`,'error')}
 }
 
-async function togglePause() {
-  if (paused) {
-    // Remove pause flag
-    try {
-      const file = await api(`/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/pause.flag`);
-      await fetch(`https://api.github.com/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/pause.flag`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `token ${TOKEN}`,
-          'Accept': 'application/vnd.github+json'
-        },
-        body: JSON.stringify({ message: 'Resume automation', sha: file.sha })
-      });
-      paused = false;
-    } catch (e) { alert(`Failed to resume: ${e.message}`); }
-  } else {
-    // Create pause flag
-    try {
-      await fetch(`https://api.github.com/repos/${OWNER}/${CONTROLLER_REPO}/contents/.ai-workspace/pause.flag`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${TOKEN}`,
-          'Accept': 'application/vnd.github+json'
-        },
-        body: JSON.stringify({
-          message: 'Pause automation (from dashboard)',
-          content: btoa('Paused from dashboard at ' + new Date().toISOString())
-        })
-      });
-      paused = true;
-    } catch (e) { alert(`Failed to pause: ${e.message}`); }
+async function togglePause(){
+  if(paused){
+    try{
+      const f=await api(`/repos/${O}/${CR}/contents/.ai-workspace/pause.flag`);
+      await apiRaw(`/repos/${O}/${CR}/contents/.ai-workspace/pause.flag`,{method:'DELETE',body:JSON.stringify({message:'Resume (dashboard)',sha:f.sha})});
+      toast('Automation resumed','success');
+    }catch(e){toast(`Failed: ${e.message}`,'error')}
+  }else{
+    try{
+      await apiRaw(`/repos/${O}/${CR}/contents/.ai-workspace/pause.flag`,{method:'PUT',body:JSON.stringify({message:'Pause (dashboard)',content:btoa('Paused '+new Date().toISOString())})});
+      toast('Automation paused','info');
+    }catch(e){toast(`Failed: ${e.message}`,'error')}
   }
   fetchPauseState();
-  updateLiveStatus([]);
 }
 
-function timeAgo(date) {
-  const s = Math.floor((Date.now() - date) / 1000);
-  if (s < 60) return `${s}s ago`;
-  if (s < 3600) return `${Math.floor(s/60)}m ago`;
-  if (s < 86400) return `${Math.floor(s/3600)}h ago`;
-  return `${Math.floor(s/86400)}d ago`;
+async function cancelRun(){
+  try{
+    const d=await api(`/repos/${O}/${CR}/actions/workflows/${WF}/runs?per_page=5`);
+    const active=(d.workflow_runs||[]).find(r=>r.status==='in_progress'||r.status==='queued');
+    if(!active){toast('No active run to cancel','info');return}
+    await cancelSpecificRun(active.id);
+  }catch(e){toast(`Error: ${e.message}`,'error')}
 }
 
-// ── Refresh all ────────────────────────────────────────────────
-async function refreshAll() {
-  if (!TOKEN) { showSetup(); return; }
-  await Promise.all([fetchQueue(), fetchPRs(), fetchRuns(), fetchBuildPlan(), fetchPauseState()]);
+async function cancelSpecificRun(runId){
+  try{
+    const r=await apiRaw(`/repos/${O}/${CR}/actions/runs/${runId}/cancel`,{method:'POST'});
+    if(r.status===202)toast(`Run #${runId} cancelled`,'success');
+    else toast('Failed to cancel','error');
+    setTimeout(fetchRuns,3000);
+  }catch(e){toast(`Error: ${e.message}`,'error')}
+}
+
+async function addToQueue(id,title,service){
+  // Read current queue, append task, push back
+  try{
+    const d=await api(`/repos/${O}/${CR}/contents/.ai-workspace/task-queue.json`);
+    const q=JSON.parse(atob(d.content));
+    if((q.queue||[]).some(t=>t.id===id)){toast(`${id} already in queue`,'info');return}
+    q.queue=q.queue||[];
+    q.queue.push({id,title,service});
+    const r=await apiRaw(`/repos/${O}/${CR}/contents/.ai-workspace/task-queue.json`,{
+      method:'PUT',body:JSON.stringify({message:`Add ${id} to queue (dashboard)`,content:btoa(JSON.stringify(q,null,2)),sha:d.sha})
+    });
+    if(r.ok){toast(`${id} added to queue`,'success');fetchQueue();renderCatalogFiltered()}
+    else toast('Failed to update queue','error');
+  }catch(e){toast(`Error: ${e.message}`,'error')}
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function timeAgo(d){const s=Math.floor((Date.now()-d)/1000);if(s<60)return`${s}s`;if(s<3600)return`${Math.floor(s/60)}m`;if(s<86400)return`${Math.floor(s/3600)}h`;return`${Math.floor(s/86400)}d`}
+function fmtDur(ms){const s=Math.floor(ms/1000);if(s<60)return`${s}s`;if(s<3600)return`${Math.floor(s/60)}m ${s%60}s`;return`${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m`}
+
+// ── Keyboard shortcuts ─────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
+  const k=e.key.toLowerCase();
+  if(k==='r'){e.preventDefault();refreshAll()}
+  else if(k==='p'){e.preventDefault();togglePause()}
+  else if(k==='t'){e.preventDefault();toggleTheme()}
+  else if(k==='x'){e.preventDefault();cancelRun()}
+  else if(k==='1'){e.preventDefault();triggerRun('full')}
+  else if(k==='2'){e.preventDefault();triggerRun('create-only')}
+  else if(k==='3'){e.preventDefault();triggerRun('merge-only')}
+  else if(k==='?'||k==='/'){e.preventDefault();document.getElementById('shortcuts-modal').classList.toggle('hidden')}
+  else if(k==='escape'){document.getElementById('shortcuts-modal').classList.add('hidden')}
+});
+
+// ── Refresh ────────────────────────────────────────────────────
+async function refreshAll(){
+  if(!TOKEN){showSetup();return}
+  document.getElementById('last-refresh').textContent='refreshing...';
+  try{
+    await Promise.all([fetchQueue(),fetchPRs(),fetchRuns(),fetchEvals(),fetchBuildPlan(),fetchPauseState()]);
+    // Catalog depends on queue data
+    await fetchCatalog();
+    document.getElementById('last-refresh').textContent=`Updated ${new Date().toLocaleTimeString()}`;
+  }catch(e){
+    document.getElementById('last-refresh').textContent='Error';
+  }
+}
+
+// ── Notifications (browser) ────────────────────────────────────
+let lastRunStatus=null;
+async function checkNotifications(){
+  if(!TOKEN||Notification.permission!=='granted')return;
+  try{
+    const d=await api(`/repos/${O}/${CR}/actions/workflows/${WF}/runs?per_page=1`);
+    const r=(d.workflow_runs||[])[0];
+    if(!r)return;
+    const key=`${r.id}-${r.conclusion}`;
+    if(lastRunStatus&&lastRunStatus!==key&&r.conclusion){
+      new Notification('🤖 DatingApp Pipeline',{body:`Run #${r.run_number}: ${r.conclusion}`,icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🤖</text></svg>'});
+    }
+    lastRunStatus=key;
+  }catch{}
 }
 
 // ── Init ───────────────────────────────────────────────────────
-if (!TOKEN) {
+if(!TOKEN){
   showSetup();
-  document.querySelectorAll('.loading').forEach(e => e.textContent = 'Enter GitHub token to load data');
-} else {
+  document.querySelectorAll('.loading').forEach(e=>e.textContent='Enter token to load');
+}else{
   refreshAll();
-  refreshTimer = setInterval(refreshAll, 30000);
+  setInterval(refreshAll,30000);
+  // Request notification permission
+  if('Notification' in window && Notification.permission==='default'){
+    Notification.requestPermission();
+  }
+  setInterval(checkNotifications,30000);
 }
 </script>
 </body>
