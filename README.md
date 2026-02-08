@@ -1,91 +1,184 @@
-# DatingApp Controller Repository
+# DatingApp Controller
 
-**Purpose**: Orchestrate operations across all 9 DatingApp repositories safely.
+Multi-repository orchestration for DatingApp development with autonomous task automation.
 
-## Architecture
+## Quick Start
 
-This controller repo uses **git submodules** to manage all service repos:
+### 1. Run Overnight Automation
+```bash
+./start-overnight-run.sh
+```
+
+This will:
+- Create a safety snapshot
+- Show queued tasks
+- Activate AI automation mode
+- Process all tasks in `.ai-workspace/task-queue.json`
+
+### 2. Check Progress
+```bash
+tail -f .ai-workspace/execution.log
+```
+
+### 3. Rollback If Needed
+```bash
+./scripts/rollback.sh "Before overnight run - Feb 08 2026"
+```
+
+## How It Works
+
+### Task Queue System
+Tasks are defined in `.ai-workspace/task-queue.json` with:
+- **Tier 1**: Safe UI work, no external dependencies
+- **Tier 2**: Backend integration, requires services running
+- **Tier 3**: Complex features, needs careful review
+
+### Automation Workflow
+
+1. **User runs**: `./start-overnight-run.sh`
+2. **Script creates**: Atomic snapshot across all repos
+3. **Script activates**: `.ai-workspace/automation-active.txt` marker
+4. **AI detects marker**: Enters autonomous execution mode
+5. **AI processes tasks**: One by one from queue
+   - Moves task to `inProgress[]`
+   - Implements screen per specification
+   - Runs `flutter analyze` for validation
+   - Commits with conventional format
+   - Moves task to `completed[]`
+6. **AI logs progress**: To `.ai-workspace/execution.log`
+7. **User checks**: Results in morning, rollback if needed
+
+### Safety Features
+
+- **Atomic Snapshots**: Tag all 8 repos simultaneously
+- **30-Second Rollback**: Undo all changes across repos
+- **Validation Gates**: Each task runs `flutter analyze`
+- **Tier System**: Only safe tasks run unattended
+- **Execution Log**: Complete audit trail
+
+## File Structure
 
 ```
 DatingAppController/
-├── repos/
-│   ├── DatingApp-Config/     # Main config & CI/CD
+├── .ai-workspace/
+│   ├── task-queue.json              # Task definitions
+│   ├── automation-active.txt        # AI detection marker
+│   ├── execution.log                # Runtime progress log
+│   └── AI_TASK_PROCESSOR_INSTRUCTIONS.md  # AI automation guide
+├── repos/                           # Git submodules
+│   ├── DatingApp-Config/
 │   ├── UserService/
 │   ├── MatchmakingService/
 │   ├── swipe-service/
 │   ├── photo-service/
 │   ├── messaging-service/
-│   ├── safety-service/
-│   ├── dejting-yarp/         # Gateway
-│   └── mobile_dejtingapp/    # Flutter app
+│   ├── dejting-yarp/
+│   └── mobile_dejtingapp/           # Flutter app (main workspace)
 ├── scripts/
-│   ├── snapshot.sh          # Tag all repos before changes
-│   ├── rollback.sh          # Revert all repos to snapshot
-│   ├── status-all.sh        # Show changes across all repos
-│   ├── commit-all.sh        # Commit to all changed repos
-│   └── push-all.sh          # Push all repos atomically
-└── .ai-workspace/
-    ├── task-queue.json      # Queued AI tasks
-    └── completed-tasks.json # History
-
-## Safety Features
-
-### 1. Atomic Snapshots
-Before any overnight AI run:
-```bash
-./scripts/snapshot.sh "Before AI batch - MVPFoundation-001"
-```
-Creates git tags across ALL repos. Rollback in 30 seconds if anything breaks.
-
-### 2. Rollback
-If morning review shows problems:
-```bash
-./scripts/rollback.sh "Before AI batch - MVPFoundation-001"
-```
-All repos reset to tagged state. No merge conflicts, no manual fixing.
-
-### 3. Status Dashboard
-```bash
-./scripts/status-all.sh
-```
-Shows changes in all 9 repos at once. Quick overview of overnight work.
-
-## Workflow
-
-### Overnight AI Run
-```bash
-# 1. Create snapshot
-./scripts/snapshot.sh "Before ${TASK_BATCH_ID}"
-
-# 2. AI makes changes overnight (8+ hours)
-#    - Generates code in multiple repos
-#    - Creates branches, commits locally
-
-# 3. Morning review (30 min)
-./scripts/status-all.sh  # Review changes
-cd repos/UserService && git log --oneline -5  # Inspect commits
-
-# 4. Decide: Merge or rollback
-if [ "$approved" = "yes" ]; then
-  ./scripts/push-all.sh  # Atomic push to all repos
-else
-  ./scripts/rollback.sh "Before ${TASK_BATCH_ID}"  # Undo everything
-fi
+│   ├── snapshot.sh                  # Create multi-repo snapshot
+│   ├── rollback.sh                  # Rollback to snapshot
+│   ├── status-all.sh                # Check all repo status
+│   ├── push-all.sh                  # Push all repos
+│   └── execute-task-queue.sh        # Task processor engine
+├── start-overnight-run.sh           # Main automation entry point
+├── OVERNIGHT_AUTOMATION_GUIDE.md    # Complete automation docs
+└── MORNING_REVIEW_CHECKLIST.md      # Review workflow
 ```
 
-## Setup
+## Scripts
 
-```bash
-cd /home/m/development/DatingAppController
+### Main Workflow
+- `./start-overnight-run.sh` - Start automation (snapshot + execute)
+- `./scripts/execute-task-queue.sh` - Process task queue
+- `tail -f .ai-workspace/execution.log` - Monitor progress
 
-# Add all repos as submodules
-./scripts/init-submodules.sh
+### Safety & Status
+- `./scripts/snapshot.sh "message"` - Create snapshot
+- `./scripts/rollback.sh "tag name"` - Rollback to snapshot
+- `./scripts/status-all.sh` - Check all repos
+- `./scripts/push-all.sh` - Push all repos
+
+## Task Queue Format
+
+```json
+{
+  "queue": [
+    {
+      "id": "ONB-050",
+      "type": "screen",
+      "tier": 1,
+      "title": "Community Guidelines Screen",
+      "filePath": "lib/screens/wizard/community_guidelines_screen.dart",
+      "acceptanceCriteria": [...],
+      "estimatedHours": 4,
+      "testCommand": "flutter analyze ...",
+      "referenceFiles": [...]
+    }
+  ],
+  "inProgress": [],
+  "completed": []
+}
 ```
 
-## Current Status
+## AI Automation Mode
 
-**✅ Ready for overnight AI automation**
-- All 5 services passing CI/CD
-- Dependency automation active
-- Security scanning enabled
-- Coverage tracking (10% → 80% path)
+When `automation-active.txt` exists, the AI enters autonomous mode:
+
+1. **Reads**: `.ai-workspace/task-queue.json`
+2. **For each task**:
+   - Move to `inProgress[]`
+   - Create file in `repos/mobile_dejtingapp/`
+   - Follow `acceptanceCriteria` exactly
+   - Run `testCommand` for validation
+   - Commit: `feat(onboarding): Add [title] ([id])`
+   - Move to `completed[]` with metadata
+3. **Logs**: Everything to `execution.log`
+4. **Stops**: On first error (fail-fast)
+
+## Morning Review
+
+1. Check execution log:
+   ```bash
+   cat .ai-workspace/execution.log
+   ```
+
+2. Verify completed tasks:
+   ```bash
+   jq '.completed' .ai-workspace/task-queue.json
+   ```
+
+3. Test the implementations:
+   ```bash
+   cd repos/mobile_dejtingapp
+   flutter analyze
+   flutter test
+   ```
+
+4. If issues found, rollback:
+   ```bash
+   ./scripts/rollback.sh "Before overnight run - ..."
+   ```
+
+5. If all good, push:
+   ```bash
+   ./scripts/push-all.sh "feat: Complete overnight automation run"
+   ```
+
+## Documentation
+
+- **OVERNIGHT_AUTOMATION_GUIDE.md** - Complete automation guide
+- **MORNING_REVIEW_CHECKLIST.md** - Review workflow
+- **.ai-workspace/AI_TASK_PROCESSOR_INSTRUCTIONS.md** - AI execution rules
+
+## Contributing
+
+Tasks should be Tier 1 safe:
+- Pure UI work
+- No external service dependencies
+- No authentication logic
+- Well-defined acceptance criteria
+- Reference files for consistency
+
+## License
+
+Part of DatingApp project
