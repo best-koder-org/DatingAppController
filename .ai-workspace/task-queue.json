@@ -3,35 +3,6 @@
   "lastUpdated": "2026-02-08T22:20:55.107767",
   "queue": [
     {
-      "id": "ONB-090",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Sexual Orientation Screen",
-      "filePath": "lib/screens/wizard/orientation_screen.dart",
-      "description": "Multi-select orientation screen with toggle chips and privacy control",
-      "acceptanceCriteria": [
-        "Progress bar (50%)",
-        "Header: 'What's your sexual orientation?'",
-        "Multi-select toggle chips (Straight, Gay, Lesbian, Bisexual, Asexual, Demisexual, Pansexual, Queer, Questioning)",
-        "Can select up to 3 options",
-        "Privacy toggle: 'Show my orientation on my profile' (default OFF)",
-        "Next button (disabled until >= 1 selection)",
-        "Back arrow + close X navigation"
-      ],
-      "estimatedHours": 4,
-      "priority": "high",
-      "dependencies": [
-        "ONB-080"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Pure UI, hardcoded options, no backend calls",
-      "testCommand": "flutter analyze lib/screens/wizard/orientation_screen.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/gender_screen.dart"
-      ]
-    },
-    {
       "id": "BE-005",
       "type": "backend",
       "tier": 1,
@@ -304,6 +275,37 @@
         "Models/UserProfile.cs"
       ],
       "completedAt": "2026-02-08T20:45:21.491406",
+      "source": "template"
+    },
+    {
+      "id": "ONB-090",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Sexual Orientation Screen",
+      "filePath": "lib/screens/wizard/orientation_screen.dart",
+      "description": "Multi-select orientation screen with toggle chips and privacy control",
+      "acceptanceCriteria": [
+        "Progress bar (50%)",
+        "Header: 'What's your sexual orientation?'",
+        "Multi-select toggle chips (Straight, Gay, Lesbian, Bisexual, Asexual, Demisexual, Pansexual, Queer, Questioning)",
+        "Can select up to 3 options",
+        "Privacy toggle: 'Show my orientation on my profile' (default OFF)",
+        "Next button (disabled until >= 1 selection)",
+        "Back arrow + close X navigation"
+      ],
+      "estimatedHours": 4,
+      "priority": "high",
+      "dependencies": [
+        "ONB-080"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "Pure UI, hardcoded options, no backend calls",
+      "testCommand": "flutter analyze lib/screens/wizard/orientation_screen.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/gender_screen.dart"
+      ],
+      "completedAt": "2026-02-08T22:22:54.591352",
       "source": "template"
     }
   ]
