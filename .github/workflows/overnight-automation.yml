@@ -194,10 +194,96 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
 
+  # ── Step 4.5: Verify builds after merging ──────────────────────
+  verify-builds:
+    if: >-
+      github.event.inputs.mode != 'create-only' &&
+      github.event.inputs.mode != 'report-only'
+    needs: merge-wave
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout controller (with submodules)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0
+          ref: main
+
+      - name: Init submodules (non-recursive)
+        run: |
+          git submodule update --init -- repos/UserService repos/MatchmakingService repos/swipe-service repos/photo-service repos/messaging-service repos/dejting-yarp repos/mobile_dejtingapp
+
+      - name: Pull latest submodule refs
+        run: |
+          for dir in repos/*/; do
+            if [ -d "$dir/.git" ] || [ -f "$dir/.git" ]; then
+              cd "$dir"
+              git checkout main && git pull origin main
+              cd - > /dev/null
+            fi
+          done
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.1'
+          channel: 'stable'
+
+      - name: "🏗️ Build all .NET services"
+        run: |
+          FAILED=""
+          for svc in UserService MatchmakingService swipe-service photo-service messaging-service dejting-yarp; do
+            dir="repos/$svc"
+            echo ""
+            echo "════════════════════════════════════════"
+            echo "🏗️ Building $svc..."
+            echo "════════════════════════════════════════"
+            # Find the csproj or sln
+            if [ -f "$dir/"*.sln ]; then
+              proj=$(ls "$dir/"*.sln | head -1)
+            elif [ -f "$dir/"*.csproj ]; then
+              proj=$(ls "$dir/"*.csproj | head -1)
+            elif [ -d "$dir/src" ]; then
+              proj=$(find "$dir/src" -name "*.csproj" -o -name "*.sln" | head -1)
+            else
+              proj=$(find "$dir" -name "*.csproj" | head -1)
+            fi
+            if [ -z "$proj" ]; then
+              echo "⚠️ No project file found for $svc — skipping"
+              continue
+            fi
+            echo "Building: $proj"
+            if ! dotnet build "$proj" --configuration Release; then
+              echo "❌ BUILD FAILED: $svc"
+              FAILED="$FAILED $svc"
+            else
+              echo "✅ $svc builds successfully"
+            fi
+          done
+          if [ -n "$FAILED" ]; then
+            echo ""
+            echo "❌ FAILED BUILDS:$FAILED"
+            exit 1
+          fi
+          echo ""
+          echo "✅ All .NET services build successfully!"
+
+      - name: "🔍 Analyze Flutter app"
+        run: |
+          cd repos/mobile_dejtingapp
+          flutter pub get
+          flutter analyze --no-fatal-infos --no-fatal-warnings
+          echo "✅ Flutter analyze passed!"
+
   # ── Step 5: Morning report ─────────────────────────────────────
   morning-report:
     if: always()  # Always run, even if previous jobs fail
-    needs: [create-prs, analyze-merges, merge-wave]
+    needs: [create-prs, analyze-merges, merge-wave, verify-builds]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout controller
