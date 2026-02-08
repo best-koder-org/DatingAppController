@@ -3,36 +3,6 @@
   "lastUpdated": "2026-02-08T22:20:55.107767",
   "queue": [
     {
-      "id": "BE-005",
-      "type": "backend",
-      "tier": 1,
-      "service": "messaging-service",
-      "title": "Add Typing Indicator DTO",
-      "filePath": "DTOs/TypingIndicatorDto.cs",
-      "additionalFiles": [
-        "Controllers/TypingController.cs"
-      ],
-      "description": "Add typing indicator support \u2014 DTO + REST endpoints to post/get typing state per conversation.",
-      "acceptanceCriteria": [
-        "TypingIndicatorDto with UserId, ConversationId, IsTyping, Timestamp",
-        "POST /api/typing endpoint to broadcast typing state",
-        "GET /api/typing/{conversationId} for current typers",
-        "Authorize attribute",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 2,
-      "priority": "medium",
-      "dependencies": [
-        "BE-001"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "New files only, ephemeral state.",
-      "testCommand": "dotnet build",
-      "referenceFiles": [
-        "Controllers/MessagesController.cs"
-      ]
-    },
-    {
       "id": "BE-006",
       "type": "backend",
       "tier": 1,
@@ -306,6 +276,38 @@
         "lib/screens/wizard/gender_screen.dart"
       ],
       "completedAt": "2026-02-08T22:22:54.591352",
+      "source": "template"
+    },
+    {
+      "id": "BE-005",
+      "type": "backend",
+      "tier": 1,
+      "service": "messaging-service",
+      "title": "Add Typing Indicator DTO",
+      "filePath": "DTOs/TypingIndicatorDto.cs",
+      "additionalFiles": [
+        "Controllers/TypingController.cs"
+      ],
+      "description": "Add typing indicator support \u2014 DTO + REST endpoints to post/get typing state per conversation.",
+      "acceptanceCriteria": [
+        "TypingIndicatorDto with UserId, ConversationId, IsTyping, Timestamp",
+        "POST /api/typing endpoint to broadcast typing state",
+        "GET /api/typing/{conversationId} for current typers",
+        "Authorize attribute",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 2,
+      "priority": "medium",
+      "dependencies": [
+        "BE-001"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "New files only, ephemeral state.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Controllers/MessagesController.cs"
+      ],
+      "completedAt": "2026-02-08T22:24:21.966704",
       "source": "template"
     }
   ]
