@@ -137,6 +137,30 @@ def main():
             report += f"- {t['id']}: {t['title']} (started: {t.get('startedAt', 'unknown')})\n"
 
     report += f"""
+
+## 📊 Eval Scores
+"""
+
+    # Load any eval results
+    eval_dir = root / ".ai-workspace/evals"
+    if eval_dir.exists() and list(eval_dir.glob("*.json")):
+        eval_rows = []
+        for ej in sorted(eval_dir.glob("*.json")):
+            try:
+                e = json.loads(ej.read_text())
+                grade_emoji = {"A": "🟢", "B": "🔵", "C": "🟡", "D": "🟠", "F": "🔴"}.get(e.get("grade","?"), "⚪")
+                eval_rows.append(f"| {e['task_id']} | {grade_emoji} {e.get('grade','?')} | {e.get('total_score',0)}/100 |")
+            except Exception:
+                pass
+        if eval_rows:
+            report += "| Task | Grade | Score |\n|------|-------|-------|\n"
+            report += "\n".join(eval_rows) + "\n"
+        else:
+            report += "_No eval data yet._\n"
+    else:
+        report += "_No eval data yet (evals start with next overnight run)._\n"
+
+    report += """
 ## 👤 Action Items
 1. Review open PRs above — merge those with ✅
 2. Test merged screens on device/emulator
