@@ -20,7 +20,8 @@ public interface IFaceVerificationService
 public class FaceVerificationService : IFaceVerificationService
 {
     private readonly HttpClient _httpClient;
-    private readonly PhotoContext _db;
+    private readonly VerificationDbContext _verificationDb;
+    private readonly PhotoContext _photoDb;
     private readonly ILogger<FaceVerificationService> _logger;
     private const string DeepFaceUrl = "http://deepface:5005";
     private const int MaxAttemptsPerDay = 3;
@@ -29,11 +30,13 @@ public class FaceVerificationService : IFaceVerificationService
 
     public FaceVerificationService(
         IHttpClientFactory httpClientFactory,
-        PhotoContext db,
+        VerificationDbContext verificationDb,
+        PhotoContext photoDb,
         ILogger<FaceVerificationService> logger)
     {
         _httpClient = httpClientFactory.CreateClient("DeepFace");
-        _db = db;
+        _verificationDb = verificationDb;
+        _photoDb = photoDb;
         _logger = logger;
     }
 
@@ -51,7 +54,7 @@ public class FaceVerificationService : IFaceVerificationService
         }
 
         // Get user's current primary photo
-        var profilePhoto = await _db.Photos
+        var profilePhoto = await _photoDb.Photos
             .Where(p => p.UserId == userId && p.IsPrimary)
             .OrderByDescending(p => p.CreatedAt)
             .FirstOrDefaultAsync();
@@ -94,7 +97,7 @@ public class FaceVerificationService : IFaceVerificationService
             }
 
             var result = await response.Content.ReadFromJsonAsync<DeepFaceVerifyResponse>();
-            double similarity = 1.0 - (result?.Distance ?? 1.0); // Convert distance to similarity
+            double similarity = 1.0 - (result?.Distance ?? 1.0);
 
             // Create attempt record
             var attempt = new VerificationAttempt
@@ -106,7 +109,6 @@ public class FaceVerificationService : IFaceVerificationService
                 AntiSpoofingPassed = result?.FacialArea != null
             };
 
-            // Determine decision based on thresholds
             if (similarity >= VerifiedThreshold)
             {
                 attempt.Result = "Verified";
@@ -125,8 +127,8 @@ public class FaceVerificationService : IFaceVerificationService
                 attempt.RejectionReason = "Face didn't match your profile photo. Please try again with better lighting.";
             }
 
-            _db.VerificationAttempts.Add(attempt);
-            await _db.SaveChangesAsync();
+            _verificationDb.VerificationAttempts.Add(attempt);
+            await _verificationDb.SaveChangesAsync();
 
             return new VerificationResult(
                 attempt.Decision,
@@ -147,7 +149,7 @@ public class FaceVerificationService : IFaceVerificationService
 
     public async Task<VerificationAttempt?> GetLatestAttemptAsync(int userId)
     {
-        return await _db.VerificationAttempts
+        return await _verificationDb.VerificationAttempts
             .Where(a => a.UserId == userId)
             .OrderByDescending(a => a.CreatedAt)
             .FirstOrDefaultAsync();
@@ -156,7 +158,7 @@ public class FaceVerificationService : IFaceVerificationService
     public async Task<int> GetAttemptCountTodayAsync(int userId)
     {
         var today = DateTime.UtcNow.Date;
-        return await _db.VerificationAttempts
+        return await _verificationDb.VerificationAttempts
             .CountAsync(a => a.UserId == userId && a.CreatedAt >= today);
     }
 }
@@ -195,7 +197,6 @@ public class DeepFaceVerifyResponse
     public object? FacialArea { get; set; }
 }
 
-// Verification result
 public record VerificationResult(
     VerificationDecision Decision,
     double SimilarityScore,
@@ -210,18 +211,4 @@ public enum VerificationDecision
     Rejected,
     RateLimited,
     Error
-}
-
-// EF entity for verification tracking
-public class VerificationAttempt
-{
-    public int Id { get; set; }
-    public int UserId { get; set; }
-    public double SimilarityScore { get; set; }
-    public int ProfilePhotoId { get; set; }
-    public string Result { get; set; } = "";
-    public VerificationDecision Decision { get; set; }
-    public string? RejectionReason { get; set; }
-    public bool AntiSpoofingPassed { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

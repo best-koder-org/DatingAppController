@@ -297,7 +297,11 @@ def main():
     # ── Create branch ───────────────────────────────────────────
     branch = sanitize_branch(tid, task["title"])
     run("git config pull.rebase false", cwd=repo_dir)
-    run("git checkout main && git pull origin main", cwd=repo_dir)
+    # Clean any dirty state from previous matrix job on same self-hosted runner
+    run("git checkout main", cwd=repo_dir, check=False)
+    run("git clean -fd", cwd=repo_dir, check=False)
+    run("git checkout .", cwd=repo_dir, check=False)
+    run("git pull origin main", cwd=repo_dir)
     run(f"git checkout -b {branch}", cwd=repo_dir)
 
     # ── Write feature file(s) ────────────────────────────────────
