@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-02-09T17:07:43.213213",
+  "lastUpdated": "2026-02-09T17:08:30.106215",
   "queue": [
     {
       "id": "T153",
@@ -102,6 +102,35 @@
       "safetyTier": 1,
       "safetyNotes": "New widget file.",
       "testCommand": "flutter analyze lib/widgets/verification_badge.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/gender_screen.dart"
+      ]
+    },
+    {
+      "id": "ONB-100",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Match Preferences Screen",
+      "filePath": "lib/screens/wizard/match_preferences_screen.dart",
+      "description": "Who do you want to match with? Select gender preferences",
+      "acceptanceCriteria": [
+        "Progress bar (55%)",
+        "Header: 'Show me'",
+        "3 large selection buttons: Men, Women, Everyone",
+        "Single selection (radio behavior)",
+        "Next button (disabled until selection made)",
+        "No privacy toggle (this is always private)",
+        "Back arrow + close X navigation"
+      ],
+      "estimatedHours": 3,
+      "priority": "high",
+      "dependencies": [
+        "ONB-090"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "Simple single selection, hardcoded options",
+      "testCommand": "flutter analyze lib/screens/wizard/match_preferences_screen.dart",
       "referenceFiles": [
         "lib/screens/wizard/gender_screen.dart"
       ]
