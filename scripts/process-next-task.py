@@ -313,6 +313,9 @@ def main():
     run("git clean -fd", cwd=repo_dir, check=False)
     run("git checkout .", cwd=repo_dir, check=False)
     run("git pull origin main", cwd=repo_dir)
+    # Delete stale branch (local + remote) if it exists from a previous run
+    run(f"git branch -D {branch}", cwd=repo_dir, check=False)
+    run(f"git push origin --delete {branch}", cwd=repo_dir, check=False)
     run(f"git checkout -b {branch}", cwd=repo_dir)
 
     # ── Write feature file(s) ────────────────────────────────────
