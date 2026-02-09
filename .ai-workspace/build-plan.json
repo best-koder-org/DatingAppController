@@ -1,9 +1,14 @@
 {
-  "date": "2026-02-08",
-  "description": "Next overnight run plan - review and set approved=true before bed",
-  "tasks": [],
-  "approved": false,
+  "date": "2026-02-09",
+  "description": "Overnight run: Profile completeness + Verification badge foundations",
+  "tasks": [
+    "T153",
+    "T156",
+    "T154",
+    "T158"
+  ],
+  "approved": true,
   "maxTasks": 4,
-  "mode": "full",
-  "notes": "Empty plan = refill-queue decides. Set tasks manually for control."
+  "mode": "create-only",
+  "notes": "T153: UserService living score. T156: photo-service DeepFace verification endpoint. T154+T158: Flutter widgets (completeness ring + badge). All independent, no deps. Templates provided for T153 and T156."
 }

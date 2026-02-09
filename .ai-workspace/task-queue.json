@@ -1,7 +1,127 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-02-10T01:15:00.000000",
-  "queue": [],
+  "lastUpdated": "2026-02-09T17:06:33.423549",
+  "queue": [
+    {
+      "id": "T153",
+      "type": "backend",
+      "tier": 2,
+      "service": "UserService",
+      "title": "Living Profile Completeness Calculator",
+      "filePath": "Services/ProfileCompletenessService.cs",
+      "additionalFiles": [
+        "DTOs/ProfileCompletenessDto.cs"
+      ],
+      "description": "Replace existing stub DTOs with full 3-tier weighted calculation. Formula: Required (name, birthday, gender, 2+ photos) = 40%, Encouraged (bio 50+ chars, 5+ interests, height, relationship goals) = 35%, Optional (job, education, smoking, exercise, pets, religion, languages, verification badge, 4+ photos) = 25%. Living score that grows as users enrich profile over time. NextSuggestion returns highest-impact missing field as nudge text.",
+      "acceptanceCriteria": [
+        "IProfileCompletenessService interface with Calculate(UserProfile)",
+        "ProfileCompletenessService with 3-tier weighted formula (40/35/25)",
+        "ProfileFieldStatus record with FieldName, IsFilled, Weight, Tier",
+        "ProfileCompletenessDto updated with Tier field on FieldStatusDto",
+        "NextSuggestion returns human-readable nudge text (e.g. Add a bio to get 15% more matches!)",
+        "Handles null/empty JSON arrays for Interests and Languages gracefully",
+        "Score grows with bio length (50/150 char thresholds), photo count (2/4/6 thresholds)",
+        "dotnet build passes without errors"
+      ],
+      "estimatedHours": 4,
+      "priority": "high",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "Replaces existing stub DTOs. Service is new file. Read-only calculation, no DB mutations.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Models/UserProfile.cs",
+        "Controllers/ProfileController.cs"
+      ]
+    },
+    {
+      "id": "T156",
+      "type": "backend",
+      "tier": 2,
+      "service": "photo-service",
+      "title": "Face Verification Endpoint with DeepFace",
+      "filePath": "Services/FaceVerificationService.cs",
+      "additionalFiles": [
+        "Controllers/VerificationController.cs"
+      ],
+      "description": "POST /api/verification/submit \u2014 accepts selfie image, compares to users profile photo via DeepFace container (http://deepface:5005/verify). Facenet512 model with anti-spoofing. Cosine similarity thresholds: >0.40 = Verified (blue badge), 0.30-0.40 = Pending (manual review), <0.30 = Rejected. Rate limit: max 3 attempts per 24h. GET /api/verification/status returns current verification state. Includes VerificationAttempt entity for tracking.",
+      "acceptanceCriteria": [
+        "IFaceVerificationService interface with VerifyAsync, GetLatestAttemptAsync, GetAttemptCountTodayAsync",
+        "FaceVerificationService calling DeepFace /verify endpoint via HttpClient",
+        "VerificationAttempt entity (Id, UserId, SimilarityScore, ProfilePhotoId, Result, RejectionReason, CreatedAt)",
+        "VerificationDecision enum (Verified, PendingReview, Rejected, RateLimited, Error)",
+        "DeepFaceVerifyRequest/Response models with JsonPropertyName attributes",
+        "POST /api/verification/submit endpoint accepting IFormFile selfie",
+        "GET /api/verification/status endpoint",
+        "Rate limiting: max 3 attempts per day per user",
+        "Authorize attribute on all endpoints",
+        "dotnet build passes without errors"
+      ],
+      "estimatedHours": 6,
+      "priority": "high",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "New files only, no modifications to existing code. Uses HttpClientFactory for DeepFace calls.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Controllers/PhotosController.cs",
+        "Services/PhotoService.cs"
+      ]
+    },
+    {
+      "id": "T154",
+      "type": "screen",
+      "tier": 2,
+      "service": "mobile_dejtingapp",
+      "title": "Profile Completeness Progress Ring",
+      "filePath": "lib/widgets/profile_completeness_ring.dart",
+      "description": "Circular progress ring widget showing profile completeness %. Color-coded: <50% red, 50-80% amber, >80% green. Shows percentage number in center. Below ring: list of per-field nudge messages from backend NextSuggestion. Pulls data from UserService GET profile endpoint profileCompleteness field.",
+      "acceptanceCriteria": [
+        "ProfileCompletenessRing StatelessWidget accepting percentage int and nudges list",
+        "Circular progress indicator using CustomPainter or CircularProgressIndicator",
+        "Color coding: red (<50%), amber (50-80%), green (>80%)",
+        "Percentage text displayed in center of ring",
+        "List of nudge messages below ring (Add a bio, Add more photos, etc)",
+        "Responsive sizing for different screen sizes",
+        "flutter analyze passes without errors"
+      ],
+      "estimatedHours": 3,
+      "priority": "high",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "New widget file, no modifications to existing screens. Pure UI component.",
+      "testCommand": "flutter analyze lib/widgets/profile_completeness_ring.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/birthday_screen.dart"
+      ]
+    },
+    {
+      "id": "T158",
+      "type": "screen",
+      "tier": 2,
+      "service": "mobile_dejtingapp",
+      "title": "Verification Badge Display Widget",
+      "filePath": "lib/widgets/verification_badge.dart",
+      "description": "Blue checkmark badge overlay widget for verified users. Shows on profile cards in discovery feed, own profile page, and match/chat list. Includes Get Verified CTA button on own profile when not yet verified. Reads isVerified from user profile API response.",
+      "acceptanceCriteria": [
+        "VerificationBadge StatelessWidget with isVerified bool parameter",
+        "Blue checkmark icon (Icons.verified) with white background circle",
+        "Positioned as overlay on profile card (top-right corner)",
+        "GetVerifiedButton widget with coral styling for unverified users",
+        "Verified label text widget for match/chat list items",
+        "flutter analyze passes without errors"
+      ],
+      "estimatedHours": 2,
+      "priority": "medium",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "New widget file, no modifications to existing screens. Pure UI component.",
+      "testCommand": "flutter analyze lib/widgets/verification_badge.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/gender_screen.dart"
+      ]
+    }
+  ],
   "inProgress": [],
   "completed": [
     {
