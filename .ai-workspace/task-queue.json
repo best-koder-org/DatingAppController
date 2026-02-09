@@ -3,6 +3,34 @@
   "lastUpdated": "2026-02-09T17:08:30.106215",
   "queue": [
     {
+      "id": "T156",
+      "type": "backend",
+      "tier": 2,
+      "service": "photo-service",
+      "title": "Face Verification Endpoint with DeepFace",
+      "filePath": "Services/FaceVerificationService.cs",
+      "additionalFiles": [
+        "Controllers/VerificationController.cs"
+      ],
+      "description": "POST /api/verification/submit with DeepFace Facenet512.",
+      "acceptanceCriteria": [
+        "IFaceVerificationService interface",
+        "FaceVerificationService calling DeepFace /verify via HttpClient",
+        "VerificationAttempt entity",
+        "POST /api/verification/submit + GET /api/verification/status",
+        "dotnet build passes without errors"
+      ],
+      "estimatedHours": 6,
+      "priority": "high",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "New files only.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Controllers/PhotosController.cs"
+      ]
+    },
+    {
       "id": "T154",
       "type": "screen",
       "tier": 2,
@@ -478,36 +506,5 @@
       "source": "template"
     }
   ],
-  "failed": [
-    {
-      "id": "T156",
-      "type": "backend",
-      "tier": 2,
-      "service": "photo-service",
-      "title": "Face Verification Endpoint with DeepFace",
-      "filePath": "Services/FaceVerificationService.cs",
-      "additionalFiles": [
-        "Controllers/VerificationController.cs"
-      ],
-      "description": "POST /api/verification/submit with DeepFace Facenet512.",
-      "acceptanceCriteria": [
-        "IFaceVerificationService interface",
-        "FaceVerificationService calling DeepFace /verify via HttpClient",
-        "VerificationAttempt entity",
-        "POST /api/verification/submit + GET /api/verification/status",
-        "dotnet build passes without errors"
-      ],
-      "estimatedHours": 6,
-      "priority": "high",
-      "dependencies": [],
-      "safetyTier": 1,
-      "safetyNotes": "New files only.",
-      "testCommand": "dotnet build",
-      "referenceFiles": [
-        "Controllers/PhotosController.cs"
-      ],
-      "failedAt": "2026-02-09T17:10:12.674551",
-      "reason": "dotnet build failed"
-    }
-  ]
+  "failed": []
 }

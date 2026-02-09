@@ -64,6 +64,7 @@ jobs:
     needs: refill-queue
     runs-on: self-hosted
     strategy:
+      fail-fast: false
       max-parallel: 1
       matrix:
         task-index: [0, 1, 2, 3]  # Process up to 4 tasks per run

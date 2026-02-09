@@ -33,8 +33,8 @@ public class VerificationController : ControllerBase
     [RequestSizeLimit(10 * 1024 * 1024)] // 10MB max selfie
     public async Task<IActionResult> SubmitVerification(IFormFile selfie)
     {
-        var userId = User.FindFirst("sub")?.Value;
-        if (string.IsNullOrEmpty(userId))
+        var userIdClaim = User.FindFirst("sub")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
             return Unauthorized();
 
         if (selfie == null || selfie.Length == 0)
@@ -90,8 +90,8 @@ public class VerificationController : ControllerBase
     [HttpGet("status")]
     public async Task<IActionResult> GetStatus()
     {
-        var userId = User.FindFirst("sub")?.Value;
-        if (string.IsNullOrEmpty(userId))
+        var userIdClaim = User.FindFirst("sub")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
             return Unauthorized();
 
         var latest = await _verificationService.GetLatestAttemptAsync(userId);

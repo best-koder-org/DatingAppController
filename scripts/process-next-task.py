@@ -6,6 +6,9 @@ Supports:
   - Backend .NET service tasks (stub generation)
   - Companion test file creation
   - Multi-repo routing via task 'service' field
+
+Resilience: Build/test failures are recorded gracefully (exit 0)
+            so parallel matrix jobs are never cancelled by one bad task.
 """
 import json, subprocess, sys, textwrap
 from datetime import datetime
@@ -38,6 +41,20 @@ def sanitize_branch(tid, title):
     slug = title.lower().replace(" ", "-").replace("'", "")
     slug = "".join(c for c in slug if c.isalnum() or c == "-")[:40]
     return f"automation/{tid.lower()}-{slug}"
+
+def fail_task(queue, queue_file, task, reason, root):
+    """Record a task failure gracefully and exit 0 so other matrix jobs continue."""
+    tid = task["id"]
+    queue["queue"].pop(0)
+    queue.setdefault("failed", [])
+    queue["failed"].append({**task, "failedAt": datetime.now().isoformat(), "reason": reason})
+    with open(queue_file, "w") as f:
+        json.dump(queue, f, indent=2)
+    run(f"git add {queue_file}", cwd=root)
+    run(f'git commit -m "ci: {tid} FAILED — {reason}"', cwd=root)
+    run("git push origin main", cwd=root)
+    print(f"TASK_FAILED: {tid} — {reason} (recorded, continuing pipeline)")
+    sys.exit(0)  # EXIT 0 — task failed but pipeline continues
 
 # ── Flutter screen generator (from description) ─────────────────────
 def generate_flutter_screen(task):
@@ -238,18 +255,18 @@ def main():
     repo_rel = SERVICE_REPO.get(service)
     if not repo_rel:
         print(f"ERROR: Unknown service '{service}'. Supported: {list(SERVICE_REPO.keys())}")
-        sys.exit(1)
+        fail_task(queue, queue_file, task, f"unknown service: {service}", root)
     repo_dir = root / repo_rel
 
     if not repo_dir.exists():
         print(f"ERROR: Repo dir not found: {repo_dir}")
-        sys.exit(1)
+        fail_task(queue, queue_file, task, f"repo dir not found: {repo_dir}", root)
 
     # ── Determine source content ────────────────────────────────
     template_file = templates_dir / f"{tid}.dart"
     is_flutter = service == "mobile_dejtingapp"
 
-    # Check for backend multi-file templates (e.g. scripts/templates/backend/BE-001-*.cs)
+    # Check for backend multi-file templates (e.g. scripts/templates/backend/T156-*.cs)
     backend_templates_dir = templates_dir / "backend"
     backend_templates = sorted(backend_templates_dir.glob(f"{tid}-*.cs")) if backend_templates_dir.exists() else []
 
@@ -275,7 +292,7 @@ def main():
         print(f"Generated .NET stub from description")
     else:
         print(f"ERROR: No template and can't generate for type={task_type}")
-        sys.exit(1)
+        fail_task(queue, queue_file, task, f"no template for type={task_type}", root)
 
     # ── Create branch ───────────────────────────────────────────
     branch = sanitize_branch(tid, task["title"])
@@ -342,15 +359,7 @@ def main():
             # Revert: checkout main, delete branch
             run("git checkout main", cwd=repo_dir, check=False)
             run(f"git branch -D {branch}", cwd=repo_dir, check=False)
-            queue["queue"].pop(0)
-            queue.setdefault("failed", [])
-            queue["failed"].append({**task, "failedAt": datetime.now().isoformat(), "reason": "flutter analyze failed"})
-            with open(queue_file, "w") as f:
-                json.dump(queue, f, indent=2)
-            run(f"git add {queue_file}", cwd=root)
-            run(f'git commit -m "ci: {tid} FAILED analyze gate"', cwd=root)
-            run("git push origin main", cwd=root)
-            sys.exit(1)
+            fail_task(queue, queue_file, task, "flutter analyze failed", root)
         else:
             print("flutter analyze: PASS ✅")
         # Also run flutter test if test file exists
@@ -362,15 +371,7 @@ def main():
                 print(f"Output:\n{r_test.stdout[-1000:]}")
                 run("git checkout main", cwd=repo_dir, check=False)
                 run(f"git branch -D {branch}", cwd=repo_dir, check=False)
-                queue["queue"].pop(0)
-                queue.setdefault("failed", [])
-                queue["failed"].append({**task, "failedAt": datetime.now().isoformat(), "reason": "flutter test failed"})
-                with open(queue_file, "w") as f:
-                    json.dump(queue, f, indent=2)
-                run(f"git add {queue_file}", cwd=root)
-                run(f'git commit -m "ci: {tid} FAILED test gate"', cwd=root)
-                run("git push origin main", cwd=root)
-                sys.exit(1)
+                fail_task(queue, queue_file, task, "flutter test failed", root)
             else:
                 print("flutter test: PASS ✅")
     elif not is_flutter:
@@ -388,19 +389,9 @@ def main():
             # Revert: checkout main, delete branch
             run("git checkout main", cwd=repo_dir, check=False)
             run(f"git branch -D {branch}", cwd=repo_dir, check=False)
-            # Mark task as failed, not completed
-            queue["queue"].pop(0)
-            queue.setdefault("failed", [])
-            queue["failed"].append({**task, "failedAt": datetime.now().isoformat(), "reason": "dotnet build failed"})
-            with open(queue_file, "w") as f:
-                json.dump(queue, f, indent=2)
-            run(f"git add {queue_file}", cwd=root)
-            run(f'git commit -m "ci: {tid} FAILED build gate"', cwd=root)
-            run("git push origin main", cwd=root)
-            sys.exit(1)
+            fail_task(queue, queue_file, task, "dotnet build failed", root)
         else:
             print("dotnet build: PASS ✅")
-
 
     # ── Eval quality gate ───────────────────────────────────────
     eval_md = ""

@@ -12,15 +12,15 @@ namespace PhotoService.Services;
 /// </summary>
 public interface IFaceVerificationService
 {
-    Task<VerificationResult> VerifyAsync(string userId, Stream selfieStream, string selfieFileName);
-    Task<VerificationAttempt?> GetLatestAttemptAsync(string userId);
-    Task<int> GetAttemptCountTodayAsync(string userId);
+    Task<VerificationResult> VerifyAsync(int userId, Stream selfieStream, string selfieFileName);
+    Task<VerificationAttempt?> GetLatestAttemptAsync(int userId);
+    Task<int> GetAttemptCountTodayAsync(int userId);
 }
 
 public class FaceVerificationService : IFaceVerificationService
 {
     private readonly HttpClient _httpClient;
-    private readonly PhotoDbContext _db;
+    private readonly PhotoContext _db;
     private readonly ILogger<FaceVerificationService> _logger;
     private const string DeepFaceUrl = "http://deepface:5005";
     private const int MaxAttemptsPerDay = 3;
@@ -29,7 +29,7 @@ public class FaceVerificationService : IFaceVerificationService
 
     public FaceVerificationService(
         IHttpClientFactory httpClientFactory,
-        PhotoDbContext db,
+        PhotoContext db,
         ILogger<FaceVerificationService> logger)
     {
         _httpClient = httpClientFactory.CreateClient("DeepFace");
@@ -37,7 +37,7 @@ public class FaceVerificationService : IFaceVerificationService
         _logger = logger;
     }
 
-    public async Task<VerificationResult> VerifyAsync(string userId, Stream selfieStream, string selfieFileName)
+    public async Task<VerificationResult> VerifyAsync(int userId, Stream selfieStream, string selfieFileName)
     {
         // Rate limit check
         int todayCount = await GetAttemptCountTodayAsync(userId);
@@ -50,10 +50,10 @@ public class FaceVerificationService : IFaceVerificationService
                 null);
         }
 
-        // Get user's current profile photo
+        // Get user's current primary photo
         var profilePhoto = await _db.Photos
-            .Where(p => p.UserId == userId && p.IsProfilePhoto)
-            .OrderByDescending(p => p.UploadedAt)
+            .Where(p => p.UserId == userId && p.IsPrimary)
+            .OrderByDescending(p => p.CreatedAt)
             .FirstOrDefaultAsync();
 
         if (profilePhoto == null)
@@ -76,13 +76,13 @@ public class FaceVerificationService : IFaceVerificationService
             var request = new DeepFaceVerifyRequest
             {
                 Img1 = $"data:image/jpeg;base64,{selfieBase64}",
-                Img2Path = profilePhoto.StoragePath,
+                Img2Path = profilePhoto.FilePath,
                 ModelName = "Facenet512",
                 AntiSpoofing = true
             };
 
             var response = await _httpClient.PostAsJsonAsync($"{DeepFaceUrl}/verify", request);
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("DeepFace returned {StatusCode}", response.StatusCode);
@@ -99,12 +99,11 @@ public class FaceVerificationService : IFaceVerificationService
             // Create attempt record
             var attempt = new VerificationAttempt
             {
-                Id = Guid.NewGuid().ToString(),
                 UserId = userId,
                 SimilarityScore = similarity,
                 ProfilePhotoId = profilePhoto.Id,
                 CreatedAt = DateTime.UtcNow,
-                AntiSpoofingPassed = result?.FacialArea != null // DeepFace returns facial_area when face found
+                AntiSpoofingPassed = result?.FacialArea != null
             };
 
             // Determine decision based on thresholds
@@ -146,7 +145,7 @@ public class FaceVerificationService : IFaceVerificationService
         }
     }
 
-    public async Task<VerificationAttempt?> GetLatestAttemptAsync(string userId)
+    public async Task<VerificationAttempt?> GetLatestAttemptAsync(int userId)
     {
         return await _db.VerificationAttempts
             .Where(a => a.UserId == userId)
@@ -154,7 +153,7 @@ public class FaceVerificationService : IFaceVerificationService
             .FirstOrDefaultAsync();
     }
 
-    public async Task<int> GetAttemptCountTodayAsync(string userId)
+    public async Task<int> GetAttemptCountTodayAsync(int userId)
     {
         var today = DateTime.UtcNow.Date;
         return await _db.VerificationAttempts
@@ -167,13 +166,13 @@ public class DeepFaceVerifyRequest
 {
     [JsonPropertyName("img1")]
     public string Img1 { get; set; } = "";
-    
+
     [JsonPropertyName("img2")]
     public string Img2Path { get; set; } = "";
-    
+
     [JsonPropertyName("model_name")]
     public string ModelName { get; set; } = "Facenet512";
-    
+
     [JsonPropertyName("anti_spoofing")]
     public bool AntiSpoofing { get; set; } = true;
 }
@@ -182,16 +181,16 @@ public class DeepFaceVerifyResponse
 {
     [JsonPropertyName("verified")]
     public bool Verified { get; set; }
-    
+
     [JsonPropertyName("distance")]
     public double Distance { get; set; }
-    
+
     [JsonPropertyName("threshold")]
     public double Threshold { get; set; }
-    
+
     [JsonPropertyName("model")]
     public string Model { get; set; } = "";
-    
+
     [JsonPropertyName("facial_areas")]
     public object? FacialArea { get; set; }
 }
@@ -201,7 +200,7 @@ public record VerificationResult(
     VerificationDecision Decision,
     double SimilarityScore,
     string Message,
-    string? AttemptId
+    int? AttemptId
 );
 
 public enum VerificationDecision
@@ -213,14 +212,13 @@ public enum VerificationDecision
     Error
 }
 
-// EF entity
+// EF entity for verification tracking
 public class VerificationAttempt
 {
-    public string Id { get; set; } = "";
-    public string UserId { get; set; } = "";
+    public int Id { get; set; }
+    public int UserId { get; set; }
     public double SimilarityScore { get; set; }
-    public string ProfilePhotoId { get; set; } = "";
-    public string? SelfiePhotoId { get; set; }
+    public int ProfilePhotoId { get; set; }
     public string Result { get; set; } = "";
     public VerificationDecision Decision { get; set; }
     public string? RejectionReason { get; set; }
