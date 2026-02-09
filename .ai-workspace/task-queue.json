@@ -3,34 +3,6 @@
   "lastUpdated": "2026-02-09T17:08:30.106215",
   "queue": [
     {
-      "id": "T153",
-      "type": "backend",
-      "tier": 2,
-      "service": "UserService",
-      "title": "Living Profile Completeness Calculator",
-      "filePath": "Services/ProfileCompletenessService.cs",
-      "additionalFiles": [
-        "DTOs/ProfileCompletenessDto.cs"
-      ],
-      "description": "Replace existing stub DTOs with full 3-tier weighted calculation.",
-      "acceptanceCriteria": [
-        "IProfileCompletenessService interface with Calculate(UserProfile)",
-        "ProfileCompletenessService with 3-tier weighted formula (40/35/25)",
-        "ProfileFieldStatus record with FieldName, IsFilled, Weight, Tier",
-        "dotnet build passes without errors"
-      ],
-      "estimatedHours": 4,
-      "priority": "high",
-      "dependencies": [],
-      "safetyTier": 1,
-      "safetyNotes": "Replaces existing stub DTOs. Read-only calculation.",
-      "testCommand": "dotnet build",
-      "referenceFiles": [
-        "Models/UserProfile.cs",
-        "Controllers/ProfileController.cs"
-      ]
-    },
-    {
       "id": "T156",
       "type": "backend",
       "tier": 2,
@@ -502,6 +474,36 @@
       "title": "Gateway Diagnostics Controller",
       "completedAt": "2026-02-10T01:00:00Z",
       "pr": "best-koder-org/dejting-yarp#2"
+    },
+    {
+      "id": "T153",
+      "type": "backend",
+      "tier": 2,
+      "service": "UserService",
+      "title": "Living Profile Completeness Calculator",
+      "filePath": "Services/ProfileCompletenessService.cs",
+      "additionalFiles": [
+        "DTOs/ProfileCompletenessDto.cs"
+      ],
+      "description": "Replace existing stub DTOs with full 3-tier weighted calculation.",
+      "acceptanceCriteria": [
+        "IProfileCompletenessService interface with Calculate(UserProfile)",
+        "ProfileCompletenessService with 3-tier weighted formula (40/35/25)",
+        "ProfileFieldStatus record with FieldName, IsFilled, Weight, Tier",
+        "dotnet build passes without errors"
+      ],
+      "estimatedHours": 4,
+      "priority": "high",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "Replaces existing stub DTOs. Read-only calculation.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Models/UserProfile.cs",
+        "Controllers/ProfileController.cs"
+      ],
+      "completedAt": "2026-02-09T17:09:00.700131",
+      "source": "template"
     }
   ]
 }
