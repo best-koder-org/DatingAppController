@@ -3,30 +3,6 @@
   "lastUpdated": "2026-02-09T19:22:44.324083",
   "queue": [
     {
-      "id": "T154",
-      "type": "screen",
-      "tier": 2,
-      "service": "mobile_dejtingapp",
-      "title": "Profile Completeness Progress Ring",
-      "filePath": "lib/widgets/profile_completeness_ring.dart",
-      "description": "Circular progress ring widget showing completeness %.",
-      "acceptanceCriteria": [
-        "ProfileCompletenessRing StatelessWidget",
-        "Color coding: red (<50%), amber (50-80%), green (>80%)",
-        "Percentage text in center, nudge messages below",
-        "flutter analyze passes without errors"
-      ],
-      "estimatedHours": 3,
-      "priority": "high",
-      "dependencies": [],
-      "safetyTier": 1,
-      "safetyNotes": "New widget file.",
-      "testCommand": "flutter analyze lib/widgets/profile_completeness_ring.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/birthday_screen.dart"
-      ]
-    },
-    {
       "id": "T158",
       "type": "screen",
       "tier": 2,
@@ -508,6 +484,32 @@
       ],
       "completedAt": "2026-02-09T19:23:47.044162",
       "source": "template"
+    },
+    {
+      "id": "T154",
+      "type": "screen",
+      "tier": 2,
+      "service": "mobile_dejtingapp",
+      "title": "Profile Completeness Progress Ring",
+      "filePath": "lib/widgets/profile_completeness_ring.dart",
+      "description": "Circular progress ring widget showing completeness %.",
+      "acceptanceCriteria": [
+        "ProfileCompletenessRing StatelessWidget",
+        "Color coding: red (<50%), amber (50-80%), green (>80%)",
+        "Percentage text in center, nudge messages below",
+        "flutter analyze passes without errors"
+      ],
+      "estimatedHours": 3,
+      "priority": "high",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "New widget file.",
+      "testCommand": "flutter analyze lib/widgets/profile_completeness_ring.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/birthday_screen.dart"
+      ],
+      "completedAt": "2026-02-09T19:24:29.602777",
+      "source": "generated-flutter"
     }
   ],
   "failed": []
