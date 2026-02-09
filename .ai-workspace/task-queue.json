@@ -3,30 +3,6 @@
   "lastUpdated": "2026-02-09T19:22:44.324083",
   "queue": [
     {
-      "id": "T158",
-      "type": "screen",
-      "tier": 2,
-      "service": "mobile_dejtingapp",
-      "title": "Verification Badge Display Widget",
-      "filePath": "lib/widgets/verification_badge.dart",
-      "description": "Blue checkmark badge overlay widget for verified users.",
-      "acceptanceCriteria": [
-        "VerificationBadge StatelessWidget with isVerified bool",
-        "Blue checkmark icon overlay on profile cards",
-        "GetVerifiedButton CTA for unverified users",
-        "flutter analyze passes without errors"
-      ],
-      "estimatedHours": 2,
-      "priority": "medium",
-      "dependencies": [],
-      "safetyTier": 1,
-      "safetyNotes": "New widget file.",
-      "testCommand": "flutter analyze lib/widgets/verification_badge.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/gender_screen.dart"
-      ]
-    },
-    {
       "id": "ONB-100",
       "type": "screen",
       "tier": 1,
@@ -509,6 +485,32 @@
         "lib/screens/wizard/birthday_screen.dart"
       ],
       "completedAt": "2026-02-09T19:24:29.602777",
+      "source": "generated-flutter"
+    },
+    {
+      "id": "T158",
+      "type": "screen",
+      "tier": 2,
+      "service": "mobile_dejtingapp",
+      "title": "Verification Badge Display Widget",
+      "filePath": "lib/widgets/verification_badge.dart",
+      "description": "Blue checkmark badge overlay widget for verified users.",
+      "acceptanceCriteria": [
+        "VerificationBadge StatelessWidget with isVerified bool",
+        "Blue checkmark icon overlay on profile cards",
+        "GetVerifiedButton CTA for unverified users",
+        "flutter analyze passes without errors"
+      ],
+      "estimatedHours": 2,
+      "priority": "medium",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "New widget file.",
+      "testCommand": "flutter analyze lib/widgets/verification_badge.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/gender_screen.dart"
+      ],
+      "completedAt": "2026-02-09T19:27:38.495113",
       "source": "generated-flutter"
     }
   ],
