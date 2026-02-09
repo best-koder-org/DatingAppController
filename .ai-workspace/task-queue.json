@@ -1,37 +1,7 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-02-09T01:17:13.571294",
-  "queue": [
-    {
-      "id": "ONB-100",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Match Preferences Screen",
-      "filePath": "lib/screens/wizard/match_preferences_screen.dart",
-      "description": "Who do you want to match with? Select gender preferences",
-      "acceptanceCriteria": [
-        "Progress bar (55%)",
-        "Header: 'Show me'",
-        "3 large selection buttons: Men, Women, Everyone",
-        "Single selection (radio behavior)",
-        "Next button (disabled until selection made)",
-        "No privacy toggle (this is always private)",
-        "Back arrow + close X navigation"
-      ],
-      "estimatedHours": 3,
-      "priority": "high",
-      "dependencies": [
-        "ONB-090"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Simple single selection, hardcoded options",
-      "testCommand": "flutter analyze lib/screens/wizard/match_preferences_screen.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/gender_screen.dart"
-      ]
-    }
-  ],
+  "lastUpdated": "2026-02-10T01:15:00.000000",
+  "queue": [],
   "inProgress": [],
   "completed": [
     {
@@ -342,8 +312,62 @@
       "referenceFiles": [
         "Controllers/ProfileController.cs"
       ],
-      "completedAt": "2026-02-09T07:45:18.565351",
-      "source": "template"
+      "completedAt": "2026-02-09T05:00:00Z",
+      "source": "manual"
+    },
+    {
+      "id": "BE-012",
+      "type": "backend",
+      "tier": 2,
+      "service": "swipe-service",
+      "title": "Global Exception Handling Middleware",
+      "completedAt": "2026-02-10T01:00:00Z",
+      "pr": "best-koder-org/swipe-service#3"
+    },
+    {
+      "id": "BE-013",
+      "type": "backend",
+      "tier": 2,
+      "service": "MatchmakingService",
+      "title": "Result<T> and ApiResponse<T> Common Types",
+      "completedAt": "2026-02-10T01:00:00Z",
+      "pr": "best-koder-org/MatchmakingService#3"
+    },
+    {
+      "id": "BE-014",
+      "type": "backend",
+      "tier": 2,
+      "service": "photo-service",
+      "title": "Structured HealthController with Detailed Checks",
+      "completedAt": "2026-02-10T01:00:00Z",
+      "pr": "best-koder-org/photo-service#2"
+    },
+    {
+      "id": "BE-015",
+      "type": "backend",
+      "tier": 2,
+      "service": "messaging-service",
+      "title": "Presence Tracking Service with DTOs",
+      "completedAt": "2026-02-10T01:00:00Z",
+      "pr": "best-koder-org/messaging-service#4"
+    },
+    {
+      "id": "BE-016",
+      "type": "backend",
+      "tier": 2,
+      "service": "UserService",
+      "title": "Onboarding Metrics Controller + DTOs",
+      "completedAt": "2026-02-10T01:00:00Z",
+      "pr": "best-koder-org/UserService#5"
+    },
+    {
+      "id": "BE-017",
+      "type": "backend",
+      "tier": 2,
+      "service": "dejting-yarp",
+      "title": "Gateway Diagnostics Controller",
+      "completedAt": "2026-02-10T01:00:00Z",
+      "pr": "best-koder-org/dejting-yarp#2"
     }
   ]
 }
