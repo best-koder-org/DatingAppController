@@ -1,7 +1,85 @@
 {
   "version": "2.0",
   "lastUpdated": "2026-02-09T19:22:44.324083",
-  "queue": [],
+  "queue": [
+    {
+      "id": "T154",
+      "type": "screen",
+      "tier": 2,
+      "service": "mobile_dejtingapp",
+      "title": "Profile Completeness Progress Ring",
+      "filePath": "lib/widgets/profile_completeness_ring.dart",
+      "description": "Circular progress ring widget showing completeness %.",
+      "acceptanceCriteria": [
+        "ProfileCompletenessRing StatelessWidget",
+        "Color coding: red (<50%), amber (50-80%), green (>80%)",
+        "Percentage text in center, nudge messages below",
+        "flutter analyze passes without errors"
+      ],
+      "estimatedHours": 3,
+      "priority": "high",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "New widget file.",
+      "testCommand": "flutter analyze lib/widgets/profile_completeness_ring.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/birthday_screen.dart"
+      ]
+    },
+    {
+      "id": "T158",
+      "type": "screen",
+      "tier": 2,
+      "service": "mobile_dejtingapp",
+      "title": "Verification Badge Display Widget",
+      "filePath": "lib/widgets/verification_badge.dart",
+      "description": "Blue checkmark badge overlay widget for verified users.",
+      "acceptanceCriteria": [
+        "VerificationBadge StatelessWidget with isVerified bool",
+        "Blue checkmark icon overlay on profile cards",
+        "GetVerifiedButton CTA for unverified users",
+        "flutter analyze passes without errors"
+      ],
+      "estimatedHours": 2,
+      "priority": "medium",
+      "dependencies": [],
+      "safetyTier": 1,
+      "safetyNotes": "New widget file.",
+      "testCommand": "flutter analyze lib/widgets/verification_badge.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/gender_screen.dart"
+      ]
+    },
+    {
+      "id": "ONB-100",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Match Preferences Screen",
+      "filePath": "lib/screens/wizard/match_preferences_screen.dart",
+      "description": "Who do you want to match with? Select gender preferences",
+      "acceptanceCriteria": [
+        "Progress bar (55%)",
+        "Header: 'Show me'",
+        "3 large selection buttons: Men, Women, Everyone",
+        "Single selection (radio behavior)",
+        "Next button (disabled until selection made)",
+        "No privacy toggle (this is always private)",
+        "Back arrow + close X navigation"
+      ],
+      "estimatedHours": 3,
+      "priority": "high",
+      "dependencies": [
+        "ONB-090"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "Simple single selection, hardcoded options",
+      "testCommand": "flutter analyze lib/screens/wizard/match_preferences_screen.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/gender_screen.dart"
+      ]
+    }
+  ],
   "inProgress": [],
   "completed": [
     {
@@ -430,91 +508,7 @@
       ],
       "completedAt": "2026-02-09T19:23:47.044162",
       "source": "template"
-    },
-    {
-      "id": "T154",
-      "type": "screen",
-      "tier": 2,
-      "service": "mobile_dejtingapp",
-      "title": "Profile Completeness Progress Ring",
-      "filePath": "lib/widgets/profile_completeness_ring.dart",
-      "description": "Circular progress ring widget showing completeness %.",
-      "acceptanceCriteria": [
-        "ProfileCompletenessRing StatelessWidget",
-        "Color coding: red (<50%), amber (50-80%), green (>80%)",
-        "Percentage text in center, nudge messages below",
-        "flutter analyze passes without errors"
-      ],
-      "estimatedHours": 3,
-      "priority": "high",
-      "dependencies": [],
-      "safetyTier": 1,
-      "safetyNotes": "New widget file.",
-      "testCommand": "flutter analyze lib/widgets/profile_completeness_ring.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/birthday_screen.dart"
-      ],
-      "completedAt": "2026-02-09T19:24:29.602777",
-      "source": "generated-flutter"
-    },
-    {
-      "id": "T158",
-      "type": "screen",
-      "tier": 2,
-      "service": "mobile_dejtingapp",
-      "title": "Verification Badge Display Widget",
-      "filePath": "lib/widgets/verification_badge.dart",
-      "description": "Blue checkmark badge overlay widget for verified users.",
-      "acceptanceCriteria": [
-        "VerificationBadge StatelessWidget with isVerified bool",
-        "Blue checkmark icon overlay on profile cards",
-        "GetVerifiedButton CTA for unverified users",
-        "flutter analyze passes without errors"
-      ],
-      "estimatedHours": 2,
-      "priority": "medium",
-      "dependencies": [],
-      "safetyTier": 1,
-      "safetyNotes": "New widget file.",
-      "testCommand": "flutter analyze lib/widgets/verification_badge.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/gender_screen.dart"
-      ],
-      "completedAt": "2026-02-09T19:27:38.495113",
-      "source": "generated-flutter"
     }
   ],
-  "failed": [
-    {
-      "id": "ONB-100",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Match Preferences Screen",
-      "filePath": "lib/screens/wizard/match_preferences_screen.dart",
-      "description": "Who do you want to match with? Select gender preferences",
-      "acceptanceCriteria": [
-        "Progress bar (55%)",
-        "Header: 'Show me'",
-        "3 large selection buttons: Men, Women, Everyone",
-        "Single selection (radio behavior)",
-        "Next button (disabled until selection made)",
-        "No privacy toggle (this is always private)",
-        "Back arrow + close X navigation"
-      ],
-      "estimatedHours": 3,
-      "priority": "high",
-      "dependencies": [
-        "ONB-090"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Simple single selection, hardcoded options",
-      "testCommand": "flutter analyze lib/screens/wizard/match_preferences_screen.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/gender_screen.dart"
-      ],
-      "failedAt": "2026-02-09T19:29:44.895564",
-      "reason": "flutter analyze failed"
-    }
-  ]
+  "failed": []
 }

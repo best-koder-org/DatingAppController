@@ -17,6 +17,7 @@ from pathlib import Path
 # Import eval system
 sys.path.insert(0, str(Path(__file__).parent))
 from eval_screen import eval_file  # noqa: E402
+from smart_generate import smart_generate, smart_generate_test  # noqa: E402
 
 # ── Repo routing map ─────────────────────────────────────────────────
 SERVICE_REPO = {
@@ -280,11 +281,21 @@ def main():
         content = template_file.read_text()
         source = "template"
         print(f"Using pre-built template: {template_file.name}")
-    elif is_flutter and task_type == "screen":
-        # Generate Flutter screen from description
-        content = generate_flutter_screen(task)
-        source = "generated-flutter"
-        print(f"Generated Flutter screen from description")
+    elif is_flutter:
+        # Try smart generator first (real implementations), fall back to generic template
+        smart_content, smart_label = smart_generate(task, repo_dir)
+        if smart_content:
+            content = smart_content
+            source = smart_label
+            print(f"Smart-generated Flutter code ({smart_label}) for {tid}")
+        elif task_type == "screen":
+            content = generate_flutter_screen(task)
+            source = "generated-flutter"
+            print(f"Generated Flutter screen from description (fallback)")
+        else:
+            content = generate_flutter_screen(task)
+            source = "generated-flutter"
+            print(f"Generated Flutter widget from description (fallback)")
     elif not is_flutter:
         # Generate backend stub
         content = generate_dotnet_stub(task)
@@ -333,7 +344,7 @@ def main():
 
     # ── Write companion test (Flutter only) ─────────────────────
     test_file = None
-    if is_flutter and task_type == "screen" and not backend_templates:
+    if is_flutter and not backend_templates:
         test_rel = task["filePath"].replace("lib/", "test/").replace(".dart", "_test.dart")
         test_dest = repo_dir / test_rel
         test_dest.parent.mkdir(parents=True, exist_ok=True)
@@ -343,8 +354,14 @@ def main():
             test_content = test_template.read_text()
             print(f"Using pre-built test template: {test_template.name}")
         else:
-            test_content = generate_flutter_test(task)
-            print(f"Generated companion test")
+            # Try smart test generator first
+            smart_test = smart_generate_test(task, repo_dir)
+            if smart_test:
+                test_content = smart_test
+                print(f"Smart-generated companion test for {tid}")
+            else:
+                test_content = generate_flutter_test(task)
+                print(f"Generated companion test (fallback)")
 
         test_dest.write_text(test_content)
         test_file = test_dest
@@ -399,7 +416,7 @@ def main():
 
     # ── Eval quality gate ───────────────────────────────────────
     eval_md = ""
-    if is_flutter and task_type == "screen":
+    if is_flutter:
         try:
             report = eval_file(
                 str(dest.relative_to(repo_dir)),
