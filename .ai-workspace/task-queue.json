@@ -3,37 +3,6 @@
   "lastUpdated": "2026-02-09T01:17:13.571294",
   "queue": [
     {
-      "id": "BE-008",
-      "type": "backend",
-      "tier": 1,
-      "service": "UserService",
-      "title": "Add Profile Verification Status DTO",
-      "filePath": "DTOs/VerificationStatusDto.cs",
-      "additionalFiles": [
-        "Controllers/VerificationController.cs"
-      ],
-      "description": "Add verification status tracking \u2014 DTO + endpoints to check and request profile verification (photo, email, phone).",
-      "acceptanceCriteria": [
-        "VerificationStatusDto with PhotoVerified, EmailVerified, PhoneVerified, OverallLevel",
-        "GET /api/verification/{userId} returns current status",
-        "POST /api/verification/{userId}/request to initiate verification",
-        "VerificationLevel enum (None, Basic, Full)",
-        "Authorize attribute",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 3,
-      "priority": "medium",
-      "dependencies": [
-        "BE-004"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "New files only, no actual verification logic yet.",
-      "testCommand": "dotnet build",
-      "referenceFiles": [
-        "Controllers/ProfileController.cs"
-      ]
-    },
-    {
       "id": "ONB-100",
       "type": "screen",
       "tier": 1,
@@ -341,6 +310,39 @@
         "Controllers/MatchmakingController.cs"
       ],
       "completedAt": "2026-02-08T22:27:18.822019",
+      "source": "template"
+    },
+    {
+      "id": "BE-008",
+      "type": "backend",
+      "tier": 1,
+      "service": "UserService",
+      "title": "Add Profile Verification Status DTO",
+      "filePath": "DTOs/VerificationStatusDto.cs",
+      "additionalFiles": [
+        "Controllers/VerificationController.cs"
+      ],
+      "description": "Add verification status tracking \u2014 DTO + endpoints to check and request profile verification (photo, email, phone).",
+      "acceptanceCriteria": [
+        "VerificationStatusDto with PhotoVerified, EmailVerified, PhoneVerified, OverallLevel",
+        "GET /api/verification/{userId} returns current status",
+        "POST /api/verification/{userId}/request to initiate verification",
+        "VerificationLevel enum (None, Basic, Full)",
+        "Authorize attribute",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 3,
+      "priority": "medium",
+      "dependencies": [
+        "BE-004"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "New files only, no actual verification logic yet.",
+      "testCommand": "dotnet build",
+      "referenceFiles": [
+        "Controllers/ProfileController.cs"
+      ],
+      "completedAt": "2026-02-09T07:45:18.565351",
       "source": "template"
     }
   ]
