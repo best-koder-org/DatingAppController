@@ -1,37 +1,7 @@
 {
   "version": "2.0",
   "lastUpdated": "2026-02-10T05:30:28.248134",
-  "queue": [
-    {
-      "id": "ONB-110",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Relationship Goals Screen",
-      "filePath": "lib/screens/wizard/relationship_goals_screen.dart",
-      "description": "Card grid for selecting relationship goal with emoji icons",
-      "acceptanceCriteria": [
-        "Progress bar (60%)",
-        "Header: 'What are you looking for?'",
-        "2x2 card grid with emoji + label: Long-term partner \ud83d\udc91, Long-term open to short \ud83c\udf0a, Short-term open to long \ud83c\udfaf, Short-term fun \ud83c\udf89, New friends \ud83d\udc4b, Still figuring it out \ud83e\udd14",
-        "Single selection with highlight ring",
-        "Next button (disabled until selection)",
-        "Subtle note: 'Not shown on profile unless you choose'",
-        "Back arrow + close X navigation"
-      ],
-      "estimatedHours": 4,
-      "priority": "high",
-      "dependencies": [
-        "ONB-100"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "Pure UI card layout, no API calls",
-      "testCommand": "flutter analyze lib/screens/wizard/relationship_goals_screen.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/gender_screen.dart"
-      ]
-    }
-  ],
+  "queue": [],
   "inProgress": [],
   "completed": [
     {
@@ -542,6 +512,37 @@
         "lib/screens/wizard/gender_screen.dart"
       ],
       "completedAt": "2026-02-10T00:33:00.568539",
+      "source": "template"
+    },
+    {
+      "id": "ONB-110",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Relationship Goals Screen",
+      "filePath": "lib/screens/wizard/relationship_goals_screen.dart",
+      "description": "Card grid for selecting relationship goal with emoji icons",
+      "acceptanceCriteria": [
+        "Progress bar (60%)",
+        "Header: 'What are you looking for?'",
+        "2x2 card grid with emoji + label: Long-term partner \ud83d\udc91, Long-term open to short \ud83c\udf0a, Short-term open to long \ud83c\udfaf, Short-term fun \ud83c\udf89, New friends \ud83d\udc4b, Still figuring it out \ud83e\udd14",
+        "Single selection with highlight ring",
+        "Next button (disabled until selection)",
+        "Subtle note: 'Not shown on profile unless you choose'",
+        "Back arrow + close X navigation"
+      ],
+      "estimatedHours": 4,
+      "priority": "high",
+      "dependencies": [
+        "ONB-100"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "Pure UI card layout, no API calls",
+      "testCommand": "flutter analyze lib/screens/wizard/relationship_goals_screen.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/gender_screen.dart"
+      ],
+      "completedAt": "2026-02-10T05:31:02.935334",
       "source": "template"
     }
   ],
