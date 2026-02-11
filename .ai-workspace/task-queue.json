@@ -1,7 +1,39 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-02-10T05:30:28.248134",
-  "queue": [],
+  "lastUpdated": "2026-02-11T08:02:20.056960",
+  "queue": [
+    {
+      "id": "ONB-120",
+      "type": "screen",
+      "tier": 1,
+      "service": "mobile_dejtingapp",
+      "title": "Interests Selection Screen",
+      "filePath": "lib/screens/wizard/interests_screen.dart",
+      "description": "Tag cloud / chip selection for user interests with minimum requirement",
+      "acceptanceCriteria": [
+        "Progress bar (65%)",
+        "Header: 'What are you into?'",
+        "Scrollable grid of interest chips (30+ options in categories)",
+        "Categories: Sports, Creative, Going out, Staying in, Pets, Values, Food & Drink",
+        "Multi-select with color toggle (coral border when selected)",
+        "Counter showing 'X/5 selected' (minimum 5 required)",
+        "Next button disabled until >= 5 selected",
+        "Optional search/filter bar at top",
+        "Back arrow + close X navigation"
+      ],
+      "estimatedHours": 5,
+      "priority": "high",
+      "dependencies": [
+        "ONB-110"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "Hardcoded interest list, pure UI, no calls",
+      "testCommand": "flutter analyze lib/screens/wizard/interests_screen.dart",
+      "referenceFiles": [
+        "lib/screens/wizard/orientation_screen.dart"
+      ]
+    }
+  ],
   "inProgress": [],
   "completed": [
     {
