@@ -1,0 +1,121 @@
+{
+  "task_id": "BE-002",
+  "file_path": "DTOs/SwipeLimitDto.cs",
+  "file_type": "backend",
+  "total_score": 87.2,
+  "grade": "B",
+  "checks": [
+    {
+      "category": "compilation",
+      "name": "dotnet build",
+      "passed": true,
+      "score": 1.0,
+      "detail": "Build succeeded",
+      "severity": "info"
+    },
+    {
+      "category": "size_shape",
+      "name": "line count",
+      "passed": true,
+      "score": 1.0,
+      "detail": "11 lines (ideal: \u2264200)",
+      "severity": "info"
+    },
+    {
+      "category": "size_shape",
+      "name": "nesting depth",
+      "passed": true,
+      "score": 1.0,
+      "detail": "Max 2 levels (good)",
+      "severity": "info"
+    },
+    {
+      "category": "size_shape",
+      "name": "method count",
+      "passed": true,
+      "score": 1.0,
+      "detail": "1 methods/functions",
+      "severity": "info"
+    },
+    {
+      "category": "completeness",
+      "name": "no TODOs",
+      "passed": true,
+      "score": 1.0,
+      "detail": "Zero TODOs \u2014 fully implemented",
+      "severity": "info"
+    },
+    {
+      "category": "completeness",
+      "name": "acceptance criteria",
+      "passed": false,
+      "score": 0.3333333333333333,
+      "detail": "1/3 criteria have matching code",
+      "severity": "info"
+    },
+    {
+      "category": "design_system",
+      "name": "namespace declaration",
+      "passed": true,
+      "score": 1.0,
+      "detail": "Has namespace",
+      "severity": "info"
+    },
+    {
+      "category": "design_system",
+      "name": "XML documentation",
+      "passed": true,
+      "score": 1.0,
+      "detail": "Has XML docs",
+      "severity": "warn"
+    },
+    {
+      "category": "design_system",
+      "name": "interface/DI pattern",
+      "passed": false,
+      "score": 0.5,
+      "detail": "No interface found (consider DI)",
+      "severity": "info"
+    },
+    {
+      "category": "test_quality",
+      "name": "build passes as test",
+      "passed": true,
+      "score": 0.8,
+      "detail": "Backend: build success = baseline quality gate",
+      "severity": "info"
+    },
+    {
+      "category": "accessibility",
+      "name": "N/A for backend",
+      "passed": true,
+      "score": 1.0,
+      "detail": "Accessibility not applicable to backend code",
+      "severity": "info"
+    },
+    {
+      "category": "code_smells",
+      "name": "magic numbers",
+      "passed": true,
+      "score": 1.0,
+      "detail": "0 uncommon literal numbers",
+      "severity": "info"
+    },
+    {
+      "category": "code_smells",
+      "name": "no print()",
+      "passed": true,
+      "score": 1.0,
+      "detail": "0 print() calls",
+      "severity": "info"
+    },
+    {
+      "category": "code_smells",
+      "name": "commented code",
+      "passed": true,
+      "score": 1.0,
+      "detail": "0 lines of commented-out code",
+      "severity": "info"
+    }
+  ]
+}

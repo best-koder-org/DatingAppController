@@ -165,8 +165,14 @@ def eval_compilation(report: EvalReport, file_path: Path, repo_dir: Optional[Pat
     """Run flutter analyze or dotnet build on the file."""
     if report.file_type == "backend":
         if repo_dir and repo_dir.exists():
+            # Auto-detect .sln or .csproj to avoid ambiguity in multi-project repos
+            sln_files = list(repo_dir.glob("*.sln"))
+            csproj_files = list(repo_dir.glob("*.csproj"))
+            # Use .name only since we cwd into repo_dir
+            build_target = sln_files[0].name if sln_files else (csproj_files[0].name if csproj_files else "")
+            build_cmd = f'dotnet build "{build_target}" --configuration Release' if build_target else "dotnet build --configuration Release"
             r = subprocess.run(
-                "dotnet build --configuration Release --no-restore",
+                build_cmd,
                 shell=True, cwd=repo_dir, capture_output=True, text=True, timeout=180
             )
             if r.returncode == 0:
