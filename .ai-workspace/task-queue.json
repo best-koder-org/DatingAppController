@@ -10,29 +10,6 @@
   },
   "queue": [
     {
-      "id": "BE-002",
-      "specRef": "swipe-service",
-      "type": "backend",
-      "tier": 1,
-      "service": "swipe-service",
-      "title": "Daily Swipe Limit Middleware",
-      "filePath": "DTOs/SwipeLimitDto.cs",
-      "additionalFiles": [
-        "Services/SwipeLimitService.cs"
-      ],
-      "description": "Add swipe limit DTOs and service for daily swipe enforcement",
-      "acceptanceCriteria": [
-        "SwipeLimitDto response DTO",
-        "SwipeLimitService with limit logic",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 3,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New files only, no schema changes",
-      "testCommand": "dotnet build /home/m/development/DatingApp/swipe-service/SwipeService.csproj"
-    },
-    {
       "id": "BE-003",
       "specRef": "MatchmakingService",
       "type": "backend",
@@ -110,5 +87,31 @@
       "source": "template"
     }
   ],
-  "failed": []
+  "failed": [
+    {
+      "id": "BE-002",
+      "specRef": "swipe-service",
+      "type": "backend",
+      "tier": 1,
+      "service": "swipe-service",
+      "title": "Daily Swipe Limit Middleware",
+      "filePath": "DTOs/SwipeLimitDto.cs",
+      "additionalFiles": [
+        "Services/SwipeLimitService.cs"
+      ],
+      "description": "Add swipe limit DTOs and service for daily swipe enforcement",
+      "acceptanceCriteria": [
+        "SwipeLimitDto response DTO",
+        "SwipeLimitService with limit logic",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 3,
+      "priority": "high",
+      "safetyTier": 1,
+      "safetyNotes": "New files only, no schema changes",
+      "testCommand": "dotnet build /home/m/development/DatingApp/swipe-service/SwipeService.csproj",
+      "failedAt": "2026-02-17T07:14:48.860600",
+      "reason": "dotnet build failed"
+    }
+  ]
 }
