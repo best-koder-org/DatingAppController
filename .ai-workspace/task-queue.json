@@ -85,9 +85,7 @@
       "testCommand": "dotnet build /home/m/development/DatingApp/messaging-service/MessagingService.csproj",
       "completedAt": "2026-02-17T07:14:41.868187",
       "source": "template"
-    }
-  ],
-  "failed": [
+    },
     {
       "id": "BE-002",
       "specRef": "swipe-service",
@@ -111,7 +109,10 @@
       "safetyNotes": "New files only, no schema changes",
       "testCommand": "dotnet build /home/m/development/DatingApp/swipe-service/SwipeService.csproj",
       "failedAt": "2026-02-17T07:14:48.860600",
-      "reason": "dotnet build failed"
+      "reason": "dotnet build failed",
+      "completedAt": "2026-02-17T07:16:15.539078",
+      "source": "template"
     }
-  ]
+  ],
+  "failed": []
 }
