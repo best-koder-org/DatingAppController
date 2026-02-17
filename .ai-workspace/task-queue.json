@@ -1,708 +1,113 @@
 {
-  "version": "4.0",
-  "lastUpdated": "2026-02-12T09:31:22.411731+00:00",
-  "source": "specs/001-mvp-foundation/tasks.md \u2014 All tasks traced to spec kit",
+  "version": "5.0",
+  "lastUpdated": "2026-02-16T22:15:00+01:00",
+  "source": "Overnight run Feb 16 \u2014 Backend service features (BE-001\u2192BE-003 + BE-005)",
   "overnightConfig": {
     "selfEval": true,
     "evalAfterEachTask": true,
-    "evalCommand": "cd /home/m/development/mobile-apps/flutter/dejtingapp && flutter analyze && flutter test",
     "stopOnFailure": false,
     "maxConsecutiveFailures": 3
   },
-  "queue": [],
+  "queue": [
+    {
+      "id": "BE-002",
+      "specRef": "swipe-service",
+      "type": "backend",
+      "tier": 1,
+      "service": "swipe-service",
+      "title": "Daily Swipe Limit Middleware",
+      "filePath": "DTOs/SwipeLimitDto.cs",
+      "additionalFiles": [
+        "Services/SwipeLimitService.cs"
+      ],
+      "description": "Add swipe limit DTOs and service for daily swipe enforcement",
+      "acceptanceCriteria": [
+        "SwipeLimitDto response DTO",
+        "SwipeLimitService with limit logic",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 3,
+      "priority": "high",
+      "safetyTier": 1,
+      "safetyNotes": "New files only, no schema changes",
+      "testCommand": "dotnet build /home/m/development/DatingApp/swipe-service/SwipeService.csproj"
+    },
+    {
+      "id": "BE-003",
+      "specRef": "MatchmakingService",
+      "type": "backend",
+      "tier": 1,
+      "service": "MatchmakingService",
+      "title": "Match Statistics Endpoint",
+      "filePath": "DTOs/MatchStatsDto.cs",
+      "additionalFiles": [
+        "Controllers/MatchStatsController.cs"
+      ],
+      "description": "Add match statistics DTO and controller endpoint",
+      "acceptanceCriteria": [
+        "MatchStatsDto with TotalMatches, MatchRate, MostActiveDay",
+        "MatchStatsController with GET endpoint",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 2,
+      "priority": "high",
+      "safetyTier": 1,
+      "safetyNotes": "New DTO + controller stub, no DB changes",
+      "testCommand": "dotnet build /home/m/development/DatingApp/MatchmakingService/MatchmakingService.csproj"
+    },
+    {
+      "id": "BE-005",
+      "specRef": "messaging-service",
+      "type": "backend",
+      "tier": 1,
+      "service": "messaging-service",
+      "title": "Typing Indicator DTO + Hub Method",
+      "filePath": "DTOs/TypingIndicatorDto.cs",
+      "additionalFiles": [
+        "Controllers/TypingController.cs"
+      ],
+      "description": "Add typing indicator DTO and controller for real-time typing status",
+      "acceptanceCriteria": [
+        "TypingIndicatorDto created",
+        "TypingController with endpoint stubs",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 3,
+      "priority": "high",
+      "dependencies": [
+        "BE-001"
+      ],
+      "safetyTier": 1,
+      "safetyNotes": "New DTO + controller, no DB migration",
+      "testCommand": "dotnet build /home/m/development/DatingApp/messaging-service/MessagingService.csproj"
+    }
+  ],
   "inProgress": [],
   "completed": [
     {
-      "id": "ONB-060",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "First Name Entry Screen",
-      "completedAt": "2026-02-08T17:57:23Z"
-    },
-    {
-      "id": "ONB-070",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Birthday Entry Screen",
-      "completedAt": "2026-02-08T17:35:00Z"
-    },
-    {
-      "id": "ONB-080",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Gender Selection Screen",
-      "completedAt": "2026-02-08T17:40:51Z"
-    },
-    {
-      "id": "ONB-100",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Match Preferences Screen",
-      "completedAt": "2026-02-11T18:54:30Z"
-    },
-    {
-      "id": "T026-TEST-001",
-      "specRef": "T026 (US1) + T021",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Widget tests: birthday_screen (T026 coverage)",
-      "filePath": "test/screens/wizard/birthday_screen_test.dart",
-      "description": "Spec T026 delivered 13 wizard screens but only 3 have tests. Write comprehensive widget tests for birthday_screen.dart. Test: header, month/day/year inputs, under-18 rejection, leap year handling, invalid date, progress bar, Next button enable/disable, navigation.",
-      "acceptanceCriteria": [
-        "Test renders birthday header",
-        "Test month/day/year inputs exist",
-        "Test under-18 shows error",
-        "Test valid 18+ date enables Next",
-        "Test invalid date shows error",
-        "Test progress bar at expected %",
-        "Test back and close navigation",
-        "flutter test passes"
-      ],
-      "estimatedHours": 1,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New test file only, zero prod code changes",
-      "testCommand": "flutter test test/screens/wizard/birthday_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/birthday_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:26:08.222077",
-      "status": "completed"
-    },
-    {
-      "id": "T026-TEST-002",
-      "specRef": "T026 (US1)",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Widget tests: first_name_screen (T026 coverage)",
-      "filePath": "test/screens/wizard/first_name_screen_test.dart",
-      "description": "Spec T026 coverage gap. Write widget tests for first_name_screen.dart. Test: header, text input, validation (2-50 chars), Next button, warning text.",
-      "acceptanceCriteria": [
-        "Test renders header text",
-        "Test text field exists",
-        "Test empty input disables Next",
-        "Test valid name enables Next",
-        "Test warning text about name",
-        "Test navigation",
-        "flutter test passes"
-      ],
-      "estimatedHours": 0.5,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New test file only",
-      "testCommand": "flutter test test/screens/wizard/first_name_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/first_name_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:26:08.222077",
-      "status": "completed"
-    },
-    {
-      "id": "T026-TEST-003",
-      "specRef": "T026 (US1)",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Widget tests: gender_screen (T026 coverage)",
-      "filePath": "test/screens/wizard/gender_screen_test.dart",
-      "description": "Spec T026 coverage gap. Write widget tests for gender_screen.dart. Test: header, Man/Woman/More buttons, single selection, privacy toggle, Next button.",
-      "acceptanceCriteria": [
-        "Test renders gender header",
-        "Test Man, Woman, More buttons exist",
-        "Test single selection behavior",
-        "Test privacy toggle exists",
-        "Test Next disabled until selection",
-        "Test Next enabled after selection",
-        "flutter test passes"
-      ],
-      "estimatedHours": 1,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New test file only",
-      "testCommand": "flutter test test/screens/wizard/gender_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/gender_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:26:08.222077",
-      "status": "completed"
-    },
-    {
-      "id": "T026-TEST-004",
-      "specRef": "T026 (US1)",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Widget tests: community_guidelines_screen",
-      "filePath": "test/screens/wizard/community_guidelines_screen_test.dart",
-      "description": "Spec T026 coverage gap. Widget tests for community_guidelines_screen.dart. Test: header, 4 house rules, I agree button.",
-      "acceptanceCriteria": [
-        "Test renders welcome header",
-        "Test rules displayed",
-        "Test I agree button exists",
-        "Test navigation on agree",
-        "flutter test passes"
-      ],
-      "estimatedHours": 0.5,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New test file only",
-      "testCommand": "flutter test test/screens/wizard/community_guidelines_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/community_guidelines_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:26:08.222077",
-      "status": "completed"
-    },
-    {
-      "id": "T026-TEST-005",
-      "specRef": "T026 (US1)",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Widget tests: phone_entry_screen",
-      "filePath": "test/screens/wizard/phone_entry_screen_test.dart",
-      "description": "Spec T026 coverage gap. Widget tests for phone_entry_screen.dart. Test: phone input, country code, validation, submit button.",
-      "acceptanceCriteria": [
-        "Test phone input field exists",
-        "Test submit disabled without input",
-        "Test valid phone enables button",
-        "Test invalid phone shows error",
-        "flutter test passes"
-      ],
-      "estimatedHours": 0.5,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New test file only",
-      "testCommand": "flutter test test/screens/wizard/phone_entry_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/phone_entry_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:26:08.222077",
-      "status": "completed"
-    },
-    {
-      "id": "T026-TEST-006",
-      "specRef": "T026 (US1)",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Widget tests: sms_code_screen",
-      "filePath": "test/screens/wizard/sms_code_screen_test.dart",
-      "description": "Spec T026 coverage gap. Widget tests for sms_code_screen.dart (324 lines). Test: code input boxes, resend link, verify button.",
-      "acceptanceCriteria": [
-        "Test code input fields render",
-        "Test verify button exists",
-        "Test resend code link exists",
-        "Test entering code enables verify",
-        "flutter test passes"
-      ],
-      "estimatedHours": 1,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New test file only",
-      "testCommand": "flutter test test/screens/wizard/sms_code_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/sms_code_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:26:08.222077",
-      "status": "completed"
-    },
-    {
-      "id": "T026-TEST-007",
-      "specRef": "T026 (US1)",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Widget tests: interests_screen",
-      "filePath": "test/screens/wizard/interests_screen_test.dart",
-      "description": "Spec T026 coverage gap. Widget tests for interests_screen.dart (294 lines). Test: category chips, multi-select, max limit, Next button.",
-      "acceptanceCriteria": [
-        "Test renders header",
-        "Test interest chips displayed",
-        "Test multi-select works",
-        "Test max selection limit enforced",
-        "Test Next enabled after min selection",
-        "flutter test passes"
-      ],
-      "estimatedHours": 1,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New test file only",
-      "testCommand": "flutter test test/screens/wizard/interests_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/interests_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:26:08.222077",
-      "status": "completed"
-    },
-    {
-      "id": "T026-TEST-008",
-      "specRef": "T026 (US1)",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Widget tests: lifestyle_screen",
-      "filePath": "test/screens/wizard/lifestyle_screen_test.dart",
-      "description": "Spec T026 coverage gap. Widget tests for lifestyle_screen.dart. Test: sections render, selections work, skip/next.",
-      "acceptanceCriteria": [
-        "Test renders header",
-        "Test lifestyle sections displayed",
-        "Test selections within sections",
-        "Test Skip/Next button exists",
-        "flutter test passes"
-      ],
-      "estimatedHours": 1,
-      "priority": "medium",
-      "safetyTier": 1,
-      "safetyNotes": "New test file only",
-      "testCommand": "flutter test test/screens/wizard/lifestyle_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/lifestyle_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:26:08.222077",
-      "status": "completed"
-    },
-    {
-      "id": "T026-TEST-009",
-      "specRef": "T026 (US1)",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Widget tests: aboutme_screen",
-      "filePath": "test/screens/wizard/aboutme_screen_test.dart",
-      "description": "Spec T026 coverage gap. Widget tests for aboutme_screen.dart. Test: form sections, selections, skip/next.",
-      "acceptanceCriteria": [
-        "Test renders header",
-        "Test form sections displayed",
-        "Test selections work",
-        "Test Skip/Next button",
-        "flutter test passes"
-      ],
-      "estimatedHours": 1,
-      "priority": "medium",
-      "safetyTier": 1,
-      "safetyNotes": "New test file only",
-      "testCommand": "flutter test test/screens/wizard/aboutme_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/aboutme_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:26:08.222077",
-      "status": "completed"
-    },
-    {
-      "id": "T026-TEST-010",
-      "specRef": "T026 (US1)",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Widget tests: photos_screen",
-      "filePath": "test/screens/wizard/photos_screen_test.dart",
-      "description": "Spec T026 coverage gap. Widget tests for photos_screen.dart. Test: photo grid, placeholder slots, add button.",
-      "acceptanceCriteria": [
-        "Test renders header",
-        "Test photo placeholder grid exists",
-        "Test add photo button/tap targets",
-        "Test Next/Finish button exists",
-        "flutter test passes"
-      ],
-      "estimatedHours": 1,
-      "priority": "medium",
-      "safetyTier": 1,
-      "safetyNotes": "New test file only",
-      "testCommand": "flutter test test/screens/wizard/photos_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/photos_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:26:08.222077",
-      "status": "completed"
-    },
-    {
-      "id": "T153-BE",
-      "specRef": "T153 (DX-2 Profile Completeness)",
+      "id": "BE-001",
+      "specRef": "messaging-service",
       "type": "backend",
       "tier": 1,
-      "service": "UserService",
-      "title": "Implement profile completeness calculation logic (T153)",
-      "filePath": "UserService/Services/ProfileCompletenessService.cs",
-      "description": "Spec T153: ProfileCompletenessService.cs exists with DTOs but spec says 'no calculation logic'. Implement IProfileCompletenessService with 3-tier weighted formula: Required (name, birthday, gender, 2+ photos) = 40%, Encouraged (bio 50+ chars, 5+ interests, height) = 35%, Optional (job, education, smoking, exercise, pets, etc.) = 25%. Add NextSuggestion field returning highest-impact missing field. Recalculate on profile update.",
+      "service": "messaging-service",
+      "title": "Read Receipts DTO + Endpoint",
+      "filePath": "DTOs/ReadReceiptDto.cs",
+      "additionalFiles": [
+        "Controllers/ReadReceiptsController.cs"
+      ],
+      "description": "Add ReadReceiptDto and read receipts controller stub",
       "acceptanceCriteria": [
-        "ProfileCompletenessService has calculation logic",
-        "3-tier weighting: Required 40%, Encouraged 35%, Optional 25%",
-        "NextSuggestion returns highest-impact missing field",
-        "Empty profile = 0%, full profile = 100%",
-        "dotnet build UserService.csproj passes",
-        "Write unit tests for calculation"
-      ],
-      "estimatedHours": 4,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "Modifies existing service file + adds tests, no schema changes",
-      "testCommand": "dotnet build /home/m/development/DatingApp/UserService/UserService.csproj",
-      "referenceFiles": [
-        "UserService/Services/ProfileCompletenessService.cs",
-        "UserService/DTOs/ProfileCompletenessDto.cs",
-        "UserService/Models/UserProfile.cs"
-      ],
-      "completedAt": "2026-02-12T09:31:22.411731+00:00",
-      "status": "completed"
-    },
-    {
-      "id": "T026-SCREEN-001",
-      "specRef": "T026 (US1 \u2014 missing onboarding screens)",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Location Permission Screen (T026 gap)",
-      "filePath": "lib/screens/wizard/location_permission_screen.dart",
-      "description": "Spec T026 lists a complete wizard flow but location permission screen is missing from codebase. Create screen with: illustration/icon, 'Enable Location' header, explanation text, primary button (stub permission), 'Not now' skip link. Add route '/onboarding/location' in main.dart. Write widget test alongside.",
-      "acceptanceCriteria": [
-        "Progress bar displayed",
-        "Header: 'Enable location'",
-        "Body text explaining location benefits",
-        "Enable Location primary button (stub with TODO)",
-        "Not now / Skip text button",
-        "Route added to main.dart",
-        "flutter analyze passes",
-        "Widget test file created"
-      ],
-      "estimatedHours": 2,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New files only, permission is stubbed",
-      "testCommand": "flutter analyze && flutter test test/screens/wizard/location_permission_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/match_preferences_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:31:22.411731+00:00",
-      "status": "completed"
-    },
-    {
-      "id": "T026-SCREEN-002",
-      "specRef": "T026 (US1 \u2014 missing onboarding screens)",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Notification Permission Screen (T026 gap)",
-      "filePath": "lib/screens/wizard/notification_permission_screen.dart",
-      "description": "Spec T026 lists notification permission in wizard flow but screen is missing. Create: 'Never miss a match' header, explanation, Enable/Skip buttons (stubbed), route. Write widget test alongside.",
-      "acceptanceCriteria": [
-        "Progress bar displayed",
-        "Header: 'Enable notifications'",
-        "Body text about matches/messages",
-        "Enable Notifications primary button (stub)",
-        "Not now / Skip text button",
-        "Route added to main.dart",
-        "flutter analyze passes",
-        "Widget test file created"
-      ],
-      "estimatedHours": 2,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New files only, permission stubbed",
-      "testCommand": "flutter analyze && flutter test test/screens/wizard/notification_permission_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/location_permission_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:31:22.411731+00:00",
-      "status": "completed"
-    },
-    {
-      "id": "T026-SCREEN-003",
-      "specRef": "T026 (US1 \u2014 missing onboarding screens)",
-      "type": "screen",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Onboarding Complete Screen (T026 gap)",
-      "filePath": "lib/screens/wizard/onboarding_complete_screen.dart",
-      "description": "Spec T026 onboarding flow needs a completion/celebration screen. Create: 'You're all set!' header, animated checkmark, profile completion %, 'Start Exploring' button \u2192 /home, route. Write widget test.",
-      "acceptanceCriteria": [
-        "Progress bar (100%)",
-        "Celebration header",
-        "Animated checkmark or visual",
-        "Profile completion summary",
-        "Start Exploring button \u2192 /home",
-        "Route added to main.dart",
-        "flutter analyze passes",
-        "Widget test file created"
-      ],
-      "estimatedHours": 2,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New files only, uses built-in Flutter animations",
-      "testCommand": "flutter analyze && flutter test test/screens/wizard/onboarding_complete_screen_test.dart",
-      "referenceFiles": [
-        "lib/screens/wizard/photos_screen.dart"
-      ],
-      "completedAt": "2026-02-12T09:31:22.411731+00:00",
-      "status": "completed"
-    },
-    {
-      "id": "T026-COORD",
-      "specRef": "T026 (US1 \u2014 onboarding flow management)",
-      "type": "feature",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Onboarding Flow Coordinator (T026 flow management)",
-      "filePath": "lib/services/onboarding_coordinator.dart",
-      "description": "T026 delivered 13+ screens but navigation is hardcoded per screen. Create OnboardingCoordinator class that defines step order, tracks progress, provides getNextRoute()/getPreviousRoute()/getProgress() methods. Steps: phone \u2192 verify \u2192 guidelines \u2192 firstName \u2192 birthday \u2192 gender \u2192 orientation \u2192 matchPrefs \u2192 relationshipGoals \u2192 lifestyle \u2192 interests \u2192 aboutMe \u2192 photos \u2192 location \u2192 notifications \u2192 complete. Include comprehensive unit tests. Does NOT modify existing screens (separate task).",
-      "acceptanceCriteria": [
-        "OnboardingCoordinator class with step list",
-        "getNextRoute(currentRoute) method",
-        "getPreviousRoute(currentRoute) method",
-        "getProgress(currentRoute) returns 0.0-1.0",
-        "isLastStep(currentRoute) method",
-        "totalSteps getter",
-        "Unit tests for all methods",
-        "flutter analyze passes",
-        "flutter test passes"
-      ],
-      "estimatedHours": 3,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New files only \u2014 does NOT modify existing screens",
-      "testCommand": "flutter test test/services/onboarding_coordinator_test.dart",
-      "referenceFiles": [
-        "lib/main.dart",
-        "lib/models/wizard_models.dart"
-      ],
-      "status": "completed",
-      "completed_at": "2026-02-12T09:40:33.395835+00:00"
-    },
-    {
-      "id": "T026-TEST-011",
-      "specRef": "T026 (US1)",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Unit tests: wizard_models",
-      "filePath": "test/models/wizard_models_test.dart",
-      "description": "Unit tests for wizard_models.dart (162 lines). Pure Dart logic tests \u2014 no widget rendering. Test WizardStepBasicInfoDto.isValid(), WizardStepPreferencesDto.isValid(), WizardProgress navigation logic (canProceed, nextStep, previousStep, progress), copyWith.",
-      "acceptanceCriteria": [
-        "Test BasicInfoDto isValid with valid data",
-        "Test BasicInfoDto isValid rejects under-18",
-        "Test BasicInfoDto isValid rejects empty name",
-        "Test PreferencesDto age/distance validation",
-        "Test WizardProgress canProceed logic",
-        "Test WizardProgress nextStep/previousStep",
-        "Test WizardProgress progress percentage",
-        "flutter test passes"
-      ],
-      "estimatedHours": 1,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New test file only, pure logic tests",
-      "testCommand": "flutter test test/models/wizard_models_test.dart",
-      "referenceFiles": [
-        "lib/models/wizard_models.dart"
-      ],
-      "status": "completed",
-      "completed_at": "2026-02-12T09:40:33.395835+00:00"
-    },
-    {
-      "id": "T154-RING-TESTS",
-      "specRef": "T154 (DX-2 Profile Completeness)",
-      "type": "test",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Expand profile completeness ring tests (T154)",
-      "filePath": "test/widgets/profile_completeness_ring_test.dart",
-      "description": "Spec T154: profile_completeness_ring.dart and profile_completion_calculator.dart exist, test file exists. Expand test coverage: test color coding (<50% red, 50-80% amber, >80% green), nudge messages, edge cases (0%, 100%, null values). Test the calculator utility separately with 15+ cases.",
-      "acceptanceCriteria": [
-        "Test 0% shows red",
-        "Test 50% shows amber",
-        "Test 80%+ shows green",
-        "Test nudge messages appear",
-        "Test calculator with empty profile = 0%",
-        "Test calculator with full profile = 100%",
-        "Test each field weight contribution",
-        "15+ test cases total",
-        "flutter test passes"
-      ],
-      "estimatedHours": 2,
-      "priority": "medium",
-      "safetyTier": 1,
-      "safetyNotes": "Test file modifications only",
-      "testCommand": "flutter test test/widgets/profile_completeness_ring_test.dart",
-      "referenceFiles": [
-        "lib/widgets/profile_completeness_ring.dart",
-        "lib/utils/profile_completion_calculator.dart"
-      ],
-      "status": "completed",
-      "completed_at": "2026-02-12T09:40:33.395835+00:00"
-    },
-    {
-      "id": "T090-PAUSE-DESIGN",
-      "specRef": "T090 (Phase 9 \u2014 Account Pause)",
-      "type": "design",
-      "tier": 1,
-      "service": "DatingApp",
-      "title": "Account Pause API design + DTO scaffolding (T090 prep)",
-      "filePath": "UserService/DTOs/AccountPauseDto.cs",
-      "description": "Spec T090: Account Pause/Snooze Mode. This is the design+DTO prep task (not the full implementation which requires running services). Create: AccountPauseRequest DTO (Duration enum: 24h/72h/1week/indefinite), AccountStatusResponse DTO, AccountStatus enum (Active/Paused/Deactivated/Deleted). Add DTOs and enum to UserService. Write controller endpoint stubs (POST /pause, POST /resume) that return NotImplemented. Write unit tests for DTOs. This scaffolding enables the full T090 implementation.",
-      "acceptanceCriteria": [
-        "AccountStatus enum created (Active, Paused, Deactivated, Deleted)",
-        "AccountPauseRequest DTO with Duration enum",
-        "AccountStatusResponse DTO",
-        "Controller stubs for /pause and /resume",
-        "Unit tests for DTO validation",
+        "ReadReceiptDto with MessageId, ReadBy, ReadAt",
+        "ReadReceiptsController with endpoint stubs",
         "dotnet build passes"
       ],
-      "estimatedHours": 2,
+      "estimatedHours": 3,
       "priority": "high",
       "safetyTier": 1,
-      "safetyNotes": "New files + stubs only, no database changes",
-      "testCommand": "dotnet build /home/m/development/DatingApp/UserService/UserService.csproj",
-      "referenceFiles": [
-        "UserService/Controllers/UserProfilesController.cs",
-        "specs/001-mvp-foundation/features/account-pause.md"
-      ],
-      "status": "completed",
-      "completed_at": "2026-02-12T09:40:33.395835+00:00"
-    },
-    {
-      "id": "T091-SUPPORT-DESIGN",
-      "specRef": "T091 (Phase 9 \u2014 Feedback & Support)",
-      "type": "design",
-      "tier": 1,
-      "service": "DatingApp",
-      "title": "Feedback/Support API design + DTO scaffolding (T091 prep)",
-      "filePath": "UserService/DTOs/SupportTicketDto.cs",
-      "description": "Spec T091: Feedback & Customer Support System. Create: SupportTicketCategory enum (Bug/Feature/Account/Safety/Other), CreateSupportTicketRequest DTO, SupportTicketResponse DTO. Add controller stub (POST /api/support/feedback, GET /api/support/my-tickets). Write unit tests for DTOs. This scaffolding enables the full T091 implementation.",
-      "acceptanceCriteria": [
-        "SupportTicketCategory enum created",
-        "CreateSupportTicketRequest DTO",
-        "SupportTicketResponse DTO",
-        "Controller stubs for /feedback and /my-tickets",
-        "Unit tests for DTO validation",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 2,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New files + stubs only, no database changes",
-      "testCommand": "dotnet build /home/m/development/DatingApp/UserService/UserService.csproj",
-      "referenceFiles": [
-        "specs/001-mvp-foundation/features/feedback-support.md"
-      ],
-      "status": "completed",
-      "completed_at": "2026-02-12T09:40:33.395835+00:00"
-    },
-    {
-      "id": "T061-L10N",
-      "specRef": "T061 (Phase 7 Polish)",
-      "type": "feature",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Harden error messaging + localization setup (T061)",
-      "filePath": "lib/l10n/app_en.arb",
-      "description": "Spec T061: Harden error messaging + localization in Flutter. Set up Flutter l10n infrastructure: create lib/l10n/ directory, app_en.arb file with all user-facing strings from wizard screens (headers, buttons, errors). Configure pubspec.yaml for generate: true. Create app_localizations.dart barrel. Extract at least 50 strings from the 13 wizard screens. This is foundation work \u2014 actual screen migration to use AppLocalizations is a separate task.",
-      "acceptanceCriteria": [
-        "lib/l10n/app_en.arb created with 50+ strings",
-        "pubspec.yaml has generate: true and l10n.yaml configured",
-        "Strings extracted from all 13 wizard screens",
-        "Error messages standardized",
-        "flutter analyze passes",
-        "flutter gen-l10n succeeds"
-      ],
-      "estimatedHours": 3,
-      "priority": "medium",
-      "safetyTier": 1,
-      "safetyNotes": "New files only (l10n/), pubspec.yaml minor addition, no screen changes",
-      "testCommand": "flutter analyze",
-      "referenceFiles": [
-        "lib/screens/wizard/"
-      ],
-      "status": "completed",
-      "completed_at": "2026-02-12T09:47:51.929357+00:00"
-    },
-    {
-      "id": "T067-DESKTOP",
-      "specRef": "T067 (Phase 7 Polish)",
-      "type": "config",
-      "tier": 1,
-      "service": "mobile_dejtingapp",
-      "title": "Address Flutter desktop analyzer warnings (T067)",
-      "filePath": "pubspec.yaml",
-      "description": "Spec T067: Address Flutter desktop plugin analyzer warnings or formally drop desktop targets. Audit pubspec.yaml and analysis_options.yaml for desktop-specific warnings. Either add missing desktop plugin implementations or formally remove linux/windows/macos from supported platforms. Document decision.",
-      "acceptanceCriteria": [
-        "flutter analyze shows 0 issues",
-        "Desktop targets either properly configured or removed",
-        "Decision documented in comments or README",
-        "No regression in mobile targets"
-      ],
-      "estimatedHours": 1,
-      "priority": "medium",
-      "safetyTier": 1,
-      "safetyNotes": "Config changes only",
-      "testCommand": "flutter analyze",
-      "referenceFiles": [
-        "pubspec.yaml",
-        "analysis_options.yaml"
-      ],
-      "status": "completed",
-      "completed_at": "2026-02-12T09:47:51.929357+00:00"
-    },
-    {
-      "id": "T060-DOCS",
-      "specRef": "T060 (Phase 7 Polish)",
-      "type": "docs",
-      "tier": 1,
-      "service": "DatingApp",
-      "title": "Consolidate documentation updates (T060)",
-      "filePath": "specs/001-mvp-foundation/DASHBOARD.md",
-      "description": "Spec T060: Consolidate documentation updates. The DASHBOARD.md shows 0% progress but reality is ~50%+ complete (most Phase 2-5 tasks done per tasks.md checkboxes). Update DASHBOARD.md with accurate completion counts. Update AI_CONTEXT.md. Cross-reference tasks.md checked items against actual codebase. Generate accurate metrics.",
-      "acceptanceCriteria": [
-        "DASHBOARD.md reflects real completion status",
-        "Phase breakdown shows accurate percentages",
-        "Task counts match tasks.md checkbox state",
-        "Test coverage section updated",
-        "User story status reflects actual state"
-      ],
-      "estimatedHours": 2,
-      "priority": "medium",
-      "safetyTier": 1,
-      "safetyNotes": "Documentation only, no code changes",
-      "testCommand": "echo 'docs task - no test command'",
-      "referenceFiles": [
-        "specs/001-mvp-foundation/tasks.md",
-        "specs/001-mvp-foundation/DASHBOARD.md"
-      ],
-      "status": "completed",
-      "completed_at": "2026-02-12T09:50:05.183350+00:00"
-    },
-    {
-      "id": "T005-SYNC",
-      "specRef": "T005 (Phase 0 Automation)",
-      "type": "automation",
-      "tier": 1,
-      "service": "DatingApp",
-      "title": "Enhance sync script with completion detection (T005)",
-      "filePath": "scripts/sync_mvp_project_fast.sh",
-      "description": "Spec T005: Enhance sync_mvp_project_fast.sh with completion detection. Parse controller files to auto-detect implemented tasks, update completion counts, generate weekly progress report to specs/reports/. Scan for implemented endpoints versus spec, calculate percentages.",
-      "acceptanceCriteria": [
-        "Script scans controller files for implemented endpoints",
-        "Generates completion metrics per service",
-        "Creates specs/reports/weekly-YYYY-MM-DD.md report",
-        "Reports implemented vs planned API endpoints",
-        "Script runs without errors"
-      ],
-      "estimatedHours": 3,
-      "priority": "medium",
-      "safetyTier": 1,
-      "safetyNotes": "Script and docs only, no service code changes",
-      "testCommand": "bash -n scripts/sync_mvp_project_fast.sh",
-      "referenceFiles": [
-        "scripts/sync_mvp_project_fast.sh",
-        "specs/001-mvp-foundation/FEATURE_MAP.md"
-      ],
-      "status": "completed",
-      "completed_at": "2026-02-12T09:50:05.183350+00:00"
+      "safetyNotes": "New files only, no DB migration",
+      "testCommand": "dotnet build /home/m/development/DatingApp/messaging-service/MessagingService.csproj",
+      "completedAt": "2026-02-17T07:14:41.868187",
+      "source": "template"
     }
   ],
   "failed": []
