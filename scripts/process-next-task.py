@@ -371,7 +371,7 @@ def main():
         print(f"Created test: {test_dest}")
 
     # ── Validate ────────────────────────────────────────────────
-    if is_flutter:
+    if True:  # Eval supports both Flutter and backend (.cs) files
         # flutter analyze — HARD GATE for errors, warn for hints/infos
         print("Running flutter pub get...")
         run("flutter pub get", cwd=repo_dir, check=False)
@@ -405,7 +405,12 @@ def main():
         if r_restore.returncode != 0:
             print(f"WARNING: dotnet restore failed, trying build anyway")
         print("Running dotnet build...")
-        r = run("dotnet build --configuration Release", cwd=repo_dir, check=False)
+        # Find .sln or .csproj to build
+        sln_files = list(repo_dir.glob("*.sln"))
+        csproj_files = list(repo_dir.glob("*.csproj"))
+        build_target = str(sln_files[0]) if sln_files else (str(csproj_files[0]) if csproj_files else "")
+        build_cmd = f"dotnet build \"{build_target}\" --configuration Release" if build_target else "dotnet build --configuration Release"
+        r = run(build_cmd, cwd=repo_dir, check=False)
         if r.returncode != 0:
             print(f"BUILD FAILED — aborting PR creation for {tid}")
             print(f"Build output:\n{r.stdout[-1000:]}")
@@ -419,7 +424,7 @@ def main():
 
     # ── Eval quality gate ───────────────────────────────────────
     eval_md = ""
-    if is_flutter:
+    if True:  # Eval supports both Flutter and backend (.cs) files
         try:
             report = eval_file(
                 str(dest.relative_to(repo_dir)),
