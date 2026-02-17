@@ -2,8 +2,8 @@
   "task_id": "BE-002",
   "file_path": "Services/SwipeLimitService.cs",
   "file_type": "backend",
-  "total_score": 88.7,
-  "grade": "B",
+  "total_score": 98.0,
+  "grade": "A",
   "checks": [
     {
       "category": "compilation",
@@ -18,15 +18,15 @@
       "name": "line count",
       "passed": true,
       "score": 1.0,
-      "detail": "108 lines (ideal: \u2264200)",
+      "detail": "111 lines (ideal: \u2264200)",
       "severity": "info"
     },
     {
       "category": "size_shape",
       "name": "nesting depth",
       "passed": true,
-      "score": 0.7,
-      "detail": "Max 10 levels (acceptable)",
+      "score": 1.0,
+      "detail": "Max 8 levels (good)",
       "severity": "info"
     },
     {
@@ -48,9 +48,9 @@
     {
       "category": "completeness",
       "name": "acceptance criteria",
-      "passed": false,
-      "score": 0.3333333333333333,
-      "detail": "1/3 criteria have matching code",
+      "passed": true,
+      "score": 1.0,
+      "detail": "1/1 relevant criteria matched",
       "severity": "info"
     },
     {

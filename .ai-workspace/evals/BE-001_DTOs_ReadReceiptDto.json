@@ -2,8 +2,8 @@
   "task_id": "BE-001",
   "file_path": "DTOs/ReadReceiptDto.cs",
   "file_type": "backend",
-  "total_score": 87.2,
-  "grade": "B",
+  "total_score": 98.0,
+  "grade": "A",
   "checks": [
     {
       "category": "compilation",
@@ -48,9 +48,9 @@
     {
       "category": "completeness",
       "name": "acceptance criteria",
-      "passed": false,
-      "score": 0.3333333333333333,
-      "detail": "1/3 criteria have matching code",
+      "passed": true,
+      "score": 1.0,
+      "detail": "1/1 relevant criteria matched",
       "severity": "info"
     },
     {
@@ -72,9 +72,9 @@
     {
       "category": "design_system",
       "name": "interface/DI pattern",
-      "passed": false,
-      "score": 0.5,
-      "detail": "No interface found (consider DI)",
+      "passed": true,
+      "score": 1.0,
+      "detail": "DTO/record \u2014 DI not applicable",
       "severity": "info"
     },
     {

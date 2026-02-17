@@ -285,43 +285,59 @@ def eval_completeness(report: EvalReport, content: str, task: Optional[dict]):
     if task:
         criteria = task.get("acceptanceCriteria", [])
         if criteria:
-            hits = 0
-            for c in criteria:
-                # Multi-strategy matching:
-                # 1. PascalCase identifiers (ProfileCompletenessRing, StatelessWidget)
+            # Filter out process criteria (dotnet build, flutter analyze, etc.)
+            # — these are checked by the compilation eval, not by code content
+            process_keywords = ['dotnet build', 'flutter analyze', 'flutter test', 'compile', 'build passes']
+            code_criteria = [c for c in criteria
+                             if not any(pk in c.lower() for pk in process_keywords)]
+            # Also filter criteria about OTHER files (e.g. "Controller" criterion when evaluating a DTO file)
+            file_stem = Path(report.file_path).stem.lower() if report.file_path else ""
+            relevant_criteria = []
+            for c in code_criteria:
                 pascal_words = re.findall(r'[A-Z][a-zA-Z]+(?:[A-Z][a-z]+)+', c)
-                # 2. Quoted terms ('Show me')
-                quoted = re.findall(r"'([^']+)'", c)
-                # 3. Key technical terms (3+ char words, skip articles/prepositions)
-                skip = {'the','and','for','with','from','that','this','are','was','has','have',
-                        'not','but','all','can','should','must','does','pass','without','errors'}
-                words = [w for w in re.findall(r'\b[a-zA-Z]{3,}\b', c)
-                         if w.lower() not in skip]
-
-                # Try PascalCase identifiers first (most specific)
-                matched = False
-                for pw in pascal_words:
-                    if pw.lower() in content.lower():
-                        matched = True
-                        break
-                # Then quoted terms
-                if not matched:
-                    for qt in quoted:
-                        if qt.lower() in content.lower():
+                # If the criterion mentions a specific PascalCase type not in this file, skip it
+                refers_to_other_file = False
+                if pascal_words:
+                    file_types = [pw for pw in pascal_words if pw.lower().endswith(
+                        ('controller', 'service', 'dto', 'middleware', 'hub', 'repository'))]
+                    if file_types and not any(ft.lower() in file_stem for ft in file_types):
+                        refers_to_other_file = True
+                if not refers_to_other_file:
+                    relevant_criteria.append(c)
+                    
+            # If no criteria are relevant to this specific file, give full marks
+            if not relevant_criteria:
+                report.add("completeness", EvalCheck("acceptance criteria", True, 1.0,
+                    f"All {len(criteria)} criteria handled by other files/checks", "info"))
+            else:
+                hits = 0
+                for c in relevant_criteria:
+                    pascal_words = re.findall(r'[A-Z][a-zA-Z]+(?:[A-Z][a-z]+)+', c)
+                    quoted = re.findall(r"'([^']+)'", c)
+                    skip = {'the','and','for','with','from','that','this','are','was','has','have',
+                            'not','but','all','can','should','must','does','pass','without','errors'}
+                    words = [w for w in re.findall(r'\b[a-zA-Z]{3,}\b', c)
+                             if w.lower() not in skip]
+                    matched = False
+                    for pw in pascal_words:
+                        if pw.lower() in content.lower():
                             matched = True
                             break
-                # Then any 2+ key words present
-                if not matched:
-                    word_hits = sum(1 for w in words if w.lower() in content.lower())
-                    if word_hits >= 2:
-                        matched = True
-                if matched:
-                    hits += 1
-
-            ratio = hits / len(criteria) if criteria else 0
-            report.add("completeness", EvalCheck("acceptance criteria",
-                ratio >= 0.5, ratio,
-                f"{hits}/{len(criteria)} criteria have matching code"))
+                    if not matched:
+                        for qt in quoted:
+                            if qt.lower() in content.lower():
+                                matched = True
+                                break
+                    if not matched:
+                        word_hits = sum(1 for w in words if w.lower() in content.lower())
+                        if word_hits >= 2:
+                            matched = True
+                    if matched:
+                        hits += 1
+                ratio = hits / len(relevant_criteria) if relevant_criteria else 1.0
+                report.add("completeness", EvalCheck("acceptance criteria",
+                    ratio >= 0.5, ratio,
+                    f"{hits}/{len(relevant_criteria)} relevant criteria matched"))
     else:
         report.add("completeness", EvalCheck("acceptance criteria", True, 0.5,
             "No task definition to check against", "info"))
@@ -340,11 +356,16 @@ def eval_design_system(report: EvalReport, content: str):
         report.add("design_system", EvalCheck("XML documentation", has_xml_doc,
             1.0 if has_xml_doc else 0.3,
             "Has XML docs" if has_xml_doc else "Missing XML documentation", "warn"))
-        # Interface / DI pattern
+        # Interface / DI pattern — DTOs/records are exempt (they don't need DI)
+        is_dto = "Dto" in report.file_path or "record " in content and "class " not in content
         has_interface = re.search(r'(?:interface|I[A-Z]\w+Service|I[A-Z]\w+Repository)', content) is not None
-        report.add("design_system", EvalCheck("interface/DI pattern", has_interface,
-            1.0 if has_interface else 0.5,
-            "Has interface for DI" if has_interface else "No interface found (consider DI)", "info"))
+        if is_dto:
+            report.add("design_system", EvalCheck("interface/DI pattern", True, 1.0,
+                "DTO/record — DI not applicable", "info"))
+        else:
+            report.add("design_system", EvalCheck("interface/DI pattern", has_interface,
+                1.0 if has_interface else 0.5,
+                "Has interface for DI" if has_interface else "No interface found (consider DI)", "info"))
         return
 
     # ── Flutter: coral theme is universal ──

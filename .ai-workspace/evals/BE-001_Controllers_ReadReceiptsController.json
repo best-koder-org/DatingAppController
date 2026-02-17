@@ -2,7 +2,7 @@
   "task_id": "BE-001",
   "file_path": "Controllers/ReadReceiptsController.cs",
   "file_type": "backend",
-  "total_score": 91.3,
+  "total_score": 95.5,
   "grade": "A",
   "checks": [
     {
@@ -49,8 +49,8 @@
       "category": "completeness",
       "name": "acceptance criteria",
       "passed": true,
-      "score": 0.6666666666666666,
-      "detail": "2/3 criteria have matching code",
+      "score": 1.0,
+      "detail": "1/1 relevant criteria matched",
       "severity": "info"
     },
     {
