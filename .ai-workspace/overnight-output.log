@@ -1,33 +1,42 @@
-=== Task Queue Execution Started: Mon Feb 16 11:09:18 PM CET 2026 ===
-[2026-02-16 23:09:18] Found 4 tasks in queue
-[SUCCESS] Automation mode activated!
-[2026-02-17 07:12:23] Task queue location: /home/m/development/DatingAppController/.ai-workspace/task-queue.json
-[2026-02-17 07:12:23] Working directory: /home/m/development/DatingAppController/repos/mobile_dejtingapp
-[2026-02-17 07:12:23] Execution log: /home/m/development/DatingAppController/.ai-workspace/execution.log
-[2026-02-17 07:12:23] 
-[2026-02-17 07:12:23] 🤖 AI: Please process the task queue now!
-[2026-02-17 07:12:23]    1. Read tasks from: /home/m/development/DatingAppController/.ai-workspace/task-queue.json
-[2026-02-17 07:12:23]    2. For each task in queue[]:
-[2026-02-17 07:12:23]       - Move to inProgress[]
-[2026-02-17 07:12:23]       - Implement the screen per specification
-[2026-02-17 07:12:23]       - Run testCommand to validate
-[2026-02-17 07:12:23]       - Commit with: 'feat(onboarding): Add [title] ([id])'
-[2026-02-17 07:12:23]       - Move to completed[]
-[2026-02-17 07:12:23]    3. Update task-queue.json after each task
-[2026-02-17 07:12:23] 
-[2026-02-17 07:12:23] Task execution ready. AI should now begin implementation...
-[SUCCESS] Monitoring stopped. Check execution.log for progress.
+nohup: ignoring input
 [2026-02-17 07:13:29] 🌙 Starting overnight batch processing...
 [2026-02-17 07:13:29] Queue: .ai-workspace/task-queue.json
 [2026-02-17 07:13:29] Tasks to process: 4
 [2026-02-17 07:13:29] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [2026-02-17 07:13:29] Processing task 1/4: BE-001 — Read Receipts DTO + Endpoint
+Processing: BE-001 - Read Receipts DTO + Endpoint (service=messaging-service, type=backend)
+Using 2 pre-built backend templates for BE-001
+Traceback (most recent call last):
+  File "/home/m/development/DatingAppController/scripts/process-next-task.py", line 505, in <module>
+    main()
+  File "/home/m/development/DatingAppController/scripts/process-next-task.py", line 322, in main
+    dest = repo_dir / task["filePath"]
+                      ~~~~^^^^^^^^^^^^
+KeyError: 'filePath'
 [2026-02-17 07:13:31] ❌ BE-001 failed (recorded in failed[])
 [2026-02-17 07:13:33] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [2026-02-17 07:13:33] Processing task 1/4: BE-001 — Read Receipts DTO + Endpoint
+Processing: BE-001 - Read Receipts DTO + Endpoint (service=messaging-service, type=backend)
+Using 2 pre-built backend templates for BE-001
+Traceback (most recent call last):
+  File "/home/m/development/DatingAppController/scripts/process-next-task.py", line 505, in <module>
+    main()
+  File "/home/m/development/DatingAppController/scripts/process-next-task.py", line 322, in main
+    dest = repo_dir / task["filePath"]
+                      ~~~~^^^^^^^^^^^^
+KeyError: 'filePath'
 [2026-02-17 07:13:34] ❌ BE-001 failed (recorded in failed[])
 [2026-02-17 07:13:36] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [2026-02-17 07:13:36] Processing task 1/4: BE-001 — Read Receipts DTO + Endpoint
+Processing: BE-001 - Read Receipts DTO + Endpoint (service=messaging-service, type=backend)
+Using 2 pre-built backend templates for BE-001
+Traceback (most recent call last):
+  File "/home/m/development/DatingAppController/scripts/process-next-task.py", line 505, in <module>
+    main()
+  File "/home/m/development/DatingAppController/scripts/process-next-task.py", line 322, in main
+    dest = repo_dir / task["filePath"]
+                      ~~~~^^^^^^^^^^^^
+KeyError: 'filePath'
 [2026-02-17 07:13:37] ❌ BE-001 failed (recorded in failed[])
 [2026-02-17 07:13:37] ⚠️ 3+ failures — stopping to avoid further issues
 [2026-02-17 07:13:37] 

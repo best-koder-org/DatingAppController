@@ -1,118 +1,112 @@
 {
-  "version": "5.0",
-  "lastUpdated": "2026-02-16T22:15:00+01:00",
-  "source": "Overnight run Feb 16 \u2014 Backend service features (BE-001\u2192BE-003 + BE-005)",
+  "version": "2.0",
+  "source": "specs/001-mvp-foundation/tasks.md",
+  "lastUpdated": "2026-02-20T22:00:00Z",
+  "queue": [
+    {
+      "id": "T082",
+      "specRef": "Phase 8",
+      "type": "backend",
+      "tier": 2,
+      "service": "all-services",
+      "title": "Add OpenTelemetry distributed tracing to all services",
+      "description": "Add OpenTelemetry tracing to all 6 .NET services + YARP gateway. Each service gets: OpenTelemetry NuGet packages, trace configuration in Program.cs, and HTTP/EF Core auto-instrumentation.",
+      "acceptanceCriteria": [
+        "OpenTelemetry.Extensions.Hosting + OpenTelemetry.Instrumentation.AspNetCore + OpenTelemetry.Exporter.Console packages added to all services",
+        "Program.cs in each service configures AddOpenTelemetry with service name and HTTP instrumentation",
+        "dotnet build passes for all services",
+        "Existing tests still pass"
+      ],
+      "estimatedHours": 6,
+      "priority": "P1",
+      "testCommand": "dotnet build",
+      "services": ["UserService", "MatchmakingService", "messaging-service", "photo-service", "swipe-service", "dejting-yarp/src/dejting-yarp"]
+    },
+    {
+      "id": "T174",
+      "specRef": "Phase 14",
+      "type": "backend",
+      "tier": 2,
+      "service": "MatchmakingService",
+      "title": "Implement DailyPickStrategy for candidate delivery",
+      "description": "Create DailyPickStrategy implementing ICandidateStrategy. Generates daily pick list using existing scoring pipeline, caches results, and provides pre-computed candidates for the daily discovery feed.",
+      "acceptanceCriteria": [
+        "DailyPickStrategy class implementing ICandidateStrategy",
+        "Registered in DI alongside existing strategies",
+        "Unit tests for strategy logic",
+        "dotnet build and dotnet test pass"
+      ],
+      "estimatedHours": 4,
+      "priority": "P2",
+      "testCommand": "dotnet test",
+      "referenceFiles": ["Strategies/", "Services/AdvancedMatchingService.cs", "MatchmakingService.Tests/"]
+    },
+    {
+      "id": "T178",
+      "specRef": "Phase 14",
+      "type": "backend",
+      "tier": 2,
+      "service": "MatchmakingService",
+      "title": "DailyPick generation background job",
+      "description": "Create BackgroundService that runs DailyPickStrategy on schedule to pre-compute daily picks for all active users. Uses IHostedService pattern with configurable interval.",
+      "acceptanceCriteria": [
+        "DailyPickGenerationJob as BackgroundService",
+        "Configurable schedule via appsettings",
+        "Graceful shutdown support",
+        "Unit tests for job lifecycle",
+        "dotnet build and dotnet test pass"
+      ],
+      "estimatedHours": 3,
+      "priority": "P2",
+      "dependencies": ["T174"],
+      "testCommand": "dotnet test"
+    },
+    {
+      "id": "T182",
+      "specRef": "Phase 14",
+      "type": "backend",
+      "tier": 2,
+      "service": "MatchmakingService",
+      "title": "Add Prometheus metrics for candidate pipeline",
+      "description": "Add prometheus-net metrics to MatchmakingService for candidate scoring, daily pick generation, and strategy selection. Counters for candidates scored, picks generated, strategy usage. Histogram for scoring duration.",
+      "acceptanceCriteria": [
+        "prometheus-net.AspNetCore package added",
+        "Metrics class with counters and histograms",
+        "Instrumentation in scoring and pick generation paths",
+        "Metrics endpoint exposed at /metrics",
+        "dotnet build passes"
+      ],
+      "estimatedHours": 3,
+      "priority": "P1",
+      "testCommand": "dotnet build"
+    },
+    {
+      "id": "T085",
+      "specRef": "Phase 8",
+      "type": "ci-cd",
+      "tier": 2,
+      "service": "DatingApp-Config",
+      "title": "Comprehensive CI pipeline with dotnet test across all services",
+      "description": "Create GitHub Actions workflow that builds and tests all 6 .NET services. Matrix strategy for parallel builds. Runs dotnet test with coverage collection.",
+      "acceptanceCriteria": [
+        ".github/workflows/ci.yml with build+test for all services",
+        "Matrix strategy for parallel execution",
+        "Test results published as artifacts",
+        "Workflow triggers on push to main and PRs",
+        "Valid YAML that passes act --list or yamllint"
+      ],
+      "estimatedHours": 3,
+      "priority": "P1",
+      "testCommand": "yamllint"
+    }
+  ],
+  "inProgress": [],
+  "completed": [],
+  "failed": [],
   "overnightConfig": {
     "selfEval": true,
     "evalAfterEachTask": true,
     "stopOnFailure": false,
-    "maxConsecutiveFailures": 3
-  },
-  "queue": [
-    {
-      "id": "BE-003",
-      "specRef": "MatchmakingService",
-      "type": "backend",
-      "tier": 1,
-      "service": "MatchmakingService",
-      "title": "Match Statistics Endpoint",
-      "filePath": "DTOs/MatchStatsDto.cs",
-      "additionalFiles": [
-        "Controllers/MatchStatsController.cs"
-      ],
-      "description": "Add match statistics DTO and controller endpoint",
-      "acceptanceCriteria": [
-        "MatchStatsDto with TotalMatches, MatchRate, MostActiveDay",
-        "MatchStatsController with GET endpoint",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 2,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New DTO + controller stub, no DB changes",
-      "testCommand": "dotnet build /home/m/development/DatingApp/MatchmakingService/MatchmakingService.csproj"
-    },
-    {
-      "id": "BE-005",
-      "specRef": "messaging-service",
-      "type": "backend",
-      "tier": 1,
-      "service": "messaging-service",
-      "title": "Typing Indicator DTO + Hub Method",
-      "filePath": "DTOs/TypingIndicatorDto.cs",
-      "additionalFiles": [
-        "Controllers/TypingController.cs"
-      ],
-      "description": "Add typing indicator DTO and controller for real-time typing status",
-      "acceptanceCriteria": [
-        "TypingIndicatorDto created",
-        "TypingController with endpoint stubs",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 3,
-      "priority": "high",
-      "dependencies": [
-        "BE-001"
-      ],
-      "safetyTier": 1,
-      "safetyNotes": "New DTO + controller, no DB migration",
-      "testCommand": "dotnet build /home/m/development/DatingApp/messaging-service/MessagingService.csproj"
-    }
-  ],
-  "inProgress": [],
-  "completed": [
-    {
-      "id": "BE-001",
-      "specRef": "messaging-service",
-      "type": "backend",
-      "tier": 1,
-      "service": "messaging-service",
-      "title": "Read Receipts DTO + Endpoint",
-      "filePath": "DTOs/ReadReceiptDto.cs",
-      "additionalFiles": [
-        "Controllers/ReadReceiptsController.cs"
-      ],
-      "description": "Add ReadReceiptDto and read receipts controller stub",
-      "acceptanceCriteria": [
-        "ReadReceiptDto with MessageId, ReadBy, ReadAt",
-        "ReadReceiptsController with endpoint stubs",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 3,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New files only, no DB migration",
-      "testCommand": "dotnet build /home/m/development/DatingApp/messaging-service/MessagingService.csproj",
-      "completedAt": "2026-02-17T07:14:41.868187",
-      "source": "template"
-    },
-    {
-      "id": "BE-002",
-      "specRef": "swipe-service",
-      "type": "backend",
-      "tier": 1,
-      "service": "swipe-service",
-      "title": "Daily Swipe Limit Middleware",
-      "filePath": "DTOs/SwipeLimitDto.cs",
-      "additionalFiles": [
-        "Services/SwipeLimitService.cs"
-      ],
-      "description": "Add swipe limit DTOs and service for daily swipe enforcement",
-      "acceptanceCriteria": [
-        "SwipeLimitDto response DTO",
-        "SwipeLimitService with limit logic",
-        "dotnet build passes"
-      ],
-      "estimatedHours": 3,
-      "priority": "high",
-      "safetyTier": 1,
-      "safetyNotes": "New files only, no schema changes",
-      "testCommand": "dotnet build /home/m/development/DatingApp/swipe-service/SwipeService.csproj",
-      "failedAt": "2026-02-17T07:14:48.860600",
-      "reason": "dotnet build failed",
-      "completedAt": "2026-02-17T07:16:15.539078",
-      "source": "template"
-    }
-  ],
-  "failed": []
+    "maxConsecutiveFailures": 2
+  }
 }
